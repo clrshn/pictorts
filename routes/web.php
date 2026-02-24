@@ -1,17 +1,34 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\FinancialController;
+use App\Http\Controllers\TrackController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('dashboard');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Public document tracking (no auth required)
+Route::post('/track/search', [TrackController::class, 'search'])->name('track.search');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/track-document', [TrackController::class, 'page'])->name('track.page');
+
+    // Documents
+    Route::resource('documents', DocumentController::class);
+    Route::post('/documents/{document}/route', [DocumentController::class, 'route'])->name('documents.route');
+    Route::post('/documents/{document}/receive', [DocumentController::class, 'receive'])->name('documents.receive');
+
+    // Financial
+    Route::resource('financial', FinancialController::class);
+    Route::post('/financial/{financial}/route', [FinancialController::class, 'route'])->name('financial.route');
+    Route::post('/financial/{financial}/receive', [FinancialController::class, 'receive'])->name('financial.receive');
+
+    // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
