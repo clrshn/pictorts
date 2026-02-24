@@ -7,6 +7,7 @@ use App\Models\DocumentFile;
 use App\Models\Office;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DocumentController extends Controller
 {
@@ -79,24 +80,27 @@ class DocumentController extends Controller
 
     private function generateDtsNumber(string $type, int $originOfficeId): string
     {
-        $office = Office::find($originOfficeId);
-        $officeCode = $office ? $office->code : 'PICTO';
-        $year = now()->year;
+        return DB::transaction(function() use ($type, $originOfficeId) {
+            $office = Office::find($originOfficeId);
+            $officeCode = $office ? $office->code : 'PICTO';
+            $year = now()->year;
 
-        // Format: PICTO-OFFICE-TYPE-YEAR-SEQUENCE
-        $prefix = "PICTO-{$officeCode}-{$type}-{$year}-";
+            // Format: PICTO-OFFICE-TYPE-YEAR-SEQUENCE
+            $prefix = "PICTO-{$officeCode}-{$type}-{$year}-";
 
-        $lastDoc = Document::where('dts_number', 'like', $prefix . '%')
-            ->orderBy('dts_number', 'desc')
-            ->first();
+            $lastDoc = Document::where('dts_number', 'like', $prefix . '%')
+                ->orderBy('dts_number', 'desc')
+                ->lockForUpdate()
+                ->first();
 
-        $nextSeq = 1;
-        if ($lastDoc) {
-            $parts = explode('-', $lastDoc->dts_number);
-            $nextSeq = intval(end($parts)) + 1;
-        }
+            $nextSeq = 1;
+            if ($lastDoc) {
+                $parts = explode('-', $lastDoc->dts_number);
+                $nextSeq = intval(end($parts)) + 1;
+            }
 
-        return $prefix . str_pad($nextSeq, 4, '0', STR_PAD_LEFT);
+            return $prefix . str_pad($nextSeq, 4, '0', STR_PAD_LEFT);
+        });
     }
 
     public function store(Request $request)
@@ -106,7 +110,7 @@ class DocumentController extends Controller
             'direction' => 'required|in:INCOMING,OUTGOING',
             'originating_office' => 'required|exists:offices,id',
             'subject' => 'required|string',
-            'files.*' => 'nullable|file|max:10240',
+            'files.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
         $dtsNumber = $this->generateDtsNumber($request->document_type, $request->originating_office);
@@ -150,6 +154,7 @@ class DocumentController extends Controller
 
     public function show(Document $document)
     {
+        $this->authorize('view', $document);
         $document->load(['originatingOffice', 'destinationOffice', 'currentOffice', 'holder', 'encoder', 'routes.fromOffice', 'routes.toOffice', 'routes.releasedByUser', 'routes.receivedByUser', 'files']);
         $offices = Office::all();
         $users = User::all();
@@ -158,6 +163,7 @@ class DocumentController extends Controller
 
     public function edit(Document $document)
     {
+        $this->authorize('update', $document);
         $offices = Office::all();
         $users = User::all();
         return view('documents.edit', compact('document', 'offices', 'users'));
@@ -165,11 +171,13 @@ class DocumentController extends Controller
 
     public function update(Request $request, Document $document)
     {
+        $this->authorize('update', $document);
         $request->validate([
             'document_type' => 'required|in:MEMO,EO,SO,LETTER,SP,OTHERS',
             'direction' => 'required|in:INCOMING,OUTGOING',
             'originating_office' => 'required|exists:offices,id',
             'subject' => 'required|string',
+            'files.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
         $document->update([
@@ -207,12 +215,14 @@ class DocumentController extends Controller
 
     public function destroy(Document $document)
     {
+        $this->authorize('delete', $document);
         $document->delete();
         return redirect()->route('documents.index')->with('success', 'Document deleted.');
     }
 
     public function route(Request $request, Document $document)
     {
+        $this->authorize('route', $document);
         $request->validate([
             'to_office' => 'required|exists:offices,id',
             'remarks' => 'nullable|string',
@@ -228,7 +238,6 @@ class DocumentController extends Controller
 
         $document->update([
             'current_office' => $request->to_office,
-            'status' => 'DELIVERED',
         ]);
 
         return redirect()->route('documents.show', $document)->with('success', 'Document forwarded successfully.');
@@ -236,6 +245,7 @@ class DocumentController extends Controller
 
     public function receive(Request $request, Document $document)
     {
+        $this->authorize('receive', $document);
         $latestRoute = $document->routes()->whereNull('datetime_received')->latest()->first();
 
         if ($latestRoute) {

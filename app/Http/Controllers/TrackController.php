@@ -15,7 +15,7 @@ class TrackController extends Controller
     public function search(Request $request)
     {
         $request->validate([
-            'tracking_code' => 'required|string',
+            'tracking_code' => 'required|string|max:50|regex:/^[A-Z0-9\-]+$/',
         ]);
 
         $code = trim($request->tracking_code);
@@ -31,9 +31,11 @@ class TrackController extends Controller
             'routes.releasedByUser',
             'routes.receivedByUser',
         ])
-        ->where('dts_number', $code)
-        ->orWhere('ictu_number', $code)
-        ->orWhere('doc_number', $code)
+        ->where(function($query) use ($code) {
+            $query->where('dts_number', $code)
+                  ->orWhere('ictu_number', $code)
+                  ->orWhere('doc_number', $code);
+        })
         ->first();
 
         if (!$document) {
@@ -45,12 +47,12 @@ class TrackController extends Controller
 
         $routes = $document->routes->map(function ($route) {
             return [
-                'date' => $route->datetime_released ? $route->datetime_released->format('M d, Y') : '-',
-                'time' => $route->datetime_released ? $route->datetime_released->format('h:i A') : '-',
-                'action' => 'Routed from ' . ($route->fromOffice->code ?? 'N/A') . ' to ' . ($route->toOffice->code ?? 'N/A'),
-                'received_date' => $route->datetime_received ? $route->datetime_received->format('M d, Y h:i A') : null,
-                'released_by' => $route->releasedByUser->name ?? '-',
-                'received_by' => $route->receivedByUser->name ?? '-',
+                'date' => $route->datetime_released?->format('M d, Y') ?? '-',
+                'time' => $route->datetime_released?->format('h:i A') ?? '-',
+                'action' => 'Routed from ' . ($route->fromOffice?->code ?? 'N/A') . ' to ' . ($route->toOffice?->code ?? 'N/A'),
+                'received_date' => $route->datetime_received?->format('M d, Y h:i A'),
+                'released_by' => $route->releasedByUser?->name ?? '-',
+                'received_by' => $route->receivedByUser?->name ?? '-',
                 'remarks' => $route->remarks ?? '-',
             ];
         });
@@ -61,13 +63,13 @@ class TrackController extends Controller
                 'tracking_number' => $document->dts_number,
                 'document_type' => $document->document_type,
                 'direction' => $document->direction,
-                'originating_office' => $document->originatingOffice->code ?? '-',
+                'originating_office' => $document->originatingOffice?->code ?? '-',
                 'subject' => $document->subject,
                 'remarks' => $document->remarks ?? '-',
                 'date' => $document->created_at->format('M d, Y'),
-                'date_received' => $document->date_received ?? '-',
-                'current_location' => $document->currentOffice->code ?? '-',
-                'current_holder' => $document->holder->name ?? '-',
+                'date_received' => $document->date_received?->format('M d, Y') ?? '-',
+                'current_location' => $document->currentOffice?->code ?? '-',
+                'current_holder' => $document->holder?->name ?? '-',
                 'status' => $document->status,
                 'ictu_number' => $document->ictu_number ?? '-',
                 'doc_number' => $document->doc_number ?? '-',

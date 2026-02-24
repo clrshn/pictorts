@@ -53,6 +53,9 @@ class FinancialController extends Controller
         $request->validate([
             'description' => 'required|string',
             'office_origin' => 'required|exists:offices,id',
+            'pr_amount' => 'nullable|numeric|min:0|max:9999999999.99',
+            'po_amount' => 'nullable|numeric|min:0|max:9999999999.99',
+            'files.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
         $record = FinancialRecord::create([
@@ -106,6 +109,9 @@ class FinancialController extends Controller
         $request->validate([
             'description' => 'required|string',
             'office_origin' => 'required|exists:offices,id',
+            'pr_amount' => 'nullable|numeric|min:0|max:9999999999.99',
+            'po_amount' => 'nullable|numeric|min:0|max:9999999999.99',
+            'files.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
         $financial->update([
