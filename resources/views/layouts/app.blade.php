@@ -123,6 +123,62 @@
             .user-dropdown-menu a, .user-dropdown-menu button { display: block; width: 100%; text-align: left; padding: 8px 16px; font-size: 13px; color: #444; border: none; background: none; cursor: pointer; text-decoration: none; }
             .user-dropdown-menu a:hover, .user-dropdown-menu button:hover { background: #f5f5f5; }
 
+            /* Sidebar Dropdowns */
+            .nav-dropdown { margin-bottom: 4px; }
+            .nav-dropdown-btn { 
+                display: flex; 
+                align-items: center; 
+                justify-content: space-between; 
+                width: 100%; 
+                padding: 12px 20px; 
+                color: #666; 
+                text-decoration: none; 
+                font-size: 14px; 
+                font-weight: 500; 
+                border: none; 
+                background: none; 
+                cursor: pointer; 
+                transition: all 0.2s;
+            }
+            .nav-dropdown-btn:hover { background: #f8f9fa; color: #c0392b; }
+            .nav-dropdown-btn.active { background: #c0392b; color: #fff; }
+            .dropdown-arrow { 
+                font-size: 10px; 
+                transition: transform 0.2s;
+            }
+            .nav-dropdown-menu { 
+                display: none; 
+                background: #f8f9fa; 
+                border-left: 3px solid #c0392b; 
+                margin-left: 20px; 
+                overflow: hidden;
+            }
+            .nav-dropdown-menu.show { display: block; }
+            .nav-dropdown-item { 
+                display: flex; 
+                align-items: center; 
+                padding: 10px 20px 10px 30px; 
+                color: #666; 
+                text-decoration: none; 
+                font-size: 13px; 
+                transition: all 0.2s;
+                border-left: 2px solid transparent;
+            }
+            .nav-dropdown-item:hover { 
+                background: #e9ecef; 
+                color: #c0392b; 
+                border-left-color: #c0392b;
+            }
+            .nav-dropdown-item i { 
+                margin-right: 8px; 
+                width: 14px; 
+                text-align: center;
+            }
+            .quick-action:hover { 
+                transform: translateY(-1px); 
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+
             /* Responsive */
             @media (max-width: 768px) {
                 .sidebar { transform: translateX(-100%); }

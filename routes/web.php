@@ -28,6 +28,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/financial/{financial}/route', [FinancialController::class, 'route'])->name('financial.route');
     Route::post('/financial/{financial}/receive', [FinancialController::class, 'receive'])->name('financial.receive');
 
+    // Todos
+    Route::resource('todos', TodoController::class);
+    Route::patch('/todos/{todo}/quick-update', [TodoController::class, 'quickUpdate'])->name('todos.quickUpdate');
+
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

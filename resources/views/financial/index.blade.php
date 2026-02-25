@@ -8,29 +8,30 @@
         <div class="alert-success">{{ session('success') }}</div>
     @endif
 
-    <!-- Active Filters Indicator -->
-    @if(request()->hasAny(['status', 'search']))
-        <div class="alert-info" style="background:#e3f2fd; color:#1565c0; border:1px solid #90caf9;">
-            <strong>Active Filters:</strong>
-            @if(request('status'))
-                <span class="badge" style="background:#1976d2; color:white; margin:0 4px; padding:4px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:4px;">
-                    Status: {{ request('status') }}
-                    <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" style="color:white; text-decoration:none; font-weight:bold; cursor:pointer;" title="Remove status filter">×</a>
-                </span>
-            @endif
-            @if(request('search'))
-                <span class="badge" style="background:#1976d2; color:white; margin:0 4px; padding:4px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:4px;">
-                    Search: {{ request('search') }}
-                    <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" style="color:white; text-decoration:none; font-weight:bold; cursor:pointer;" title="Remove search filter">×</a>
-                </span>
-            @endif
-            <a href="{{ route('financial.index') }}" style="margin-left:12px; color:#1565c0; text-decoration:underline;">Clear All Filters</a>
-        </div>
-    @endif
-
     <!-- Search Filter -->
     <div class="filter-box">
         <h3>Search Filter</h3>
+        
+        <!-- Active Filters Indicator -->
+        @if(request()->hasAny(['status', 'search']))
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; margin-bottom:12px;">
+                <span style="font-weight:600; color:#666;">Active Filters:</span>
+                @if(request('status'))
+                    <span class="badge" style="background:#1976d2; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
+                        Status: {{ request('status') }}
+                        <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" style="color:white; text-decoration:none; font-weight:bold; cursor:pointer;" title="Remove status filter">×</a>
+                    </span>
+                @endif
+                @if(request('search'))
+                    <span class="badge" style="background:#1976d2; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
+                        Search: {{ request('search') }}
+                        <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" style="color:white; text-decoration:none; font-weight:bold; cursor:pointer;" title="Remove search filter">×</a>
+                    </span>
+                @endif
+                <a href="{{ route('financial.index') }}" style="color:#1976d2; cursor:pointer; font-weight:600; text-decoration:underline;">Clear All</a>
+            </div>
+        @endif
+        
         <form method="GET" action="{{ route('financial.index') }}">
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:12px;">
                 <div class="form-group" style="margin:0">
