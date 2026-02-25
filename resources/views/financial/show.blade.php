@@ -21,7 +21,7 @@
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px 32px; font-size:13px;">
                 <div><strong>Type:</strong> {{ $financial->type ?? '—' }}</div>
                 <div><strong>Supplier:</strong> {{ $financial->supplier ?? '—' }}</div>
-                <div style="grid-column:span 2;"><strong>Description:</strong> {{ $financial->description }}</div>
+                <div style="grid-column:span 2;"><strong>Subject/Title:</strong> {{ $financial->description }}</div>
                 <div><strong>PR Number:</strong> <span style="font-family:monospace;">{{ $financial->pr_number ?? '—' }}</span></div>
                 <div><strong>PR Amount:</strong> {{ $financial->pr_amount ? '₱ ' . number_format($financial->pr_amount, 2) : '—' }}</div>
                 <div><strong>PO Number:</strong> <span style="font-family:monospace;">{{ $financial->po_number ?? '—' }}</span></div>

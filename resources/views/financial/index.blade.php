@@ -65,10 +65,9 @@
             <table>
                 <thead>
                     <tr>
-                        <th>SEQ #</th>
                         <th>ACTION</th>
+                        <th>SUBJECT/TITLE</th>
                         <th>TYPE</th>
-                        <th>DESCRIPTION</th>
                         <th>SUPPLIER</th>
                         <th>PR NO.</th>
                         <th>PR AMT</th>
@@ -81,7 +80,6 @@
                 <tbody>
                     @forelse($records as $index => $rec)
                         <tr>
-                            <td>{{ $records->firstItem() + $index }}</td>
                             <td>
                                 <a href="{{ route('financial.show', $rec) }}" class="btn-green" title="View Details"><i class="fas fa-route"></i></a>
                                 <a href="{{ route('financial.edit', $rec) }}" class="btn-blue" title="Edit"><i class="fas fa-edit"></i></a>
@@ -90,8 +88,8 @@
                                     <button type="submit" class="btn-danger" title="Delete"><i class="fas fa-trash"></i></button>
                                 </form>
                             </td>
+                            <td style="max-width:250px; text-align:left; font-weight:600;">{{ $rec->description ?? '—' }}</td>
                             <td>{{ $rec->type ?? '—' }}</td>
-                            <td style="max-width:220px; text-align:left;">{{ $rec->description }}</td>
                             <td>{{ $rec->supplier ?? '—' }}</td>
                             <td style="font-family:monospace; font-size:12px;">{{ $rec->pr_number ?? '—' }}</td>
                             <td>{{ $rec->pr_amount ? number_format($rec->pr_amount, 2) : '—' }}</td>

@@ -28,6 +28,7 @@ class OfficesSeeder extends Seeder
             ['code'=>'OPAss',  'name'=>'Office of the Provincial Assessor'],
             ['code'=>'PSWDO',  'name'=>'Provincial Social Welfare and Development Office'],
             ['code'=>'LUPGEO', 'name'=>'La Union Provincial Government Engineering Office'],
+            ['code'=>'BAC',    'name'=>'Bids and Awards Committee'],
             ['code'=>'OTHERS', 'name'=>'Others'],
         ]);
     }

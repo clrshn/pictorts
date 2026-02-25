@@ -32,8 +32,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Description <span style="color:#c0392b">*</span></label>
-                    <textarea name="description" class="form-control" rows="2" required>{{ old('description') }}</textarea>
+                    <label>Subject/Title <span style="color:#c0392b">*</span></label>
+                    <textarea name="description" class="form-control" rows="2" required placeholder="Enter subject or title of this financial transaction">{{ old('description') }}</textarea>
                 </div>
 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
