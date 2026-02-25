@@ -33,7 +33,7 @@ class TrackController extends Controller
         ])
         ->where(function($query) use ($code) {
             $query->where('dts_number', $code)
-                  ->orWhere('ictu_number', $code)
+                  ->orWhere('picto_number', $code)
                   ->orWhere('doc_number', $code);
         })
         ->first();
@@ -71,7 +71,7 @@ class TrackController extends Controller
                 'current_location' => $document->currentOffice?->code ?? '-',
                 'current_holder' => $document->holder?->name ?? '-',
                 'status' => $document->status,
-                'ictu_number' => $document->ictu_number ?? '-',
+                'picto_number' => $document->picto_number ?? '-',
                 'doc_number' => $document->doc_number ?? '-',
                 'endorsed_to' => $document->endorsed_to ?? '-',
                 'action_required' => $document->action_required ?? '-',

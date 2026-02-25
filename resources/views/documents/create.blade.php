@@ -47,8 +47,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>ICTU No.</label>
-                        <input type="text" name="ictu_number" class="form-control" value="{{ old('ictu_number') }}" placeholder="e.g. ICTU-2026-001">
+                        <label>PICTO No.</label>
+                        <input type="text" name="picto_number" class="form-control" value="{{ old('picto_number') }}" placeholder="e.g. PICTO-2026-001">
                     </div>
                 </div>
 

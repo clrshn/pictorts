@@ -23,7 +23,7 @@
                 <div><strong>Transaction Number:</strong> {{ $document->dts_number }}</div>
                 <div><strong>Direction:</strong> {{ $document->direction }}</div>
                 <div><strong>Document Type:</strong> {{ $document->document_type }}</div>
-                <div><strong>ICTU No.:</strong> {{ $document->ictu_number ?? '—' }}</div>
+                <div><strong>PICTO No.:</strong> {{ $document->picto_number ?? '—' }}</div>
                 <div><strong>Originating Office:</strong> {{ $document->originatingOffice->name ?? '—' }}</div>
                 <div><strong>Date:</strong> {{ $document->date_received ? $document->date_received->format('F d, Y') : ($document->created_at ? $document->created_at->format('F d, Y h:i A') : '—') }}</div>
                 <div style="grid-column:span 2;"><strong>Subject:</strong> {{ $document->subject }}</div>
@@ -63,12 +63,30 @@
             @foreach($document->files as $file)
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#f9f9f9; border-radius:4px; margin-bottom:6px;">
                     <span style="font-size:13px; color:#444;"><i class="fas fa-file"></i> {{ $file->file_name }}</span>
-                    <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="btn-blue" style="padding:3px 10px;"><i class="fas fa-download"></i></a>
+                    <div style="display:flex; gap:8px;">
+                        @if(strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION)) === 'pdf')
+                            <button onclick="viewPdf('{{ asset('storage/' . $file->file_path) }}', '{{ $file->file_name }}')" class="btn-blue" style="padding:3px 10px;" title="View PDF"><i class="fas fa-eye"></i></button>
+                        @endif
+                        <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="btn-blue" style="padding:3px 10px;" title="Download"><i class="fas fa-download"></i></a>
+                    </div>
                 </div>
             @endforeach
         </div>
     </div>
     @endif
+
+    <!-- PDF Viewer Modal -->
+    <div id="pdfViewerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
+        <div style="background:white; width:90%; height:90%; border-radius:8px; display:flex; flex-direction:column;">
+            <div style="padding:16px; border-bottom:1px solid #e0e0e0; display:flex; justify-content:space-between; align-items:center;">
+                <h3 id="pdfTitle" style="margin:0; color:#333;">PDF Viewer</h3>
+                <button onclick="closePdfViewer()" style="background:none; border:none; font-size:24px; cursor:pointer; color:#666;">&times;</button>
+            </div>
+            <div style="flex:1; padding:16px; overflow:auto;">
+                <iframe id="pdfFrame" style="width:100%; height:100%; border:none;" src=""></iframe>
+            </div>
+        </div>
+    </div>
 
     <!-- Forward / Route Document -->
     @if($document->status !== 'COMPLETED')
@@ -120,18 +138,43 @@
     </div>
     @endif
 
-    <!-- Tracks / Timeline -->
+    <!-- Complete Tracking Timeline -->
     <div class="table-card">
-        <div style="background:#333; color:#fff; padding:10px 20px; font-weight:600; font-size:13px;">
-            <i class="fas fa-route"></i> Tracks
+        <div style="background:#333; color:#fff; padding:10px 20px; font-weight:600; font-size:13px; display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fas fa-route"></i> Complete Tracking History</span>
+            <button onclick="window.print()" class="btn-gray" style="padding:4px 12px; font-size:12px;"><i class="fas fa-print"></i> Print</button>
         </div>
         <div style="padding:20px;">
-            @if($document->routes->count())
+            @if($document->routes->count() || $document->created_at)
                 <div style="position:relative; padding-left:30px;">
                     <!-- Timeline line -->
                     <div style="position:absolute; left:12px; top:0; bottom:0; width:3px; background:#e0e0e0;"></div>
 
-                    @foreach($document->routes->sortBy('created_at') as $index => $route)
+                    <!-- Start node -->
+                    <div style="position:relative; margin-bottom:24px;">
+                        <div style="position:absolute; left:-24px; top:2px; width:20px; height:20px; border-radius:50%; background:#c0392b; display:flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-play" style="color:#fff; font-size:10px;"></i>
+                        </div>
+                        <div style="background:#f8f9fa; border-radius:6px; padding:12px 16px; border-left:3px solid #c0392b;">
+                            <div style="font-size:13px; font-weight:600; color:#333;">
+                                Document Created
+                                <span class="badge" style="background:#c0392b; margin-left:8px;">START</span>
+                            </div>
+                            <div style="font-size:12px; color:#888; margin-top:4px;">
+                                Created by: {{ $document->encoder->name ?? 'Unknown' }} ({{ $document->originatingOffice->code ?? 'PICTO' }})
+                            </div>
+                            <div style="font-size:12px; color:#888;">
+                                {{ $document->created_at->format('D, h:i A') }} — {{ $document->created_at->format('F d, Y') }}
+                            </div>
+                            @if($document->date_received)
+                                <div style="font-size:12px; color:#666; margin-top:4px;">
+                                    Date Received: {{ $document->date_received->format('F d, Y') }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    @foreach($document->routes->sortBy('datetime_released') as $index => $route)
                         <div style="position:relative; margin-bottom:24px;">
                             <!-- Timeline dot -->
                             <div style="position:absolute; left:-24px; top:2px; width:20px; height:20px; border-radius:50%; background:{{ $route->datetime_received ? '#27ae60' : '#e67e22' }}; display:flex; align-items:center; justify-content:center;">
@@ -139,52 +182,82 @@
                             </div>
                             <div style="background:#f8f9fa; border-radius:6px; padding:12px 16px; border-left:3px solid {{ $route->datetime_received ? '#27ae60' : '#e67e22' }};">
                                 <div style="font-size:13px; font-weight:600; color:#333;">
+                                    <i class="fas fa-exchange-alt" style="margin-right:6px;"></i>
                                     {{ $route->fromOffice->code ?? '?' }} <i class="fas fa-arrow-right" style="margin:0 6px; color:#999; font-size:11px;"></i> {{ $route->toOffice->code ?? '?' }}
                                     <span class="badge {{ $route->datetime_received ? 'badge-completed' : 'badge-ongoing' }}" style="margin-left:8px;">{{ $route->datetime_received ? 'RECEIVED' : 'IN TRANSIT' }}</span>
                                 </div>
                                 <div style="font-size:12px; color:#888; margin-top:4px;">
-                                    Released by: {{ $route->releasedByUser->name ?? '—' }} — {{ $route->datetime_released?->format('M d, Y h:i A') }}
+                                    <i class="fas fa-paper-plane" style="margin-right:4px;"></i>
+                                    Released by: {{ $route->releasedByUser->name ?? '—' }}
+                                    <span style="margin-left:8px;">{{ $route->datetime_released->format('M d, Y h:i A') }}</span>
                                 </div>
                                 @if($route->datetime_received)
-                                    <div style="font-size:12px; color:#888;">
-                                        Received by: {{ $route->receivedByUser->name ?? '—' }} — {{ $route->datetime_received->format('M d, Y h:i A') }}
+                                    <div style="font-size:12px; color:#888; margin-top:2px;">
+                                        <i class="fas fa-check-circle" style="margin-right:4px; color:#27ae60;"></i>
+                                        Received by: {{ $route->receivedByUser->name ?? '—' }}
+                                        <span style="margin-left:8px;">{{ $route->datetime_received->format('M d, Y h:i A') }}</span>
                                     </div>
                                 @endif
                                 @if($route->remarks)
-                                    <div style="font-size:12px; color:#666; margin-top:4px; font-style:italic;">{{ $route->remarks }}</div>
+                                    <div style="font-size:12px; color:#666; margin-top:4px; font-style:italic;">
+                                        <i class="fas fa-comment" style="margin-right:4px;"></i>
+                                        {{ $route->remarks }}
+                                    </div>
                                 @endif
                             </div>
                         </div>
                     @endforeach
 
-                    <!-- Start node -->
-                    <div style="position:relative;">
-                        <div style="position:absolute; left:-24px; top:2px; width:20px; height:20px; border-radius:50%; background:#c0392b; display:flex; align-items:center; justify-content:center;">
-                            <i class="fas fa-play" style="color:#fff; font-size:8px;"></i>
+                    <!-- Current status -->
+                    @if($document->status === 'COMPLETED')
+                        <div style="position:relative;">
+                            <div style="position:absolute; left:-24px; top:2px; width:20px; height:20px; border-radius:50%; background:#27ae60; display:flex; align-items:center; justify-content:center;">
+                                <i class="fas fa-flag-checkered" style="color:#fff; font-size:10px;"></i>
+                            </div>
+                            <div style="background:#f8f9fa; border-radius:6px; padding:12px 16px; border-left:3px solid #27ae60;">
+                                <div style="font-size:13px; font-weight:600; color:#333;">
+                                    <i class="fas fa-check-circle" style="margin-right:6px; color:#27ae60;"></i>
+                                    Document Completed
+                                    <span class="badge badge-completed" style="margin-left:8px;">FINAL</span>
+                                </div>
+                                <div style="font-size:12px; color:#888; margin-top:4px;">
+                                    Document processing has been completed successfully.
+                                </div>
+                            </div>
                         </div>
-                        <div style="font-size:12px; color:#888; padding:4px 0;">
-                            {{ $document->encoder->name ?? 'User' }} created the document. ({{ $document->originatingOffice->code ?? 'PICTO' }})
-                            <br><strong>{{ $document->created_at?->format('D, h:i A') }}</strong><br>{{ $document->created_at?->format('F d, Y') }}
-                        </div>
-                    </div>
+                    @endif
                 </div>
             @else
-                <!-- Just start node -->
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <div style="width:36px; height:36px; border-radius:50%; background:#c0392b; display:flex; align-items:center; justify-content:center;">
-                        <i class="fas fa-play" style="color:#fff; font-size:14px;"></i>
-                    </div>
-                    <div>
-                        <div style="font-size:13px; color:#333; font-weight:600;">{{ $document->encoder->name ?? Auth::user()->name }} created the document. ({{ $document->originatingOffice->code ?? 'PICTO' }})</div>
-                        <div style="font-size:12px; color:#888;"><strong>{{ $document->created_at?->format('D, h:i A') }}</strong> — {{ $document->created_at?->format('F d, Y') }}</div>
-                    </div>
-                </div>
-                <div style="text-align:center; margin-top:20px;">
-                    <div style="width:36px; height:36px; border-radius:50%; background:#27ae60; display:inline-flex; align-items:center; justify-content:center;">
-                        <span style="color:#fff; font-weight:700; font-size:12px;">Start</span>
-                    </div>
-                </div>
+                <p style="text-align:center; color:#999; padding:16px 0;">No tracking information available.</p>
             @endif
         </div>
     </div>
-</x-app-layout>
+
+    </x-app-layout>
+
+<script>
+function viewPdf(url, title) {
+    document.getElementById('pdfTitle').textContent = title;
+    document.getElementById('pdfFrame').src = url;
+    document.getElementById('pdfViewerModal').style.display = 'flex';
+}
+
+function closePdfViewer() {
+    document.getElementById('pdfViewerModal').style.display = 'none';
+    document.getElementById('pdfFrame').src = '';
+}
+
+// Close modal when clicking outside
+document.getElementById('pdfViewerModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePdfViewer();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closePdfViewer();
+    }
+});
+</script>

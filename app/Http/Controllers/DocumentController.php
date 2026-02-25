@@ -53,7 +53,7 @@ class DocumentController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('dts_number', 'like', "%{$search}%")
-                  ->orWhere('ictu_number', 'like', "%{$search}%")
+                  ->orWhere('picto_number', 'like', "%{$search}%")
                   ->orWhere('doc_number', 'like', "%{$search}%")
                   ->orWhere('subject', 'like', "%{$search}%")
                   ->orWhere('endorsed_to', 'like', "%{$search}%")
@@ -117,7 +117,7 @@ class DocumentController extends Controller
 
         $document = Document::create([
             'dts_number' => $dtsNumber,
-            'ictu_number' => $request->ictu_number,
+            'picto_number' => $request->picto_number,
             'doc_number' => $request->doc_number,
             'document_type' => $request->document_type,
             'direction' => $request->direction,
@@ -181,7 +181,7 @@ class DocumentController extends Controller
         ]);
 
         $document->update([
-            'ictu_number' => $request->ictu_number,
+            'picto_number' => $request->picto_number,
             'doc_number' => $request->doc_number,
             'document_type' => $request->document_type,
             'direction' => $request->direction,

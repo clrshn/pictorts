@@ -88,7 +88,7 @@
                     <div><span style="color:#888;">Tracking Number:</span> <strong id="sResTrackingNo"></strong></div>
                     <div><span style="color:#888;">Direction:</span> <strong id="sResDirection"></strong></div>
                     <div><span style="color:#888;">Document Type:</span> <strong id="sResDocType"></strong></div>
-                    <div><span style="color:#888;">ICTU Number:</span> <strong id="sResIctu"></strong></div>
+                    <div><span style="color:#888;">PICTO Number:</span> <strong id="sResIctu"></strong></div>
                     <div><span style="color:#888;">Originating Office:</span> <strong id="sResOrigin"></strong></div>
                     <div><span style="color:#888;">Action Required:</span> <strong id="sResAction"></strong></div>
                     <div><span style="color:#888;">Subject:</span> <strong id="sResSubject"></strong></div>
@@ -197,7 +197,7 @@
                 document.getElementById('sResLocation').textContent = d.current_location;
                 document.getElementById('sResHolder').textContent = d.current_holder;
                 document.getElementById('sResStatus').textContent = d.status;
-                document.getElementById('sResIctu').textContent = d.ictu_number;
+                document.getElementById('sResIctu').textContent = d.picto_number;
                 document.getElementById('sResAction').textContent = d.action_required;
                 document.getElementById('sResEndorsed').textContent = d.endorsed_to;
 

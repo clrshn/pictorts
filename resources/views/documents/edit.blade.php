@@ -39,8 +39,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>ICTU No.</label>
-                        <input type="text" name="ictu_number" class="form-control" value="{{ old('ictu_number', $document->ictu_number) }}">
+                        <label>PICTO No.</label>
+                        <input type="text" name="picto_number" class="form-control" value="{{ old('picto_number', $document->picto_number) }}">
                     </div>
                 </div>
 

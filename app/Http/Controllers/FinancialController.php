@@ -71,6 +71,7 @@ class FinancialController extends Controller
             'office_origin' => $request->office_origin,
             'current_office' => $request->office_origin,
             'current_holder' => auth()->id(),
+            'created_by' => auth()->id(),
             'status' => 'ACTIVE',
             'remarks' => $request->remarks,
         ]);
@@ -100,12 +101,14 @@ class FinancialController extends Controller
 
     public function edit(FinancialRecord $financial)
     {
+        $this->authorize('update', $financial);
         $offices = Office::all();
         return view('financial.edit', compact('financial', 'offices'));
     }
 
     public function update(Request $request, FinancialRecord $financial)
     {
+        $this->authorize('update', $financial);
         $request->validate([
             'description' => 'required|string',
             'office_origin' => 'required|exists:offices,id',
@@ -146,12 +149,14 @@ class FinancialController extends Controller
 
     public function destroy(FinancialRecord $financial)
     {
+        $this->authorize('delete', $financial);
         $financial->delete();
         return redirect()->route('financial.index')->with('success', 'Financial record deleted.');
     }
 
     public function route(Request $request, FinancialRecord $financial)
     {
+        $this->authorize('route', $financial);
         $request->validate([
             'to_office' => 'required|exists:offices,id',
         ]);
@@ -173,6 +178,7 @@ class FinancialController extends Controller
 
     public function receive(Request $request, FinancialRecord $financial)
     {
+        $this->authorize('receive', $financial);
         $latestRoute = $financial->routes()->whereNull('datetime_received')->latest()->first();
 
         if ($latestRoute) {

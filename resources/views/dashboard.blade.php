@@ -10,7 +10,7 @@
         <form method="GET" action="{{ route('documents.index') }}" style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
             <div class="form-group" style="margin:0; flex:1; min-width:280px;">
                 <label>Search Documents</label>
-                <input type="text" name="search" class="form-control" placeholder="Search by Document No., ICTU No., Tracking Code, or Subject/Title..." style="padding:10px 14px;">
+                <input type="text" name="search" class="form-control" placeholder="Search by Document No., PICTO No., Tracking Code, or Subject/Title..." style="padding:10px 14px;">
             </div>
             <div class="form-group" style="margin:0;">
                 <label>Start Date</label>
@@ -53,7 +53,7 @@
         <a href="{{ route('documents.index', ['status' => 'ONGOING']) }}" style="text-decoration:none;">
             <div class="stat-card green" style="cursor:pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
                 <div class="info">
-                    <div class="label">On going</div>
+                    <div class="label">On going Documents</div>
                     <div class="count">{{ $docOngoing }}</div>
                 </div>
                 <div class="icon"><i class="fas fa-sync-alt"></i></div>
@@ -62,7 +62,7 @@
         <a href="{{ route('documents.index', ['status' => 'COMPLETED']) }}" style="text-decoration:none;">
             <div class="stat-card teal" style="cursor:pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
                 <div class="info">
-                    <div class="label">Completed</div>
+                    <div class="label">Completed Documents</div>
                     <div class="count">{{ $docCompleted }}</div>
                 </div>
                 <div class="icon"><i class="fas fa-check-square"></i></div>

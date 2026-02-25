@@ -19,6 +19,7 @@ class FinancialRecord extends Model
         'office_origin',
         'current_office',
         'current_holder',
+        'created_by',
         'status',
         'remarks',
     ];
@@ -41,6 +42,11 @@ class FinancialRecord extends Model
     public function holder()
     {
         return $this->belongsTo(User::class, 'current_holder');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function routes()

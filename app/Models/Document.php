@@ -12,7 +12,7 @@ class Document extends Model
 {
     protected $fillable = [
         'dts_number',
-        'ictu_number',
+        'picto_number',
         'doc_number',
         'document_type',
         'direction',

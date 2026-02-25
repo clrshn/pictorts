@@ -8,6 +8,26 @@
         <div class="alert-success">{{ session('success') }}</div>
     @endif
 
+    <!-- Active Filters Indicator -->
+    @if(request()->hasAny(['status', 'search']))
+        <div class="alert-info" style="background:#e3f2fd; color:#1565c0; border:1px solid #90caf9;">
+            <strong>Active Filters:</strong>
+            @if(request('status'))
+                <span class="badge" style="background:#1976d2; color:white; margin:0 4px; padding:4px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:4px;">
+                    Status: {{ request('status') }}
+                    <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" style="color:white; text-decoration:none; font-weight:bold; cursor:pointer;" title="Remove status filter">×</a>
+                </span>
+            @endif
+            @if(request('search'))
+                <span class="badge" style="background:#1976d2; color:white; margin:0 4px; padding:4px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:4px;">
+                    Search: {{ request('search') }}
+                    <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" style="color:white; text-decoration:none; font-weight:bold; cursor:pointer;" title="Remove search filter">×</a>
+                </span>
+            @endif
+            <a href="{{ route('financial.index') }}" style="margin-left:12px; color:#1565c0; text-decoration:underline;">Clear All Filters</a>
+        </div>
+    @endif
+
     <!-- Search Filter -->
     <div class="filter-box">
         <h3>Search Filter</h3>
@@ -63,6 +83,7 @@
                         <tr>
                             <td>{{ $records->firstItem() + $index }}</td>
                             <td>
+                                <a href="{{ route('financial.show', $rec) }}" class="btn-green" title="View Details"><i class="fas fa-route"></i></a>
                                 <a href="{{ route('financial.edit', $rec) }}" class="btn-blue" title="Edit"><i class="fas fa-edit"></i></a>
                                 <form action="{{ route('financial.destroy', $rec) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this record?')">
                                     @csrf @method('DELETE')

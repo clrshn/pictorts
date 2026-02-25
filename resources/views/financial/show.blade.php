@@ -57,12 +57,30 @@
             @foreach($financial->attachments as $file)
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#f9f9f9; border-radius:4px; margin-bottom:6px;">
                     <span style="font-size:13px; color:#444;"><i class="fas fa-file"></i> {{ $file->file_name }}</span>
-                    <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="btn-blue" style="padding:3px 10px;"><i class="fas fa-download"></i></a>
+                    <div style="display:flex; gap:8px;">
+                        @if(strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION)) === 'pdf')
+                            <button onclick="viewPdf('{{ asset('storage/' . $file->file_path) }}', '{{ $file->file_name }}')" class="btn-blue" style="padding:3px 10px;" title="View PDF"><i class="fas fa-eye"></i></button>
+                        @endif
+                        <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="btn-blue" style="padding:3px 10px;" title="Download"><i class="fas fa-download"></i></a>
+                    </div>
                 </div>
             @endforeach
         </div>
     </div>
     @endif
+
+    <!-- PDF Viewer Modal -->
+    <div id="pdfViewerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
+        <div style="background:white; width:90%; height:90%; border-radius:8px; display:flex; flex-direction:column;">
+            <div style="padding:16px; border-bottom:1px solid #e0e0e0; display:flex; justify-content:space-between; align-items:center;">
+                <h3 id="pdfTitle" style="margin:0; color:#333;">PDF Viewer</h3>
+                <button onclick="closePdfViewer()" style="background:none; border:none; font-size:24px; cursor:pointer; color:#666;">&times;</button>
+            </div>
+            <div style="flex:1; padding:16px; overflow:auto;">
+                <iframe id="pdfFrame" style="width:100%; height:100%; border:none;" src=""></iframe>
+            </div>
+        </div>
+    </div>
 
     <!-- Forward -->
     @if($financial->status === 'ACTIVE')
@@ -138,3 +156,30 @@
         </div>
     </div>
 </x-app-layout>
+
+<script>
+function viewPdf(url, title) {
+    document.getElementById('pdfTitle').textContent = title;
+    document.getElementById('pdfFrame').src = url;
+    document.getElementById('pdfViewerModal').style.display = 'flex';
+}
+
+function closePdfViewer() {
+    document.getElementById('pdfViewerModal').style.display = 'none';
+    document.getElementById('pdfFrame').src = '';
+}
+
+// Close modal when clicking outside
+document.getElementById('pdfViewerModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePdfViewer();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closePdfViewer();
+    }
+});
+</script>

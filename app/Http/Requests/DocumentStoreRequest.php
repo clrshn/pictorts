@@ -26,7 +26,7 @@ class DocumentStoreRequest extends FormRequest
             'direction' => 'required|in:INCOMING,OUTGOING',
             'originating_office' => 'required|exists:offices,id',
             'subject' => 'required|string|max:255',
-            'ictu_number' => 'nullable|string|max:50',
+            'picto_number' => 'nullable|string|max:50',
             'doc_number' => 'nullable|string|max:50',
             'to_office' => 'nullable|exists:offices,id',
             'action_required' => 'nullable|string|max:500',

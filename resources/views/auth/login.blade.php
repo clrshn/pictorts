@@ -169,7 +169,7 @@
                     <div><span style="color:#888;">Tracking Number:</span> <strong id="resTrackingNo"></strong></div>
                     <div><span style="color:#888;">Direction:</span> <strong id="resDirection"></strong></div>
                     <div><span style="color:#888;">Document Type:</span> <strong id="resDocType"></strong></div>
-                    <div><span style="color:#888;">ICTU Number:</span> <strong id="resIctu"></strong></div>
+                    <div><span style="color:#888;">PICTO Number:</span> <strong id="resIctu"></strong></div>
                     <div><span style="color:#888;">Originating Office:</span> <strong id="resOrigin"></strong></div>
                     <div><span style="color:#888;">Action Required:</span> <strong id="resAction"></strong></div>
                     <div><span style="color:#888;">Subject:</span> <strong id="resSubject"></strong></div>
@@ -278,7 +278,7 @@
                 document.getElementById('resLocation').textContent = d.current_location;
                 document.getElementById('resHolder').textContent = d.current_holder;
                 document.getElementById('resStatus').textContent = d.status;
-                document.getElementById('resIctu').textContent = d.ictu_number;
+                document.getElementById('resIctu').textContent = d.picto_number;
                 document.getElementById('resAction').textContent = d.action_required;
                 document.getElementById('resEndorsed').textContent = d.endorsed_to;
 

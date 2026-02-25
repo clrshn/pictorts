@@ -21,8 +21,9 @@ class FinancialRecordPolicy
      */
     public function view(User $user, FinancialRecord $financial): bool
     {
-        // Users can view if they are the current holder or belong to the current office
+        // Users can view if they are the current holder, creator, or belong to the current office
         return $user->id === $financial->current_holder ||
+               $user->id === $financial->created_by ||
                $user->office_id === $financial->current_office;
     }
 
@@ -39,8 +40,9 @@ class FinancialRecordPolicy
      */
     public function update(User $user, FinancialRecord $financial): bool
     {
-        // Only current holder can update
-        return $user->id === $financial->current_holder;
+        // Current holder or creator can update
+        return $user->id === $financial->current_holder ||
+               $user->id === $financial->created_by;
     }
 
     /**
@@ -48,8 +50,9 @@ class FinancialRecordPolicy
      */
     public function delete(User $user, FinancialRecord $financial): bool
     {
-        // Only current holder can delete
-        return $user->id === $financial->current_holder;
+        // Current holder or creator can delete
+        return $user->id === $financial->current_holder ||
+               $user->id === $financial->created_by;
     }
 
     /**
