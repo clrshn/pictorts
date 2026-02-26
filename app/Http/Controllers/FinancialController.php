@@ -37,14 +37,14 @@ class FinancialController extends Controller
         }
 
         $records = $query->latest()->paginate(15)->withQueryString();
-        $offices = Office::all();
+        $offices = Office::ordered()->get();
 
         return view('financial.index', compact('records', 'offices'));
     }
 
     public function create()
     {
-        $offices = Office::all();
+        $offices = Office::ordered()->get();
         return view('financial.create', compact('offices'));
     }
 
@@ -88,13 +88,24 @@ class FinancialController extends Controller
             }
         }
 
+        // Create initial routing entry to record financial record creation
+        $record->routes()->create([
+            'from_office' => $request->office_origin,
+            'to_office' => $request->office_origin,
+            'released_by' => auth()->id(),
+            'datetime_released' => now(),
+            'datetime_received' => now(),
+            'received_by' => auth()->id(),
+            'remarks' => 'Financial record created and initially recorded',
+        ]);
+
         return redirect()->route('financial.index')->with('success', 'Financial record created.');
     }
 
     public function show(FinancialRecord $financial)
     {
         $financial->load(['originOffice', 'currentOffice', 'holder', 'routes.fromOffice', 'routes.toOffice', 'routes.releasedByUser', 'routes.receivedByUser', 'attachments']);
-        $offices = Office::all();
+        $offices = Office::ordered()->get();
         $users = User::all();
         return view('financial.show', compact('financial', 'offices', 'users'));
     }
@@ -102,7 +113,7 @@ class FinancialController extends Controller
     public function edit(FinancialRecord $financial)
     {
         $this->authorize('update', $financial);
-        $offices = Office::all();
+        $offices = Office::ordered()->get();
         return view('financial.edit', compact('financial', 'offices'));
     }
 
@@ -131,6 +142,19 @@ class FinancialController extends Controller
             'status' => $request->status ?? $financial->status,
             'remarks' => $request->remarks,
         ]);
+
+        // Add completion entry if status changed to COMPLETED
+        if ($request->status === 'COMPLETED' && $financial->status !== 'COMPLETED') {
+            $financial->routes()->create([
+                'from_office' => $financial->current_office,
+                'to_office' => $financial->current_office,
+                'released_by' => auth()->id(),
+                'datetime_released' => now(),
+                'datetime_received' => now(),
+                'received_by' => auth()->id(),
+                'remarks' => 'Financial record marked as COMPLETED',
+            ]);
+        }
 
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {

@@ -138,6 +138,71 @@
     </div>
     @endif
 
+    <!-- Routing History -->
+    <div class="table-card">
+        <div style="background:#333; color:#fff; padding:10px 20px; font-weight:600; font-size:13px;">
+            <i class="fas fa-route"></i> Routing History
+        </div>
+        <div style="padding:20px;">
+            @if($document->routes->count())
+                <div style="position:relative; padding-left:30px;">
+                    <div style="position:absolute; left:12px; top:0; bottom:0; width:3px; background:#e0e0e0;"></div>
+                    @foreach($document->routes->sortBy('datetime_released') as $route)
+                        <div style="position:relative; margin-bottom:24px;">
+                            <div style="position:absolute; left:-24px; top:2px; width:20px; height:20px; border-radius:50%; background:{{ $route->datetime_received ? '#27ae60' : '#e67e22' }}; display:flex; align-items:center; justify-content:center;">
+                                <i class="fas {{ 
+                                    $route->from_office == $route->to_office 
+                                        ? (str_contains($route->remarks, 'created') ? 'fa-plus' : (str_contains($route->remarks, 'COMPLETED') ? 'fa-check' : 'fa-info')) 
+                                        : ($route->datetime_received ? 'fa-check' : 'fa-clock') 
+                                }}" style="color:#fff; font-size:10px;"></i>
+                            </div>
+                            <div style="background:#f8f9fa; border-radius:6px; padding:12px 16px; border-left:3px solid {{ $route->datetime_received ? '#27ae60' : '#e67e22' }};">
+                                <div style="font-size:13px; font-weight:600; color:#333;">
+                                    @if($route->from_office == $route->to_office)
+                                        @if(str_contains($route->remarks, 'created'))
+                                            <i class="fas fa-plus-circle" style="margin-right:6px; color:#27ae60;"></i> Document Created at {{ $route->fromOffice->code ?? '?' }}
+                                            <span class="badge badge-completed" style="margin-left:8px;">CREATED</span>
+                                        @elseif(str_contains($route->remarks, 'COMPLETED'))
+                                            <i class="fas fa-check-circle" style="margin-right:6px; color:#27ae60;"></i> Document Completed at {{ $route->fromOffice->code ?? '?' }}
+                                            <span class="badge badge-completed" style="margin-left:8px;">COMPLETED</span>
+                                        @else
+                                            <i class="fas fa-info-circle" style="margin-right:6px; color:#3498db;"></i> {{ $route->fromOffice->code ?? '?' }}
+                                            <span class="badge badge-completed" style="margin-left:8px;">UPDATED</span>
+                                        @endif
+                                    @else
+                                        {{ $route->fromOffice->code ?? '?' }} <i class="fas fa-arrow-right" style="margin:0 6px; color:#999; font-size:11px;"></i> {{ $route->toOffice->code ?? '?' }}
+                                        <span class="badge {{ $route->datetime_received ? 'badge-completed' : 'badge-ongoing' }}" style="margin-left:8px;">{{ $route->datetime_received ? 'RECEIVED' : 'IN TRANSIT' }}</span>
+                                    @endif
+                                </div>
+                                <div style="font-size:12px; color:#888; margin-top:4px;">
+                                    @if($route->from_office == $route->to_office)
+                                        @if(str_contains($route->remarks, 'created'))
+                                            Created by: {{ $route->releasedByUser->name ?? '—' }} — {{ $route->datetime_released?->format('M d, Y h:i A') }}
+                                        @elseif(str_contains($route->remarks, 'COMPLETED'))
+                                            Completed by: {{ $route->releasedByUser->name ?? '—' }} — {{ $route->datetime_released?->format('M d, Y h:i A') }}
+                                        @else
+                                            Updated by: {{ $route->releasedByUser->name ?? '—' }} — {{ $route->datetime_released?->format('M d, Y h:i A') }}
+                                        @endif
+                                    @else
+                                        Forwarded by: {{ $route->releasedByUser->name ?? '—' }} — {{ $route->datetime_released?->format('M d, Y h:i A') }}
+                                    @endif
+                                </div>
+                                @if($route->datetime_received && $route->from_office != $route->to_office)
+                                    <div style="font-size:12px; color:#888;">Received by: {{ $route->receivedByUser->name ?? '—' }} — {{ $route->datetime_received->format('M d, Y h:i A') }}</div>
+                                @endif
+                                @if($route->remarks)
+                                    <div style="font-size:12px; color:#666; margin-top:4px; font-style:italic;">{{ $route->remarks }}</div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <p style="text-align:center; color:#666; padding:20px;">No routing history available</p>
+            @endif
+        </div>
+    </div>
+
     </x-app-layout>
 
 <script>

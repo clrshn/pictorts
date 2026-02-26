@@ -66,14 +66,14 @@ class DocumentController extends Controller
         }
 
         $documents = $query->latest()->paginate(15)->withQueryString();
-        $offices = Office::all();
+        $offices = Office::ordered()->get();
 
         return view('documents.index', compact('documents', 'offices'));
     }
 
     public function create()
     {
-        $offices = Office::all();
+        $offices = Office::ordered()->get();
         $users = User::all();
         return view('documents.create', compact('offices', 'users'));
     }
@@ -149,6 +149,17 @@ class DocumentController extends Controller
             }
         }
 
+        // Create initial routing entry to record document creation
+        $document->routes()->create([
+            'from_office' => $request->originating_office,
+            'to_office' => $request->originating_office,
+            'released_by' => auth()->id(),
+            'datetime_released' => now(),
+            'datetime_received' => now(),
+            'received_by' => auth()->id(),
+            'remarks' => 'Document created and initially recorded',
+        ]);
+
         return redirect()->route('documents.index')->with('success', 'Document recorded successfully — ' . $dtsNumber);
     }
 
@@ -156,7 +167,7 @@ class DocumentController extends Controller
     {
         $this->authorize('view', $document);
         $document->load(['originatingOffice', 'destinationOffice', 'currentOffice', 'holder', 'encoder', 'routes.fromOffice', 'routes.toOffice', 'routes.releasedByUser', 'routes.receivedByUser', 'files']);
-        $offices = Office::all();
+        $offices = Office::ordered()->get();
         $users = User::all();
         return view('documents.show', compact('document', 'offices', 'users'));
     }
@@ -164,7 +175,7 @@ class DocumentController extends Controller
     public function edit(Document $document)
     {
         $this->authorize('update', $document);
-        $offices = Office::all();
+        $offices = Office::ordered()->get();
         $users = User::all();
         return view('documents.edit', compact('document', 'offices', 'users'));
     }
@@ -196,6 +207,19 @@ class DocumentController extends Controller
             'shared_drive_link' => $request->shared_drive_link,
             'received_via_online' => $request->boolean('received_via_online'),
         ]);
+
+        // Add completion entry if status changed to COMPLETED
+        if ($request->status === 'COMPLETED' && $document->status !== 'COMPLETED') {
+            $document->routes()->create([
+                'from_office' => $document->current_office,
+                'to_office' => $document->current_office,
+                'released_by' => auth()->id(),
+                'datetime_released' => now(),
+                'datetime_received' => now(),
+                'received_by' => auth()->id(),
+                'remarks' => 'Document marked as COMPLETED',
+            ]);
+        }
 
         // Handle new file uploads
         if ($request->hasFile('files')) {
