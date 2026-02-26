@@ -29,8 +29,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/financial/{financial}/receive', [FinancialController::class, 'receive'])->name('financial.receive');
 
     // Todos
-    Route::resource('todos', TodoController::class);
-    Route::patch('/todos/{todo}/quick-update', [TodoController::class, 'quickUpdate'])->name('todos.quickUpdate');
+    Route::resource('todos', \App\Http\Controllers\TodoController::class);
+    Route::patch('/todos/{todo}/quick-update', [\App\Http\Controllers\TodoController::class, 'quickUpdate'])->name('todos.quickUpdate');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
