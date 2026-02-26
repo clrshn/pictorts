@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\FinancialController;
 use App\Http\Controllers\TrackController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -31,6 +32,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Todos
     Route::resource('todos', \App\Http\Controllers\TodoController::class);
     Route::patch('/todos/{todo}/quick-update', [\App\Http\Controllers\TodoController::class, 'quickUpdate'])->name('todos.quickUpdate');
+
+    // User Management (Admin only)
+    Route::middleware('admin')->group(function () {
+        Route::resource('users', UserController::class);
+        Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
+    });
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

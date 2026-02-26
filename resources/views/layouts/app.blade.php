@@ -96,6 +96,15 @@
             .badge-active { background: #27ae60; color: #fff; }
             .badge-cancelled { background: #e74c3c; color: #fff; }
             .badge-finished { background: #00b894; color: #fff; }
+            .badge-primary { background: #3498db; color: #fff; }
+            .badge-danger { background: #e74c3c; color: #fff; }
+
+            /* Alerts */
+            .alert { padding: 12px 16px; border-radius: 4px; margin-bottom: 20px; border-left: 4px solid; }
+            .alert-success { background: #d4edda; border-color: #27ae60; color: #155724; }
+            .alert-danger { background: #f8d7da; border-color: #e74c3c; color: #721c24; }
+            .alert-warning { background: #fff3cd; border-color: #f39c12; color: #856404; }
+            .alert-info { background: #d1ecf1; border-color: #3498db; color: #0c5460; }
 
             /* Search input */
             .search-input { border: 1px solid #ddd; border-radius: 4px; padding: 8px 14px; font-size: 13px; outline: none; }
@@ -223,7 +232,7 @@
 
                 <!-- Page Content -->
                 <div class="content-body">
-                    {{ $slot }}
+                    @yield('content')
                 </div>
             </div>
 

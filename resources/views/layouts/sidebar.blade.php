@@ -57,6 +57,15 @@
         </div>
     </div>
 
+    @if(auth()->user() && auth()->user()->isAdmin())
+    <!-- User Management (Admin Only) -->
+    <div class="nav-section">
+        <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+            <i class="fas fa-users"></i> User Management
+        </a>
+    </div>
+    @endif
+
     <!-- Quick Actions (Hidden but accessible) -->
     <div class="nav-section" style="margin-top: 20px;">
         <button class="nav-item quick-action" onclick="window.location.href='{{ route('documents.create') }}'" style="width: 100%; justify-content: center; background: #27ae60; color: white; border-radius: 6px; margin-bottom: 8px;">
