@@ -18,7 +18,20 @@
 
         <style>
             /* Sidebar */
-            .sidebar { width: 250px; min-height: 100vh; background: #1a1a2e; position: fixed; left: 0; top: 0; z-index: 40; transition: all 0.3s; overflow-y: auto; }
+            .sidebar { 
+                width: 250px; 
+                min-height: 100vh; 
+                background: #1a1a2e; 
+                position: fixed; 
+                left: 0; 
+                top: 0; 
+                z-index: 40; 
+                transition: all 0.3s; 
+                overflow-y: auto;
+                visibility: visible !important;
+                opacity: 1 !important;
+                transform: translateX(0) !important;
+            }
             .sidebar.collapsed { transform: translateX(-100%); }
             .sidebar .logo-area { background: #16213e; padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
             .sidebar .logo-area img { width: 44px; height: 44px; }
@@ -34,7 +47,14 @@
             .sidebar .nav-sub .nav-item { padding-left: 52px; font-size: 13px; }
 
             /* Main Content */
-            .main-content { margin-left: 250px; min-height: 100vh; background: #f4f6f9; transition: all 0.3s; display: flex; flex-direction: column; }
+            .main-content { 
+                margin-left: 250px; 
+                min-height: 100vh; 
+                background: #f4f6f9; 
+                transition: all 0.3s; 
+                display: flex; 
+                flex-direction: column;
+            }
             .main-content.expanded { margin-left: 0; }
             .top-bar { background: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
             .top-bar .close-btn { font-size: 20px; color: #666; cursor: pointer; }
@@ -232,7 +252,11 @@
 
                 <!-- Page Content -->
                 <div class="content-body">
-                    @yield('content')
+                    @isset($slot)
+                        {{ $slot }}
+                    @else
+                        @yield('content')
+                    @endisset
                 </div>
             </div>
 
@@ -259,6 +283,22 @@
             </div>
         </div>
         <script>
+            // Ensure sidebar is visible on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                const sidebar = document.querySelector('.sidebar');
+                const mainContent = document.querySelector('.main-content');
+                const closeBtn = document.querySelector('.close-btn');
+                
+                // Force sidebar to be open on page load
+                if (sidebar && mainContent) {
+                    sidebar.classList.remove('collapsed');
+                    mainContent.classList.remove('expanded');
+                    if (closeBtn) {
+                        closeBtn.textContent = '×'; // Close X
+                    }
+                }
+            });
+
             // Close dropdown when clicking outside
             document.addEventListener('click', function(e) {
                 var dropdown = document.getElementById('userDropdown');
