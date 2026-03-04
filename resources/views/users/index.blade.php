@@ -55,7 +55,7 @@
                                                 <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-outline-primary" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#resetPasswordModal{{ $user->id }}" title="Reset Password">
+                                                <button type="button" class="btn btn-sm btn-outline-warning" onclick="document.getElementById('resetPasswordModal{{ $user->id }}').style.display='flex'" title="Reset Password">
                                                     <i class="fas fa-key"></i>
                                                 </button>
                                                 @if($user->id !== auth()->id())
@@ -72,12 +72,12 @@
                                     </tr>
 
                                     <!-- Reset Password Modal -->
-                                    <div class="modal fade" id="resetPasswordModal{{ $user->id }}" tabindex="-1">
+                                    <div class="modal fade" id="resetPasswordModal{{ $user->id }}" tabindex="-1" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
                                                     <h5 class="modal-title">Reset Password for {{ $user->name }}</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    <button type="button" class="btn-close" onclick="document.getElementById('resetPasswordModal{{ $user->id }}').style.display='none'">&times;</button>
                                                 </div>
                                                 <form action="{{ route('users.reset-password', $user) }}" method="POST">
                                                     @csrf
@@ -95,7 +95,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('resetPasswordModal{{ $user->id }}').style.display='none'">Cancel</button>
                                                         <button type="submit" class="btn btn-warning">Reset Password</button>
                                                     </div>
                                                 </form>

@@ -26,7 +26,9 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Log::info('AuthServiceProvider booting - registering policies');
         $this->registerPolicies();
+        \Log::info('AuthServiceProvider policies registered');
 
         // Optional: Define gates for additional permissions
         Gate::before(function (User $user, string $ability) {

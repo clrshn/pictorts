@@ -21,10 +21,7 @@ class DocumentPolicy
      */
     public function view(User $user, Document $document): bool
     {
-        // Users can view if they are the current holder, encoder, or belong to the current office
-        return $user->id === $document->current_holder ||
-               $user->id === $document->encoded_by ||
-               $user->office_id === $document->current_office;
+        return true; // All authenticated users can view documents
     }
 
     /**
@@ -40,9 +37,7 @@ class DocumentPolicy
      */
     public function update(User $user, Document $document): bool
     {
-        // Only current holder or encoder can update
-        return $user->id === $document->current_holder ||
-               $user->id === $document->encoded_by;
+        return true; // All authenticated users can update documents
     }
 
     /**
@@ -50,8 +45,7 @@ class DocumentPolicy
      */
     public function delete(User $user, Document $document): bool
     {
-        // Only encoder can delete
-        return $user->id === $document->encoded_by;
+        return true; // All authenticated users can delete documents
     }
 
     /**
@@ -59,8 +53,7 @@ class DocumentPolicy
      */
     public function route(User $user, Document $document): bool
     {
-        // Only current holder can route documents
-        return $user->id === $document->current_holder;
+        return true; // All authenticated users can route documents
     }
 
     /**
@@ -68,7 +61,6 @@ class DocumentPolicy
      */
     public function receive(User $user, Document $document): bool
     {
-        // Users can receive if they belong to the current office
-        return $user->office_id === $document->current_office;
+        return true; // All authenticated users can receive documents
     }
 }

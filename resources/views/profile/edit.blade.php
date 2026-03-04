@@ -14,6 +14,12 @@
                             Profile updated successfully!
                         </div>
                     @endif
+                    
+                    @if(session('status') === 'password-updated')
+                        <div class="alert alert-info" style="margin-bottom:20px;">
+                            Password updated successfully!
+                        </div>
+                    @endif
 
                     <!-- Profile Information -->
                     <div class="table-card" style="margin-bottom:20px;">
@@ -78,7 +84,20 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label>New Password <span class="text-danger">*</span></label>
-                                            <input type="password" name="password" class="form-control" required>
+                                            <div class="input-group">
+                                                <input type="password" name="password" id="newPassword" class="form-control" required>
+                                                <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('newPassword', this)" style="border-left: none;">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            <div id="passwordStrength" style="margin-top: 5px; font-size: 12px;"></div>
+                                            <div id="passwordRequirements" style="margin-top: 5px; font-size: 11px; color: #666;">
+                                                <div id="req-length">• At least 8 characters</div>
+                                                <div id="req-uppercase">• At least 1 uppercase letter</div>
+                                                <div id="req-lowercase">• At least 1 lowercase letter</div>
+                                                <div id="req-number">• At least 1 number</div>
+                                                <div id="req-special">• At least 1 special character</div>
+                                            </div>
                                             @error('password')
                                                 <div class="text-danger small">{{ $message }}</div>
                                             @enderror
@@ -87,7 +106,13 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label>Confirm New Password <span class="text-danger">*</span></label>
-                                            <input type="password" name="password_confirmation" class="form-control" required>
+                                            <div class="input-group">
+                                                <input type="password" name="password_confirmation" id="confirmPassword" class="form-control" required>
+                                                <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('confirmPassword', this)" style="border-left: none;">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            <div id="passwordMatch" style="margin-top: 5px; font-size: 12px;"></div>
                                             @error('password_confirmation')
                                                 <div class="text-danger small">{{ $message }}</div>
                                             @enderror
@@ -96,13 +121,129 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <button type="submit" class="btn btn-warning">
+                                    <button type="submit" class="btn btn-warning" id="updatePasswordBtn">
                                         <i class="fas fa-key"></i> Update Password
                                     </button>
                                 </div>
                             </form>
                         </div>
                     </div>
+
+                    <script>
+                        function togglePassword(inputId, button) {
+                            const input = document.getElementById(inputId);
+                            const icon = button.querySelector('i');
+                            
+                            if (input.type === 'password') {
+                                input.type = 'text';
+                                icon.classList.remove('fa-eye');
+                                icon.classList.add('fa-eye-slash');
+                            } else {
+                                input.type = 'password';
+                                icon.classList.remove('fa-eye-slash');
+                                icon.classList.add('fa-eye');
+                            }
+                        }
+
+                        function checkPasswordStrength(password) {
+                            const requirements = {
+                                length: password.length >= 8,
+                                uppercase: /[A-Z]/.test(password),
+                                lowercase: /[a-z]/.test(password),
+                                number: /[0-9]/.test(password),
+                                special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+                            };
+
+                            // Update requirement indicators
+                            document.getElementById('req-length').style.color = requirements.length ? '#28a745' : '#666';
+                            document.getElementById('req-uppercase').style.color = requirements.uppercase ? '#28a745' : '#666';
+                            document.getElementById('req-lowercase').style.color = requirements.lowercase ? '#28a745' : '#666';
+                            document.getElementById('req-number').style.color = requirements.number ? '#28a745' : '#666';
+                            document.getElementById('req-special').style.color = requirements.special ? '#28a745' : '#666';
+
+                            // Calculate strength
+                            const passedRequirements = Object.values(requirements).filter(Boolean).length;
+                            let strength = '';
+                            let strengthColor = '';
+                            
+                            if (passedRequirements === 0) {
+                                strength = '';
+                            } else if (passedRequirements <= 2) {
+                                strength = 'Weak';
+                                strengthColor = '#dc3545';
+                            } else if (passedRequirements <= 4) {
+                                strength = 'Medium';
+                                strengthColor = '#ffc107';
+                            } else {
+                                strength = 'Strong';
+                                strengthColor = '#28a745';
+                            }
+
+                            const strengthDiv = document.getElementById('passwordStrength');
+                            if (strength) {
+                                strengthDiv.innerHTML = `<span style="color: ${strengthColor}">Password Strength: ${strength}</span>`;
+                            } else {
+                                strengthDiv.innerHTML = '';
+                            }
+
+                            return passedRequirements === 5; // Return true if all requirements met
+                        }
+
+                        function checkPasswordMatch() {
+                            const newPassword = document.getElementById('newPassword').value;
+                            const confirmPassword = document.getElementById('confirmPassword').value;
+                            const matchDiv = document.getElementById('passwordMatch');
+
+                            if (confirmPassword === '') {
+                                matchDiv.innerHTML = '';
+                                return false;
+                            }
+
+                            if (newPassword === confirmPassword) {
+                                matchDiv.innerHTML = '<span style="color: #28a745">✓ Passwords match</span>';
+                                return true;
+                            } else {
+                                matchDiv.innerHTML = '<span style="color: #dc3545">✗ Passwords do not match</span>';
+                                return false;
+                            }
+                        }
+
+                        function validatePasswordForm() {
+                            const newPassword = document.getElementById('newPassword').value;
+                            const confirmPassword = document.getElementById('confirmPassword').value;
+                            const currentPassword = document.querySelector('input[name="current_password"]').value;
+                            const submitBtn = document.getElementById('updatePasswordBtn');
+
+                            const isStrong = checkPasswordStrength(newPassword);
+                            const isMatch = checkPasswordMatch();
+                            const hasCurrentPassword = currentPassword.length > 0;
+
+                            // Enable/disable submit button
+                            submitBtn.disabled = !(isStrong && isMatch && hasCurrentPassword);
+                            
+                            if (!submitBtn.disabled) {
+                                submitBtn.style.opacity = '1';
+                                submitBtn.style.cursor = 'pointer';
+                            } else {
+                                submitBtn.style.opacity = '0.6';
+                                submitBtn.style.cursor = 'not-allowed';
+                            }
+                        }
+
+                        // Event listeners
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const newPasswordInput = document.getElementById('newPassword');
+                            const confirmPasswordInput = document.getElementById('confirmPassword');
+                            const currentPasswordInput = document.querySelector('input[name="current_password"]');
+
+                            newPasswordInput.addEventListener('input', validatePasswordForm);
+                            confirmPasswordInput.addEventListener('input', validatePasswordForm);
+                            currentPasswordInput.addEventListener('input', validatePasswordForm);
+
+                            // Initial validation
+                            validatePasswordForm();
+                        });
+                    </script>
 
                     <!-- Account Information -->
                     <div class="table-card">

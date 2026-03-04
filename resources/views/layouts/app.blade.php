@@ -231,7 +231,7 @@
                     <div class="user-dropdown" id="userDropdown">
                         <button class="user-btn" id="userDropdownBtn" type="button" onclick="document.getElementById('userDropdownMenu').classList.toggle('show')">
                             <span class="avatar"><i class="fas fa-user"></i></span>
-                            {{ Auth::user()->name ?? 'User' }} - PICTO
+                            {{ Auth::user()->name ?? 'User' }} - {{ Auth::user()->office->code ?? 'PICTO' }}
                             <i class="fas fa-chevron-down" style="font-size:10px"></i>
                         </button>
                         <div class="user-dropdown-menu" id="userDropdownMenu">

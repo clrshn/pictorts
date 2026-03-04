@@ -175,6 +175,7 @@ class DocumentController extends Controller
     public function edit(Document $document)
     {
         $this->authorize('update', $document);
+        
         $offices = Office::ordered()->get();
         $users = User::all();
         return view('documents.edit', compact('document', 'offices', 'users'));

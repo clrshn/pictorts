@@ -21,10 +21,7 @@ class FinancialRecordPolicy
      */
     public function view(User $user, FinancialRecord $financial): bool
     {
-        // Users can view if they are the current holder, creator, or belong to the current office
-        return $user->id === $financial->current_holder ||
-               $user->id === $financial->created_by ||
-               $user->office_id === $financial->current_office;
+        return true; // All authenticated users can view financial records
     }
 
     /**
@@ -40,9 +37,7 @@ class FinancialRecordPolicy
      */
     public function update(User $user, FinancialRecord $financial): bool
     {
-        // Current holder or creator can update
-        return $user->id === $financial->current_holder ||
-               $user->id === $financial->created_by;
+        return true; // All authenticated users can update financial records
     }
 
     /**
@@ -50,9 +45,7 @@ class FinancialRecordPolicy
      */
     public function delete(User $user, FinancialRecord $financial): bool
     {
-        // Current holder or creator can delete
-        return $user->id === $financial->current_holder ||
-               $user->id === $financial->created_by;
+        return true; // All authenticated users can delete financial records
     }
 
     /**
@@ -60,8 +53,7 @@ class FinancialRecordPolicy
      */
     public function route(User $user, FinancialRecord $financial): bool
     {
-        // Only current holder can route financial records
-        return $user->id === $financial->current_holder;
+        return true; // All authenticated users can route financial records
     }
 
     /**
@@ -69,7 +61,6 @@ class FinancialRecordPolicy
      */
     public function receive(User $user, FinancialRecord $financial): bool
     {
-        // Users can receive if they belong to the current office
-        return $user->office_id === $financial->current_office;
+        return true; // All authenticated users can receive financial records
     }
 }
