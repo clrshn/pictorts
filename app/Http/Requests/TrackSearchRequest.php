@@ -22,7 +22,7 @@ class TrackSearchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tracking_code' => 'required|string|max:50|regex:/^[A-Z0-9\-]+$/',
+            'tracking_code' => 'required|string|max:50|regex:/^PICTO-[A-Z]+-\d{4}-\d{4}$/',
         ];
     }
 
@@ -36,7 +36,7 @@ class TrackSearchRequest extends FormRequest
         return [
             'tracking_code.required' => 'Tracking code is required.',
             'tracking_code.max' => 'Tracking code must not exceed 50 characters.',
-            'tracking_code.regex' => 'Tracking code can only contain uppercase letters, numbers, and hyphens.',
+            'tracking_code.regex' => 'Tracking code must be in format: PICTO-{TYPE}-{YEAR}-{SEQUENCE} (e.g., PICTO-LETTER-2026-0001)',
         ];
     }
 }

@@ -65,7 +65,19 @@
             .page-header { padding: 20px 24px 0; }
             .page-header h1 { font-size: 22px; font-weight: 700; color: #2d3436; margin: 0; }
             .page-header .breadcrumb { font-size: 13px; color: #999; margin-top: 2px; }
-            .page-header .breadcrumb a { color: #c0392b; text-decoration: none; }
+            .page-header .breadcrumb a { 
+                color: #c0392b; 
+                text-decoration: none; 
+                padding: 2px 6px; 
+                border-radius: 3px; 
+                transition: all 0.2s ease;
+                border: 1px solid transparent;
+            }
+            .page-header .breadcrumb a:hover { 
+                background: #c0392b; 
+                color: #fff; 
+                transform: translateY(-1px);
+            }
 
             .content-body { padding: 20px 24px; flex: 1; }
             .content-wrapper { flex: 1; display: flex; flex-direction: column; }
@@ -96,17 +108,25 @@
             .table-card table { width: 100%; border-collapse: collapse; }
             .table-card table thead th { background: #8b0000; color: #fff; padding: 10px 14px; font-size: 12px; font-weight: 600; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; }
             .table-card table tbody td { padding: 10px 14px; font-size: 13px; color: #444; border-bottom: 1px solid #f0f0f0; text-align: center; vertical-align: middle; }
-            .table-card table tbody tr:hover { background: #fafbfc; }
+            .table-card table tbody tr:hover { background: #e3f2fd; cursor: pointer; transition: background 0.2s ease; }
+            .table-card table tbody tr:hover td { color: #1976d2; }
+            .table-card table tbody tr:hover .btn-green:hover { background: #1e7e34; transform: scale(1.1); }
+            .table-card table tbody tr:hover .btn-blue:hover { background: #0056b3; transform: scale(1.1); }
+            .table-card table tbody tr:hover .btn-danger:hover { background: #c82333; transform: scale(1.1); }
 
             /* Buttons */
-            .btn-red { background: #c0392b; color: #fff; padding: 8px 18px; border-radius: 4px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s; }
-            .btn-red:hover { background: #a93226; color: #fff; }
-            .btn-blue { background: #2980b9; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 12px; border: none; cursor: pointer; text-decoration: none; }
-            .btn-blue:hover { background: #2471a3; color: #fff; }
-            .btn-orange { background: #e67e22; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 12px; border: none; cursor: pointer; text-decoration: none; }
-            .btn-danger { background: #e74c3c; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 12px; border: none; cursor: pointer; text-decoration: none; }
-            .btn-green { background: #27ae60; color: #fff; padding: 8px 18px; border-radius: 4px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; text-decoration: none; }
-            .btn-gray { background: #95a5a6; color: #fff; padding: 8px 18px; border-radius: 4px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; text-decoration: none; }
+            .btn-red { background: #c0392b; color: #fff; padding: 8px 18px; border-radius: 4px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease; }
+            .btn-red:hover { background: #a93226; color: #fff; transform: translateY(-1px); }
+            .btn-blue { background: #2980b9; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 12px; border: none; cursor: pointer; text-decoration: none; transition: all 0.2s ease; }
+            .btn-blue:hover { background: #2471a3; color: #fff; transform: translateY(-1px); }
+            .btn-orange { background: #e67e22; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 12px; border: none; cursor: pointer; text-decoration: none; transition: all 0.2s ease; }
+            .btn-orange:hover { background: #d35400; color: #fff; transform: translateY(-1px); }
+            .btn-danger { background: #e74c3c; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 12px; border: none; cursor: pointer; text-decoration: none; transition: all 0.2s ease; }
+            .btn-danger:hover { background: #c0392b; color: #fff; transform: translateY(-1px); }
+            .btn-green { background: #27ae60; color: #fff; padding: 8px 18px; border-radius: 4px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; text-decoration: none; transition: all 0.2s ease; }
+            .btn-green:hover { background: #229954; color: #fff; transform: translateY(-1px); }
+            .btn-gray { background: #95a5a6; color: #fff; padding: 8px 18px; border-radius: 4px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; text-decoration: none; transition: all 0.2s ease; }
+            .btn-gray:hover { background: #7f8c8d; color: #fff; transform: translateY(-1px); }
 
             /* Badge */
             .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
@@ -127,15 +147,25 @@
             .alert-info { background: #d1ecf1; border-color: #3498db; color: #0c5460; }
 
             /* Search input */
-            .search-input { border: 1px solid #ddd; border-radius: 4px; padding: 8px 14px; font-size: 13px; outline: none; }
+            .search-input { border: 1px solid #ddd; border-radius: 4px; padding: 8px 14px; font-size: 13px; outline: none; transition: all 0.2s ease; }
             .search-input:focus { border-color: #c0392b; }
+            .search-input:hover { border-color: #007bff; border-width: 2px; box-shadow: 0 4px 8px rgba(0,123,255,0.3); transform: translateY(-2px); background: #f8f9ff; }
 
             /* Form controls */
             .form-group { margin-bottom: 16px; }
             .form-group label { display: block; font-size: 13px; font-weight: 600; color: #555; margin-bottom: 5px; }
-            .form-control { width: 100%; border: 1px solid #ddd; border-radius: 4px; padding: 8px 12px; font-size: 13px; outline: none; background: #fff; }
+            .form-control { width: 100%; border: 1px solid #ddd; border-radius: 4px; padding: 8px 12px; font-size: 13px; outline: none; background: #fff; transition: all 0.2s ease; }
             .form-control:focus { border-color: #c0392b; box-shadow: 0 0 0 2px rgba(192,57,43,0.1); }
+            .form-control:hover { border-color: #007bff; border-width: 2px; box-shadow: 0 4px 8px rgba(0,123,255,0.3); transform: translateY(-2px); background: #f8f9ff; }
             select.form-control { appearance: auto; }
+            textarea.form-control { resize: vertical; min-height: 80px; }
+            textarea.form-control:hover { border-color: #007bff; border-width: 2px; box-shadow: 0 4px 8px rgba(0,123,255,0.3); transform: translateY(-2px); background: #f8f9ff; }
+            input[type="file"].form-control { cursor: pointer; }
+            input[type="file"].form-control:hover { border-color: #007bff; border-width: 2px; box-shadow: 0 4px 8px rgba(0,123,255,0.3); transform: translateY(-2px); background: #f8f9ff; }
+            input[type="date"].form-control:hover { border-color: #007bff; border-width: 2px; box-shadow: 0 4px 8px rgba(0,123,255,0.3); transform: translateY(-2px); background: #f8f9ff; }
+            input[type="number"].form-control:hover { border-color: #007bff; border-width: 2px; box-shadow: 0 4px 8px rgba(0,123,255,0.3); transform: translateY(-2px); background: #f8f9ff; }
+            input[type="email"].form-control:hover { border-color: #007bff; border-width: 2px; box-shadow: 0 4px 8px rgba(0,123,255,0.3); transform: translateY(-2px); background: #f8f9ff; }
+            input[type="password"].form-control:hover { border-color: #007bff; border-width: 2px; box-shadow: 0 4px 8px rgba(0,123,255,0.3); transform: translateY(-2px); background: #f8f9ff; }
 
             /* Footer */
             .footer { text-align: center; padding: 20px; font-size: 12px; color: #999; }
@@ -149,8 +179,26 @@
             .user-dropdown { position: relative; }
             .user-dropdown-menu { display: none; position: absolute; right: 0; top: 100%; background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); min-width: 160px; z-index: 50; margin-top: 4px; }
             .user-dropdown-menu.show { display: block; }
-            .user-dropdown-menu a, .user-dropdown-menu button { display: block; width: 100%; text-align: left; padding: 8px 16px; font-size: 13px; color: #444; border: none; background: none; cursor: pointer; text-decoration: none; }
-            .user-dropdown-menu a:hover, .user-dropdown-menu button:hover { background: #f5f5f5; }
+            .user-dropdown-menu a, .user-dropdown-menu button { 
+                display: block; 
+                width: 100%; 
+                text-align: left; 
+                padding: 10px 16px; 
+                font-size: 13px; 
+                color: #444; 
+                border: none; 
+                background: none; 
+                cursor: pointer; 
+                text-decoration: none; 
+                border-radius: 4px;
+                margin: 2px;
+                transition: all 0.2s ease;
+            }
+            .user-dropdown-menu a:hover, .user-dropdown-menu button:hover { 
+                background: #007bff; 
+                color: #fff; 
+                transform: translateY(-1px);
+            }
 
             /* Sidebar Dropdowns */
             .nav-dropdown { margin-bottom: 4px; }
@@ -266,6 +314,9 @@
             </div>
         </div>
 
+        <!-- Notification Container -->
+        <div class="notification-container" id="notificationContainer"></div>
+
         <!-- Logout Confirmation Modal -->
         <div id="logoutModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:9999; align-items:center; justify-content:center;">
             <div style="background:#fff; border-radius:12px; padding:36px 40px; max-width:400px; width:90%; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.2); animation: modalIn 0.25s ease;">
@@ -330,6 +381,167 @@
                 } else {
                     closeBtn.textContent = '×'; // Close X
                 }
+            }
+
+            // Modern Notification System
+            window.showNotification = function(options) {
+                const {
+                    type = 'info',
+                    title = 'Notification',
+                    message = '',
+                    duration = 5000,
+                    actions = null,
+                    icon = null
+                } = options;
+
+                const container = document.getElementById('notificationContainer');
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+
+                // Determine icon based on type
+                let iconHtml = '';
+                if (icon) {
+                    iconHtml = `<i class="${icon}"></i>`;
+                } else {
+                    switch(type) {
+                        case 'success':
+                            iconHtml = '<i class="fas fa-check-circle"></i>';
+                            break;
+                        case 'warning':
+                            iconHtml = '<i class="fas fa-exclamation-triangle"></i>';
+                            break;
+                        case 'danger':
+                            iconHtml = '<i class="fas fa-exclamation-circle"></i>';
+                            break;
+                        default:
+                            iconHtml = '<i class="fas fa-info-circle"></i>';
+                    }
+                }
+
+                let actionsHtml = '';
+                if (actions && actions.length > 0) {
+                    actionsHtml = '<div class="notification-actions">';
+                    actions.forEach(action => {
+                        actionsHtml += `<button class="notification-btn ${action.class}" onclick="${action.onclick}">${action.text}</button>`;
+                    });
+                    actionsHtml += '</div>';
+                }
+
+                notification.innerHTML = `
+                    <div class="notification-header">
+                        <div class="notification-title">${iconHtml} ${title}</div>
+                        <button class="notification-close" onclick="window.removeNotification(this)">&times;</button>
+                    </div>
+                    <div class="notification-message">${message}</div>
+                    ${actionsHtml}
+                `;
+
+                container.appendChild(notification);
+
+                // Auto-remove after duration
+                if (duration > 0) {
+                    setTimeout(() => {
+                        window.removeNotification(notification.querySelector('.notification-close'));
+                    }, duration);
+                }
+
+                return notification;
+            }
+
+            window.removeNotification = function(element) {
+                const notification = element.closest('.notification');
+                if (notification) {
+                    notification.classList.add('removing');
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }
+            }
+
+            // Confirmation dialog function
+            window.showConfirmDialog = function(options) {
+                const {
+                    title = 'Confirm Action',
+                    message = 'Are you sure you want to proceed?',
+                    confirmText = 'Confirm',
+                    cancelText = 'Cancel',
+                    confirmClass = 'notification-btn-confirm',
+                    onConfirm = null,
+                    onCancel = null
+                } = options;
+
+                return new Promise((resolve) => {
+                    const notification = window.showNotification({
+                        type: 'warning',
+                        title: title,
+                        message: message,
+                        duration: 0, // Don't auto-close
+                        actions: [
+                            {
+                                text: cancelText,
+                                class: 'notification-btn-cancel',
+                                onclick: `window.removeNotification(this.closest('.notification').querySelector('.notification-close')); ${onCancel ? 'window.confirmDialogCancel();' : 'window.confirmDialogCancel();'}`
+                            },
+                            {
+                                text: confirmText,
+                                class: confirmClass,
+                                onclick: `window.removeNotification(this.closest('.notification').querySelector('.notification-close')); window.confirmDialogConfirm();`
+                            }
+                        ]
+                    });
+
+                    window.confirmDialogConfirm = () => {
+                        if (onConfirm) onConfirm();
+                        resolve(true);
+                        delete window.confirmDialogConfirm;
+                        delete window.confirmDialogCancel;
+                    };
+
+                    window.confirmDialogCancel = () => {
+                        if (onCancel) onCancel();
+                        resolve(false);
+                        delete window.confirmDialogConfirm;
+                        delete window.confirmDialogCancel;
+                    };
+                });
+            }
+
+            // Debug function to test notifications
+            window.testNotification = function() {
+                window.showNotification({
+                    type: 'info',
+                    title: 'Test Notification',
+                    message: 'This is a test notification to verify the system is working.',
+                    duration: 3000
+                });
+            }
+
+            window.testConfirm = function() {
+                window.showConfirmDialog({
+                    title: 'Test Confirm',
+                    message: 'This is a test confirmation dialog. Does it work?',
+                    confirmText: 'Yes',
+                    cancelText: 'No',
+                    confirmClass: 'notification-btn-confirm',
+                    onConfirm: function() {
+                        window.showNotification({
+                            type: 'success',
+                            title: 'Confirmed!',
+                            message: 'The confirmation dialog works correctly.',
+                            duration: 3000
+                        });
+                    },
+                    onCancel: function() {
+                        window.showNotification({
+                            type: 'info',
+                            title: 'Cancelled',
+                            message: 'The confirmation was cancelled.',
+                            duration: 3000
+                        });
+                    }
+                });
             }
         </script>
     </body>

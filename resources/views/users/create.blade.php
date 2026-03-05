@@ -102,10 +102,10 @@
                         </div>
 
                         <div class="form-group">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn-green">
                                 <i class="fas fa-save"></i> Create User
                             </button>
-                            <a href="{{ route('users.index') }}" class="btn btn-secondary">
+                            <a href="{{ route('users.index') }}" class="btn-gray">
                                 <i class="fas fa-arrow-left"></i> Back to Users
                             </a>
                         </div>

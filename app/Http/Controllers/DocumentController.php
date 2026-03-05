@@ -78,28 +78,45 @@ class DocumentController extends Controller
         return view('documents.create', compact('offices', 'users'));
     }
 
-    private function generateDtsNumber(string $type, int $originOfficeId): string
+    private function generateTrackingCode(string $type, int $originOfficeId, $date = null): string
     {
-        return DB::transaction(function() use ($type, $originOfficeId) {
-            $office = Office::find($originOfficeId);
-            $officeCode = $office ? $office->code : 'PICTO';
-            $year = now()->year;
+        // Use document date if provided, otherwise use current date
+        $documentDate = $date ? \Carbon\Carbon::parse($date) : now();
+        $year = $documentDate->year;
 
-            // Format: PICTO-OFFICE-TYPE-YEAR-SEQUENCE
-            $prefix = "PICTO-{$officeCode}-{$type}-{$year}-";
+        // Generate random string (12 characters)
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $randomString = '';
+        for ($i = 0; $i < 12; $i++) {
+            $randomString .= $characters[rand(0, strlen($characters) - 1)];
+        }
 
-            $lastDoc = Document::where('dts_number', 'like', $prefix . '%')
-                ->orderBy('dts_number', 'desc')
+        // Format: {YEAR}{RANDOM_STRING}
+        return $year . $randomString;
+    }
+
+    private function generateTransactionNumber(string $type, int $originOfficeId, $date = null): string
+    {
+        return DB::transaction(function() use ($type, $originOfficeId, $date) {
+            // Use document date if provided, otherwise use current date
+            $documentDate = $date ? \Carbon\Carbon::parse($date) : now();
+            $year = $documentDate->year;
+
+            // Format: PICTO-{TYPE}-{YEAR}-{SEQUENCE}
+            $prefix = "PICTO-{$type}-{$year}-";
+
+            $lastDoc = Document::where('doc_number', 'like', $prefix . '%')
+                ->orderBy('doc_number', 'desc')
                 ->lockForUpdate()
                 ->first();
 
             $nextSeq = 1;
             if ($lastDoc) {
-                $parts = explode('-', $lastDoc->dts_number);
+                $parts = explode('-', $lastDoc->doc_number);
                 $nextSeq = intval(end($parts)) + 1;
             }
 
-            return $prefix . str_pad($nextSeq, 4, '0', STR_PAD_LEFT);
+            return $prefix . str_pad($nextSeq, 6, '0', STR_PAD_LEFT);
         });
     }
 
@@ -109,16 +126,18 @@ class DocumentController extends Controller
             'document_type' => 'required|in:MEMO,EO,SO,LETTER,SP,OTHERS',
             'direction' => 'required|in:INCOMING,OUTGOING',
             'originating_office' => 'required|exists:offices,id',
+            'date_received' => 'required|date',
             'subject' => 'required|string',
             'files.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
-        $dtsNumber = $this->generateDtsNumber($request->document_type, $request->originating_office);
+        $trackingCode = $this->generateTrackingCode($request->document_type, $request->originating_office, $request->date_received);
+        $transactionNumber = $this->generateTransactionNumber($request->document_type, $request->originating_office, $request->date_received);
 
         $document = Document::create([
-            'dts_number' => $dtsNumber,
-            'picto_number' => $request->picto_number,
-            'doc_number' => $request->doc_number,
+            'dts_number' => $trackingCode,
+            'picto_number' => null,
+            'doc_number' => $transactionNumber,
             'document_type' => $request->document_type,
             'direction' => $request->direction,
             'originating_office' => $request->originating_office,
@@ -160,7 +179,7 @@ class DocumentController extends Controller
             'remarks' => 'Document created and initially recorded',
         ]);
 
-        return redirect()->route('documents.index')->with('success', 'Document recorded successfully — ' . $dtsNumber);
+        return redirect()->route('documents.index')->with('success', 'Document recorded successfully — Tracking Code: ' . $trackingCode . ', Transaction Number: ' . $transactionNumber);
     }
 
     public function show(Document $document)
@@ -188,13 +207,16 @@ class DocumentController extends Controller
             'document_type' => 'required|in:MEMO,EO,SO,LETTER,SP,OTHERS',
             'direction' => 'required|in:INCOMING,OUTGOING',
             'originating_office' => 'required|exists:offices,id',
+            'date_received' => 'required|date',
             'subject' => 'required|string',
             'files.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
-        $document->update([
-            'picto_number' => $request->picto_number,
-            'doc_number' => $request->doc_number,
+        // Check if date changed and regenerate tracking code and transaction number if needed
+        $oldDate = $document->date_received ? $document->date_received->format('Y-m-d') : null;
+        $newDate = $request->date_received;
+        
+        $updateData = [
             'document_type' => $request->document_type,
             'direction' => $request->direction,
             'originating_office' => $request->originating_office,
@@ -207,7 +229,18 @@ class DocumentController extends Controller
             'remarks' => $request->remarks,
             'shared_drive_link' => $request->shared_drive_link,
             'received_via_online' => $request->boolean('received_via_online'),
-        ]);
+        ];
+
+        // Regenerate tracking code and transaction number if date changed
+        if ($oldDate !== $newDate) {
+            $updateData['dts_number'] = $this->generateTrackingCode($request->document_type, $request->originating_office, $newDate);
+            $updateData['doc_number'] = $this->generateTransactionNumber($request->document_type, $request->originating_office, $newDate);
+            $codesRegenerated = true;
+        } else {
+            $codesRegenerated = false;
+        }
+
+        $document->update($updateData);
 
         // Add completion entry if status changed to COMPLETED
         if ($request->status === 'COMPLETED' && $document->status !== 'COMPLETED') {
@@ -222,20 +255,26 @@ class DocumentController extends Controller
             ]);
         }
 
-        // Handle new file uploads
+        // Handle file uploads
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
-                $path = $file->store('documents/' . $document->id, 'public');
-                DocumentFile::create([
-                    'document_id' => $document->id,
-                    'file_path' => $path,
-                    'file_name' => $file->getClientOriginalName(),
-                    'uploaded_by' => auth()->id(),
-                ]);
+                if ($file->isValid()) {
+                    $path = $file->store('documents', 'public');
+                    $document->files()->create([
+                        'document_id' => $document->id,
+                        'file_path' => $path,
+                        'file_name' => $file->getClientOriginalName(),
+                        'uploaded_by' => auth()->id(),
+                    ]);
+                }
             }
         }
 
-        return redirect()->route('documents.show', $document)->with('success', 'Document updated successfully.');
+        $successMessage = $codesRegenerated 
+            ? 'Document updated successfully. Tracking Code and Transaction Number regenerated due to date change.'
+            : 'Document updated successfully.';
+            
+        return redirect()->route('documents.show', $document)->with('success', $successMessage);
     }
 
     public function destroy(Document $document)
@@ -285,5 +324,25 @@ class DocumentController extends Controller
         ]);
 
         return redirect()->route('documents.show', $document)->with('success', 'Document received.');
+    }
+
+    public function trackingNumbers()
+    {
+        $documents = Document::orderBy('document_type')
+            ->orderBy('dts_number')
+            ->get(['dts_number', 'document_type', 'subject', 'created_at']);
+
+        // Group by document type and year
+        $grouped = [];
+        foreach ($documents as $doc) {
+            $parts = explode('-', $doc->dts_number);
+            if (count($parts) >= 4) {
+                $type = $parts[1];
+                $year = $parts[2];
+                $grouped[$type][$year][] = $doc;
+            }
+        }
+
+        return view('documents.tracking-numbers', compact('grouped'));
     }
 }

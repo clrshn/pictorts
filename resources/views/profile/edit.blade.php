@@ -53,7 +53,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <button type="submit" class="btn btn-primary">
+                                    <button type="submit" class="btn-red">
                                         <i class="fas fa-save"></i> Update Profile
                                     </button>
                                 </div>
@@ -86,7 +86,7 @@
                                             <label>New Password <span class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <input type="password" name="password" id="newPassword" class="form-control" required>
-                                                <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('newPassword', this)" style="border-left: none;">
+                                                <button type="button" class="btn-gray" onclick="togglePassword('newPassword', this)" style="border-left: none;">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                             </div>
@@ -108,7 +108,7 @@
                                             <label>Confirm New Password <span class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <input type="password" name="password_confirmation" id="confirmPassword" class="form-control" required>
-                                                <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('confirmPassword', this)" style="border-left: none;">
+                                                <button type="button" class="btn-gray" onclick="togglePassword('confirmPassword', this)" style="border-left: none;">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                             </div>
@@ -121,7 +121,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <button type="submit" class="btn btn-warning" id="updatePasswordBtn">
+                                    <button type="submit" class="btn-orange" id="updatePasswordBtn">
                                         <i class="fas fa-key"></i> Update Password
                                     </button>
                                 </div>

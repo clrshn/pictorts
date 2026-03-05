@@ -20,10 +20,9 @@
 
         <div style="padding:24px;">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px 32px; font-size:13px;">
-                <div><strong>Transaction Number:</strong> {{ $document->dts_number }}</div>
+                <div><strong>Tracking Code:</strong> {{ $document->dts_number }}</div>
+                <div><strong>Transaction Number:</strong> {{ $document->doc_number }}</div>
                 <div><strong>Direction:</strong> {{ $document->direction }}</div>
-                <div><strong>Document Type:</strong> {{ $document->document_type }}</div>
-                <div><strong>PICTO No.:</strong> {{ $document->picto_number ?? '—' }}</div>
                 <div><strong>Originating Office:</strong> {{ $document->originatingOffice->name ?? '—' }}</div>
                 <div><strong>Date:</strong> {{ $document->date_received ? $document->date_received->format('F d, Y') : ($document->created_at ? $document->created_at->format('F d, Y h:i A') : '—') }}</div>
                 <div style="grid-column:span 2;"><strong>Subject:</strong> {{ $document->subject }}</div>

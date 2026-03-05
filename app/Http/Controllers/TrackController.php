@@ -15,7 +15,7 @@ class TrackController extends Controller
     public function search(Request $request)
     {
         $request->validate([
-            'tracking_code' => 'required|string|max:50|regex:/^[A-Z0-9\-]+$/',
+            'tracking_code' => 'required|string|max:50|regex:/^PICTO-[A-Z]+-\d{4}-\d{4}$/',
         ]);
 
         $code = trim($request->tracking_code);

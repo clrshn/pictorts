@@ -20,7 +20,11 @@
         </div>
 
         <div style="padding:24px;">
-            <p style="font-size:12px; color:#999; margin-bottom:16px;">DTS Number will be auto-generated upon saving (Format: PICTO-OFFICE-TYPE-YEAR-SEQ)</p>
+            <p style="font-size:12px; color:#999; margin-bottom:16px;">Tracking Code and Transaction Number will be auto-generated upon saving</p>
+            <p style="font-size:11px; color:#999; margin-bottom:16px;">
+                <strong>Tracking Code:</strong> {YEAR}{12-CHARACTER CODE} (e.g., 2026KTAYQWWBUEDG)<br>
+                <strong>Transaction Number:</strong> PICTO-{TYPE}-{YEAR}-{6-digit SEQ} (e.g., PICTO-LETTER-2026-000001)
+            </p>
 
             <form method="POST" action="{{ route('documents.store') }}" enctype="multipart/form-data">
                 @csrf
@@ -35,6 +39,7 @@
                             <option value="EO" {{ old('document_type') === 'EO' ? 'selected' : '' }}>EO – Executive Order</option>
                             <option value="SO" {{ old('document_type') === 'SO' ? 'selected' : '' }}>SO – Special Order</option>
                             <option value="LETTER" {{ old('document_type') === 'LETTER' ? 'selected' : '' }}>LETTER</option>
+                            <option value="SP" {{ old('document_type') === 'SP' ? 'selected' : '' }}>SP – Special Permit</option>
                             <option value="OTHERS" {{ old('document_type') === 'OTHERS' ? 'selected' : '' }}>OTHERS</option>
                         </select>
                     </div>
@@ -45,10 +50,6 @@
                             <option value="INCOMING" {{ old('direction') === 'INCOMING' ? 'selected' : '' }}>INCOMING</option>
                             <option value="OUTGOING" {{ old('direction') === 'OUTGOING' ? 'selected' : '' }}>OUTGOING</option>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label>PICTO No.</label>
-                        <input type="text" name="picto_number" class="form-control" value="{{ old('picto_number') }}" placeholder="e.g. PICTO-2026-001">
                     </div>
                 </div>
 
@@ -95,8 +96,9 @@
                 <!-- Date, Online, Link -->
                 <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
                     <div class="form-group">
-                        <label>Date Received</label>
-                        <input type="date" name="date_received" class="form-control" value="{{ old('date_received') }}">
+                        <label>Date Received <span style="color:#c0392b">*</span></label>
+                        <input type="date" name="date_received" class="form-control" value="{{ old('date_received') }}" required>
+                        <small style="color:#999;">Used for tracking number generation (year)</small>
                     </div>
                     <div class="form-group">
                         <label>Received via Online?</label>

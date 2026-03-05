@@ -38,10 +38,6 @@
                             <option value="OUTGOING" {{ $document->direction === 'OUTGOING' ? 'selected' : '' }}>OUTGOING</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>PICTO No.</label>
-                        <input type="text" name="picto_number" class="form-control" value="{{ old('picto_number', $document->picto_number) }}">
-                    </div>
                 </div>
 
                 <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
@@ -61,10 +57,6 @@
                                 <option value="{{ $office->id }}" {{ $document->to_office == $office->id ? 'selected' : '' }}>{{ $office->code }} – {{ $office->name }}</option>
                             @endforeach
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Document No.</label>
-                        <input type="text" name="doc_number" class="form-control" value="{{ old('doc_number', $document->doc_number) }}">
                     </div>
                 </div>
 
@@ -88,6 +80,7 @@
                     <div class="form-group">
                         <label>Date Received</label>
                         <input type="date" name="date_received" class="form-control" value="{{ old('date_received', $document->date_received?->format('Y-m-d')) }}">
+                        <small style="color:#999;">⚠️ Changing the date will regenerate Tracking Code and Transaction Number to match the new year</small>
                     </div>
                     <div class="form-group">
                         <label>Received via Online?</label>

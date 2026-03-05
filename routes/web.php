@@ -23,6 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('documents', DocumentController::class);
     Route::post('/documents/{document}/route', [DocumentController::class, 'route'])->name('documents.route');
     Route::post('/documents/{document}/receive', [DocumentController::class, 'receive'])->name('documents.receive');
+    Route::get('/tracking-numbers', [DocumentController::class, 'trackingNumbers'])->name('documents.tracking-numbers');
 
     // Financial
     Route::resource('financial', FinancialController::class);

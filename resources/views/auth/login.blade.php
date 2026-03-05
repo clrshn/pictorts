@@ -166,10 +166,10 @@
 
                 <!-- Document Details Grid -->
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px 24px; font-size:13px; margin-bottom:24px;">
-                    <div><span style="color:#888;">Tracking Number:</span> <strong id="resTrackingNo"></strong></div>
+                    <div><span style="color:#888;">Tracking Code:</span> <strong id="resTrackingNo"></strong></div>
                     <div><span style="color:#888;">Direction:</span> <strong id="resDirection"></strong></div>
                     <div><span style="color:#888;">Document Type:</span> <strong id="resDocType"></strong></div>
-                    <div><span style="color:#888;">PICTO Number:</span> <strong id="resIctu"></strong></div>
+                    <div><span style="color:#888;">Transaction Number:</span> <strong id="resIctu"></strong></div>
                     <div><span style="color:#888;">Originating Office:</span> <strong id="resOrigin"></strong></div>
                     <div><span style="color:#888;">Action Required:</span> <strong id="resAction"></strong></div>
                     <div><span style="color:#888;">Subject:</span> <strong id="resSubject"></strong></div>
@@ -267,7 +267,7 @@
 
                 // Populate result modal
                 var d = data.document;
-                document.getElementById('resTrackingNo').textContent = d.tracking_number;
+                document.getElementById('resTrackingNo').textContent = d.dts_number;
                 document.getElementById('resDocType').textContent = d.document_type;
                 document.getElementById('resDirection').textContent = d.direction;
                 document.getElementById('resOrigin').textContent = d.originating_office;
@@ -278,7 +278,7 @@
                 document.getElementById('resLocation').textContent = d.current_location;
                 document.getElementById('resHolder').textContent = d.current_holder;
                 document.getElementById('resStatus').textContent = d.status;
-                document.getElementById('resIctu').textContent = d.picto_number;
+                document.getElementById('resIctu').textContent = d.doc_number;
                 document.getElementById('resAction').textContent = d.action_required;
                 document.getElementById('resEndorsed').textContent = d.endorsed_to;
 

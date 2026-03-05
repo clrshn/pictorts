@@ -21,7 +21,7 @@
         <!-- Search Panel -->
         <div id="sPanelSearch">
             <div style="position:relative; margin-bottom:16px;">
-                <input type="text" id="sTrackCodeInput" placeholder="QR Code / Tracking Number / DTS Number" class="form-control" style="padding-right:40px;">
+                <input type="text" id="sTrackCodeInput" placeholder="Enter tracking code (e.g., PICTO-LETTER-2026-0001)" class="form-control" style="padding-right:40px;">
                 <i class="fas fa-qrcode" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#c0392b; font-size:16px;"></i>
             </div>
             <button type="button" onclick="sysTrackDocument()" id="sTrackBtn" class="btn-red" style="width:100%; justify-content:center; padding:12px; border-radius:30px; font-size:14px; letter-spacing:1px;">
@@ -85,10 +85,10 @@
 
                 <!-- Document Details Grid -->
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px 24px; font-size:13px; margin-bottom:24px;">
-                    <div><span style="color:#888;">Tracking Number:</span> <strong id="sResTrackingNo"></strong></div>
+                    <div><span style="color:#888;">Tracking Code:</span> <strong id="sResTrackingNo"></strong></div>
                     <div><span style="color:#888;">Direction:</span> <strong id="sResDirection"></strong></div>
                     <div><span style="color:#888;">Document Type:</span> <strong id="sResDocType"></strong></div>
-                    <div><span style="color:#888;">PICTO Number:</span> <strong id="sResIctu"></strong></div>
+                    <div><span style="color:#888;">Transaction Number:</span> <strong id="sResIctu"></strong></div>
                     <div><span style="color:#888;">Originating Office:</span> <strong id="sResOrigin"></strong></div>
                     <div><span style="color:#888;">Action Required:</span> <strong id="sResAction"></strong></div>
                     <div><span style="color:#888;">Subject:</span> <strong id="sResSubject"></strong></div>
@@ -186,7 +186,7 @@
                 }
 
                 var d = data.document;
-                document.getElementById('sResTrackingNo').textContent = d.tracking_number;
+                document.getElementById('sResTrackingNo').textContent = d.dts_number;
                 document.getElementById('sResDocType').textContent = d.document_type;
                 document.getElementById('sResDirection').textContent = d.direction;
                 document.getElementById('sResOrigin').textContent = d.originating_office;
@@ -197,7 +197,7 @@
                 document.getElementById('sResLocation').textContent = d.current_location;
                 document.getElementById('sResHolder').textContent = d.current_holder;
                 document.getElementById('sResStatus').textContent = d.status;
-                document.getElementById('sResIctu').textContent = d.picto_number;
+                document.getElementById('sResIctu').textContent = d.doc_number;
                 document.getElementById('sResAction').textContent = d.action_required;
                 document.getElementById('sResEndorsed').textContent = d.endorsed_to;
 
