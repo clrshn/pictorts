@@ -26,13 +26,17 @@
                 left: 0; 
                 top: 0; 
                 z-index: 40; 
-                transition: all 0.3s; 
+                transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; 
                 overflow-y: auto;
-                visibility: visible !important;
-                opacity: 1 !important;
-                transform: translateX(0) !important;
+                visibility: visible;
+                opacity: 1;
+                transform: translateX(0);
             }
-            .sidebar.collapsed { transform: translateX(-100%); }
+            .sidebar.collapsed { 
+                transform: translateX(-250px); 
+                opacity: 0;
+                visibility: hidden;
+            }
             .sidebar .logo-area { background: #16213e; padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
             .sidebar .logo-area img { width: 44px; height: 44px; }
             .sidebar .logo-area .logo-text { color: #fff; font-weight: 700; font-size: 14px; line-height: 1.2; }
@@ -206,18 +210,24 @@
                 display: flex; 
                 align-items: center; 
                 justify-content: space-between; 
-                width: 100%; 
                 padding: 12px 20px; 
-                color: #666; 
-                text-decoration: none; 
+                color: #b8c5d6; 
                 font-size: 14px; 
                 font-weight: 500; 
-                border: none; 
-                background: none; 
                 cursor: pointer; 
                 transition: all 0.2s;
+                background: none;
+                border: none;
+                width: 100%;
+                text-align: left;
             }
-            .nav-dropdown-btn:hover { background: #f8f9fa; color: #c0392b; }
+            .nav-dropdown-btn .btn-content {
+                display: flex;
+                align-items: center;
+                width: 22px; /* Match icon width from regular nav items */
+                margin-right: 10px; /* Match icon margin from regular nav items */
+            }
+            .nav-dropdown-btn:hover { background: #34495e; color: #c0392b; }
             .nav-dropdown-btn.active { background: #c0392b; color: #fff; }
             .dropdown-arrow { 
                 font-size: 10px; 
@@ -225,7 +235,7 @@
             }
             .nav-dropdown-menu { 
                 display: none; 
-                background: #f8f9fa; 
+                background: #2c3e50; 
                 border-left: 3px solid #c0392b; 
                 margin-left: 20px; 
                 overflow: hidden;
@@ -235,16 +245,21 @@
                 display: flex; 
                 align-items: center; 
                 padding: 10px 20px 10px 30px; 
-                color: #666; 
+                color: #b8c5d6; 
+                font-size: 12px; 
                 text-decoration: none; 
-                font-size: 13px; 
                 transition: all 0.2s;
                 border-left: 2px solid transparent;
             }
             .nav-dropdown-item:hover { 
-                background: #e9ecef; 
+                background: #34495e; 
                 color: #c0392b; 
                 border-left-color: #c0392b;
+            }
+            .nav-dropdown-item.active { 
+                background: #c0392b; 
+                color: #fff; 
+                border-left-color: #fff;
             }
             .nav-dropdown-item i { 
                 margin-right: 8px; 

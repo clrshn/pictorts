@@ -25,7 +25,10 @@
     <!-- Documents Dropdown -->
     <div class="nav-dropdown">
         <button class="nav-dropdown-btn {{ request()->routeIs('documents.index') && !request()->has('direction') ? 'active' : '' }}" onclick="toggleDocumentsDropdown()">
-            <i class="fas fa-list"></i> All Documents
+            <div style="display: flex; align-items: center; flex: 1;">
+                <i class="fas fa-list" style="width: 22px; margin-right: 10px; text-align: center;"></i>
+                <span>All Documents</span>
+            </div>
             <i class="fas fa-chevron-down dropdown-arrow" id="documentsArrow"></i>
         </button>
         <div class="nav-dropdown-menu" id="documentsDropdown">
@@ -41,7 +44,10 @@
     <!-- Financial Dropdown -->
     <div class="nav-dropdown">
         <button class="nav-dropdown-btn {{ request()->routeIs('financial.index') && !request()->has('status') ? 'active' : '' }}" onclick="toggleFinancialDropdown()">
-            <i class="fas fa-coins"></i> All Financial
+            <div style="display: flex; align-items: center; flex: 1;">
+                <i class="fas fa-coins" style="width: 22px; margin-right: 10px; text-align: center;"></i>
+                <span>All Financial</span>
+            </div>
             <i class="fas fa-chevron-down dropdown-arrow" id="financialArrow"></i>
         </button>
         <div class="nav-dropdown-menu" id="financialDropdown">
@@ -57,24 +63,17 @@
         </div>
     </div>
 
+    <!-- Spacer to push User Management to bottom -->
+    <div style="flex: 1;"></div>
+
     @if(auth()->user() && auth()->user()->isAdmin())
-    <!-- User Management (Admin Only) -->
-    <div class="nav-section">
-        <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+    <!-- User Management (Admin Only) - Absolute Bottom -->
+    <div class="nav-section" style="text-align: center; padding: 10px 0; margin: 0; position: absolute; bottom: 0; left: 0; right: 0;">
+        <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}" style="display: inline-flex; justify-content: center; width: auto; padding: 12px 20px;">
             <i class="fas fa-users"></i> User Management
         </a>
     </div>
     @endif
-
-    <!-- Quick Actions (Hidden but accessible) -->
-    <div class="nav-section" style="margin-top: 20px;">
-        <button class="nav-item quick-action" onclick="window.location.href='{{ route('documents.create') }}'" style="width: 100%; justify-content: center; background: #27ae60; color: white; border-radius: 6px; margin-bottom: 8px;">
-            <i class="fas fa-plus"></i> New Document
-        </button>
-        <button class="nav-item quick-action" onclick="window.location.href='{{ route('financial.create') }}'" style="width: 100%; justify-content: center; background: #e67e22; color: white; border-radius: 6px;">
-            <i class="fas fa-plus"></i> New Financial
-        </button>
-    </div>
 </aside>
 
 <script>

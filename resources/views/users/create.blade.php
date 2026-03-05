@@ -102,7 +102,7 @@
                         </div>
 
                         <div class="form-group">
-                            <button type="submit" class="btn-green">
+                            <button type="submit" class="btn-red">
                                 <i class="fas fa-save"></i> Create User
                             </button>
                             <a href="{{ route('users.index') }}" class="btn-gray">

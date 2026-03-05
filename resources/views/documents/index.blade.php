@@ -5,7 +5,21 @@
     </x-slot>
 
     @if(session('success'))
-        <div class="alert-success">{{ session('success') }}</div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Use the global notification system from app layout
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification({
+                        type: 'success',
+                        title: 'Success!',
+                        message: '{{ session('success') }}',
+                        duration: 3000
+                    });
+                } else {
+                    console.error('Global showNotification function not found');
+                }
+            });
+        </script>
     @endif
 
     <!-- Search Filter -->
@@ -102,49 +116,43 @@
     <div class="table-card">
         <div class="table-header">
             <h3>Documents Table</h3>
-            <div style="display:flex; gap:10px; align-items:center;">
-                <form method="GET" action="{{ route('documents.index') }}" style="display:flex; gap:8px;">
-                    @foreach(request()->except('search','page') as $key => $val)
-                        <input type="hidden" name="{{ $key }}" value="{{ $val }}">
-                    @endforeach
-                    <input type="text" name="search" class="search-input" placeholder="Search Keywords Here" value="{{ request('search') }}" style="width:220px;">
-                </form>
+            <div style="display:flex; gap:8px;">
                 <a href="{{ route('documents.tracking-numbers') }}" class="btn-blue"><i class="fas fa-qrcode"></i> Tracking Numbers</a>
                 <a href="{{ route('documents.create') }}" class="btn-red"><i class="fas fa-plus"></i> Add New Document</a>
             </div>
         </div>
 
-        <div style="overflow-x:auto;">
-            <table>
+        <div style="overflow-x:auto; max-width:100%;">
+            <table style="min-width:900px; width:100%; border-collapse: collapse;">
                 <thead>
                     <tr>
-                        <th>SEQ #</th>
-                        <th>ACTION</th>
-                        <th>TRACKING CODE</th>
-                        <th>TRANSACTION NO</th>
-                        <th>SUBJECT</th>
-                        <th>ORIGINATING OFFICE</th>
-                        <th>STATUS</th>
-                        <th>DOCUMENT DATE</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:60px; border-bottom:2px solid #8b0000;">SEQ #</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:150px; border-bottom:2px solid #8b0000;">TRACKING CODE</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:180px; border-bottom:2px solid #8b0000;">TRANSACTION NO</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; min-width:250px; border-bottom:2px solid #8b0000;">SUBJECT</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">STATUS</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DOCUMENT DATE</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($documents as $index => $doc)
                         <tr>
-                            <td>{{ $documents->firstItem() + $index }}</td>
-                            <td>
-                                <a href="{{ route('documents.show', $doc) }}" class="btn-green" title="View Document & Tracking"><i class="fas fa-route"></i></a>
-                                <a href="{{ route('documents.edit', $doc) }}" class="btn-blue" title="Edit"><i class="fas fa-edit"></i></a>
-                                <form action="{{ route('documents.destroy', $doc) }}" method="POST" style="display:inline;" id="deleteForm-{{ $doc->id }}">
-                                    @csrf @method('DELETE')
-                                    <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $doc->id }}, '{{ $doc->dts_number }}')"><i class="fas fa-trash"></i></button>
-                                </form>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:60px;">{{ $documents->firstItem() + $index }}</td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:120px;">
+                                <div style="display:flex; gap:4px; align-items:center; justify-content:center;">
+                                    <a href="{{ route('documents.show', $doc) }}" class="btn-green" title="View Document & Tracking" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-route"></i></a>
+                                    <a href="{{ route('documents.edit', $doc) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-edit"></i></a>
+                                    <form action="{{ route('documents.destroy', $doc) }}" method="POST" style="display:inline;" id="deleteForm-{{ $doc->id }}">
+                                        @csrf @method('DELETE')
+                                        <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $doc->id }}, '{{ $doc->dts_number }}')" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </div>
                             </td>
-                            <td style="font-family:monospace; font-size:12px;">{{ $doc->dts_number }}</td>
-                            <td style="font-family:monospace; font-size:12px;">{{ $doc->doc_number ?? '—' }}</td>
-                            <td style="max-width:280px; text-align:left;">{{ $doc->subject }}</td>
-                            <td>{{ $doc->originatingOffice->code ?? '—' }}</td>
-                            <td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:150px; font-family:monospace; font-size:12px;">{{ $doc->dts_number }}</td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:180px; font-family:monospace; font-size:12px;">{{ $doc->doc_number ?? '—' }}</td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; min-width:250px;">{{ $doc->subject }}</td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:100px;">
                                 @php
                                     $badgeClass = match($doc->status) {
                                         'ONGOING' => 'badge-ongoing',
@@ -155,11 +163,11 @@
                                 @endphp
                                 <span class="badge {{ $badgeClass }}">{{ $doc->status }}</span>
                             </td>
-                            <td>{{ $doc->date_received ? $doc->date_received->format('F d, Y') : ($doc->created_at ? $doc->created_at->format('F d, Y') : '—') }}</td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:120px;">{{ $doc->date_received ? $doc->date_received->format('F d, Y') : ($doc->created_at ? $doc->created_at->format('F d, Y') : '—') }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" style="padding:30px; color:#999;">No documents found.</td>
+                            <td colspan="7" style="padding:30px; color:#999;">No documents found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -290,6 +298,19 @@
             background: #bdc3c7;
         }
 
+        .notification-btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .notification-btn-success:hover {
+            background: #229954;
+        }
+
+        .notification.removing {
+            animation: slideOutRight 0.3s ease-out forwards;
+        }
+
         @keyframes slideInRight {
             from {
                 transform: translateX(100%);
@@ -311,15 +332,99 @@
                 opacity: 0;
             }
         }
-
-        .notification.removing {
-            animation: slideOutRight 0.3s ease-out forwards;
-        }
     </style>
 
     <script>
         // Modern Notification System - Local implementation
         function showNotification(options) {
+            const {
+                type = 'info',
+                title = 'Notification',
+                message = '',
+                duration = 5000,
+                actions = null,
+                icon = null
+            } = options;
+
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+
+            // Determine icon based on type
+            let iconHtml = '';
+            if (icon) {
+                iconHtml = `<i class="${icon}"></i>`;
+            } else {
+                switch(type) {
+                    case 'success':
+                        iconHtml = '<i class="fas fa-check-circle"></i>';
+                        break;
+                    case 'warning':
+                        iconHtml = '<i class="fas fa-exclamation-triangle"></i>';
+                        break;
+                    case 'danger':
+                        iconHtml = '<i class="fas fa-exclamation-circle"></i>';
+                        break;
+                    default:
+                        iconHtml = '<i class="fas fa-info-circle"></i>';
+                }
+            }
+
+            let actionsHtml = '';
+            if (actions && actions.length > 0) {
+                actionsHtml = '<div class="notification-actions">';
+                actions.forEach(action => {
+                    actionsHtml += `<button class="notification-btn ${action.class}" onclick="${action.onclick}">${action.text}</button>`;
+                });
+                actionsHtml += '</div>';
+            }
+
+            notification.innerHTML = `
+                <div class="notification-header">
+                    <div class="notification-title">${iconHtml} ${title}</div>
+                    <button class="notification-close" onclick="window.removeNotification(this)">&times;</button>
+                </div>
+                <div class="notification-message">${message}</div>
+                ${actionsHtml}
+            `;
+
+            container.appendChild(notification);
+
+            // Auto-remove after duration
+            if (duration > 0) {
+                setTimeout(() => {
+                    window.removeNotification(notification.querySelector('.notification-close'));
+                }, duration);
+            }
+
+            return notification;
+        }
+
+        window.removeNotification = function(element) {
+            const notification = element.closest('.notification');
+            if (notification) {
+                notification.classList.add('removing');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }
+        }
+
+        // Show completed notification
+        window.showCompletedNotification = function(title, message) {
+            showNotification({
+                type: 'success',
+                title: title,
+                message: message,
+                duration: 3000,
+                icon: 'fas fa-check-circle'
+            });
+        }
+
+        // Confirmation dialog function
+        window.showConfirmDialog = function(options) {
             const {
                 type = 'info',
                 title = 'Notification',
@@ -408,7 +513,7 @@
             } = options;
 
             return new Promise((resolve) => {
-                const notification = showNotification({
+                const notification = window.showNotification({
                     type: 'warning',
                     title: title,
                     message: message,
@@ -417,12 +522,12 @@
                         {
                             text: cancelText,
                             class: 'notification-btn-cancel',
-                            onclick: `removeNotification(this.closest('.notification').querySelector('.notification-close')); confirmDialogCancel();`
+                            onclick: `window.removeNotification(this.closest('.notification').querySelector('.notification-close')); window.confirmDialogCancel();`
                         },
                         {
                             text: confirmText,
                             class: confirmClass,
-                            onclick: `removeNotification(this.closest('.notification').querySelector('.notification-close')); confirmDialogConfirm();`
+                            onclick: `window.removeNotification(this.closest('.notification').querySelector('.notification-close')); window.confirmDialogConfirm();`
                         }
                     ]
                 });

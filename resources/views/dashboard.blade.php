@@ -31,7 +31,7 @@
     </div>
 
     <!-- Document Stat Cards (clickable) -->
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:16px; margin-bottom:24px;">
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:16px; margin-bottom:24px;">
         <a href="{{ route('documents.index') }}" style="text-decoration:none;">
             <div class="stat-card yellow" style="cursor:pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
                 <div class="info">
@@ -53,7 +53,7 @@
         <a href="{{ route('documents.index', ['status' => 'ONGOING']) }}" style="text-decoration:none;">
             <div class="stat-card green" style="cursor:pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
                 <div class="info">
-                    <div class="label">On going Documents</div>
+                    <div class="label">On going</div>
                     <div class="count">{{ $docOngoing }}</div>
                 </div>
                 <div class="icon"><i class="fas fa-sync-alt"></i></div>
@@ -62,7 +62,7 @@
         <a href="{{ route('documents.index', ['status' => 'COMPLETED']) }}" style="text-decoration:none;">
             <div class="stat-card teal" style="cursor:pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
                 <div class="info">
-                    <div class="label">Completed Documents</div>
+                    <div class="label">Completed</div>
                     <div class="count">{{ $docCompleted }}</div>
                 </div>
                 <div class="icon"><i class="fas fa-check-square"></i></div>

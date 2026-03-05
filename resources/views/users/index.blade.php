@@ -8,7 +8,7 @@
                 <div style="background:#333; color:#fff; padding:10px 20px; font-weight:600; font-size:13px; display:flex; justify-content:space-between; align-items:center;">
                     <div><i class="fas fa-users"></i> User Management</div>
                     <div>
-                        <a href="{{ route('users.create') }}" class="btn-green">
+                        <a href="{{ route('users.create') }}" class="btn-red">
                             <i class="fas fa-plus"></i> Create User
                         </a>
                     </div>
@@ -51,18 +51,18 @@
                                         </td>
                                         <td>{{ $user->created_at->format('M d, Y') }}</td>
                                         <td>
-                                            <div class="btn-group" role="group">
-                                                <a href="{{ route('users.edit', $user) }}" class="btn-blue" title="Edit">
+                                            <div style="display:flex; gap:4px; align-items:center; justify-content:center;">
+                                                <a href="{{ route('users.edit', $user) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <button type="button" class="btn-orange" onclick="document.getElementById('resetPasswordModal{{ $user->id }}').style.display='flex'" title="Reset Password">
+                                                <button type="button" class="btn-orange" onclick="document.getElementById('resetPasswordModal{{ $user->id }}').style.display='flex'" title="Reset Password" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
                                                     <i class="fas fa-key"></i>
                                                 </button>
                                                 @if($user->id !== auth()->id())
                                                     <form action="{{ route('users.destroy', $user) }}" method="POST" style="display:inline;" id="deleteForm-{{ $user->id }}">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="button" class="btn-red" onclick="confirmDelete({{ $user->id }}, '{{ $user->name }}')" title="Delete">
+                                                        <button type="button" class="btn-red" onclick="confirmDelete({{ $user->id }}, '{{ $user->name }}')" title="Delete" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
                                                             <i class="fas fa-trash"></i>
                                                         </button>
                                                     </form>
@@ -96,7 +96,7 @@
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn-gray" onclick="document.getElementById('resetPasswordModal{{ $user->id }}').style.display='none'">Cancel</button>
-                                                        <button type="submit" class="btn-orange">Reset Password</button>
+                                                        <button type="submit" class="btn-red">Reset Password</button>
                                                     </div>
                                                 </form>
                                             </div>

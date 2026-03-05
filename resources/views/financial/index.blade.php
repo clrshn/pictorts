@@ -5,7 +5,16 @@
     </x-slot>
 
     @if(session('success'))
-        <div class="alert-success">{{ session('success') }}</div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                showNotification({
+                    type: 'success',
+                    title: 'Success!',
+                    message: '{{ session('success') }}',
+                    duration: 3000
+                });
+            });
+        </script>
     @endif
 
     <!-- Search Filter -->
@@ -62,42 +71,44 @@
             <a href="{{ route('financial.create') }}" class="btn-red"><i class="fas fa-plus"></i> Add New Record</a>
         </div>
 
-        <div style="overflow-x:auto;">
-            <table>
+        <div style="overflow-x:auto; max-width:100%;">
+            <table style="min-width:1000px; width:100%; border-collapse: collapse;">
                 <thead>
                     <tr>
-                        <th>ACTION</th>
-                        <th>SUBJECT/TITLE</th>
-                        <th>TYPE</th>
-                        <th>SUPPLIER</th>
-                        <th>PR NO.</th>
-                        <th>PR AMT</th>
-                        <th>PO NO.</th>
-                        <th>OBR NO.</th>
-                        <th>OFFICE</th>
-                        <th>STATUS</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; min-width:250px; border-bottom:2px solid #8b0000;">SUBJECT/TITLE</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">TYPE</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">SUPPLIER</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PR NO.</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PR AMT</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PO NO.</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">OBR NO.</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:80px; border-bottom:2px solid #8b0000;">OFFICE</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">STATUS</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($records as $index => $rec)
                         <tr>
-                            <td>
-                                <a href="{{ route('financial.show', $rec) }}" class="btn-green" title="View Details"><i class="fas fa-route"></i></a>
-                                <a href="{{ route('financial.edit', $rec) }}" class="btn-blue" title="Edit"><i class="fas fa-edit"></i></a>
-                                <form action="{{ route('financial.destroy', $rec) }}" method="POST" style="display:inline;" id="deleteForm-{{ $rec->id }}">
-                                    @csrf @method('DELETE')
-                                    <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $rec->id }}, '{{ $rec->description ?? 'Financial Record' }}')"><i class="fas fa-trash"></i></button>
-                                </form>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:120px;">
+                                <div style="display:flex; gap:4px; align-items:center; justify-content:center;">
+                                    <a href="{{ route('financial.show', $rec) }}" class="btn-green" title="View Details" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-route"></i></a>
+                                    <a href="{{ route('financial.edit', $rec) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-edit"></i></a>
+                                    <form action="{{ route('financial.destroy', $rec) }}" method="POST" style="display:inline;" id="deleteForm-{{ $rec->id }}">
+                                        @csrf @method('DELETE')
+                                        <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $rec->id }}, '{{ $rec->description ?? 'Financial Record' }}')" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </div>
                             </td>
-                            <td style="max-width:250px; text-align:left; font-weight:600;">{{ $rec->description ?? '—' }}</td>
-                            <td>{{ $rec->type ?? '—' }}</td>
-                            <td>{{ $rec->supplier ?? '—' }}</td>
-                            <td style="font-family:monospace; font-size:12px;">{{ $rec->pr_number ?? '—' }}</td>
-                            <td>{{ $rec->pr_amount ? number_format($rec->pr_amount, 2) : '—' }}</td>
-                            <td style="font-family:monospace; font-size:12px;">{{ $rec->po_number ?? '—' }}</td>
-                            <td style="font-family:monospace; font-size:12px;">{{ $rec->obr_number ?? '—' }}</td>
-                            <td>{{ $rec->originOffice->code ?? '—' }}</td>
-                            <td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; min-width:250px; font-weight:600;">{{ $rec->description ?? '—' }}</td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:100px;">{{ $rec->type ?? '—' }}</td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:120px;">{{ $rec->supplier ?? '—' }}</td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:100px; font-family:monospace; font-size:12px;">{{ $rec->pr_number ?? '—' }}</td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:100px;">{{ $rec->pr_amount ? number_format($rec->pr_amount, 2) : '—' }}</td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:100px; font-family:monospace; font-size:12px;">{{ $rec->po_number ?? '—' }}</td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:100px; font-family:monospace; font-size:12px;">{{ $rec->obr_number ?? '—' }}</td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:80px;">{{ $rec->originOffice->code ?? '—' }}</td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:100px;">
                                 @php
                                     $badgeClass = match($rec->status) {
                                         'ACTIVE' => 'badge-active',
