@@ -14,6 +14,8 @@ class Document extends Model
         'dts_number',
         'picto_number',
         'doc_number',
+        'memorandum_number',
+        'particulars',
         'document_type',
         'direction',
         'originating_office',

@@ -33,22 +33,59 @@
         </div>
 
         <div style="padding:24px;">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px 32px; font-size:13px;">
-                <div><strong>Tracking Code:</strong> {{ $document->dts_number }}</div>
-                <div><strong>Transaction Number:</strong> {{ $document->doc_number }}</div>
-                <div><strong>Direction:</strong> {{ $document->direction }}</div>
-                <div><strong>Originating Office:</strong> {{ $document->originatingOffice->name ?? '—' }}</div>
-                <div><strong>Date:</strong> {{ $document->date_received ? $document->date_received->format('F d, Y') : ($document->created_at ? $document->created_at->format('F d, Y h:i A') : '—') }}</div>
-                <div style="grid-column:span 2;"><strong>Subject:</strong> {{ $document->subject }}</div>
-                <div><strong>Action Required:</strong> {{ $document->action_required ?? '—' }}</div>
-                <div><strong>Endorsed To:</strong> {{ $document->endorsed_to ?? '—' }}</div>
-                <div><strong>Current Location:</strong> {{ $document->currentOffice->code ?? '—' }}</div>
-                <div><strong>Current Holder:</strong> {{ $document->holder->name ?? '—' }}</div>
-                <div><strong>Encoded By:</strong> {{ $document->encoder->name ?? '—' }}</div>
-                <div><strong>Received Online:</strong> {{ $document->received_via_online ? 'Yes' : 'No' }}</div>
-                <div style="grid-column:span 2;"><strong>Remarks:</strong> {{ $document->remarks ?? '—' }}</div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px 32px; font-size:13px;">
+                <!-- Subject (Full Width, Top) -->
+                <div style="grid-column:span 2; border-left:3px solid #27ae60; padding-left:12px; margin-bottom:12px;">
+                    <div><strong>Subject:</strong> {{ $document->subject }}</div>
+                </div>
+                
+                <!-- Particulars (Full Width) -->
+                <div style="grid-column:span 2; border-left:3px solid #e67e22; padding-left:12px; margin-bottom:12px;">
+                    <div><strong>Particulars:</strong> {{ $document->particulars ?? '—' }}</div>
+                </div>
+                
+                <!-- Document Identification -->
+                <div style="border-left:3px solid #c0392b; padding-left:12px;">
+                    <div style="margin-bottom:8px;"><strong>Tracking Code:</strong> <span style="font-family:monospace; color:#c0392b;">{{ $document->dts_number }}</span></div>
+                    <div style="margin-bottom:8px;"><strong>PICTO No:</strong> <span style="font-family:monospace; color:#2c3e50;">{{ $document->doc_number }}</span></div>
+                    <div><strong>Memorandum No:</strong> <span style="font-family:monospace; color:#2c3e50;">{{ $document->memorandum_number ?? '—' }}</span></div>
+                </div>
+                
+                <!-- Document Details -->
+                <div style="border-left:3px solid #3498db; padding-left:12px;">
+                    <div style="margin-bottom:8px;"><strong>Direction:</strong> {{ $document->direction }}</div>
+                    <div style="margin-bottom:8px;"><strong>Originating Office:</strong> {{ $document->originatingOffice->name ?? '—' }}</div>
+                    <div><strong>Date:</strong> {{ $document->date_received ? $document->date_received->format('F d, Y') : ($document->created_at ? $document->created_at->format('F d, Y h:i A') : '—') }}</div>
+                </div>
+                
+                <!-- Action Information -->
+                <div style="border-left:3px solid #f39c12; padding-left:12px;">
+                    <div style="margin-bottom:8px;"><strong>Action Required:</strong> {{ $document->action_required ?? '—' }}</div>
+                    <div><strong>Endorsed To:</strong> {{ $document->endorsed_to ?? '—' }}</div>
+                </div>
+                
+                <!-- Current Status -->
+                <div style="border-left:3px solid #8e44ad; padding-left:12px;">
+                    <div style="margin-bottom:8px;"><strong>Current Location:</strong> {{ $document->currentOffice->code ?? '—' }}</div>
+                    <div style="margin-bottom:8px;"><strong>Current Holder:</strong> {{ $document->holder->name ?? '—' }}</div>
+                    <div><strong>Status:</strong> <span class="badge badge-{{ strtolower($document->status) }}">{{ $document->status }}</span></div>
+                </div>
+                
+                <!-- Additional Information -->
+                <div style="border-left:3px solid #95a5a6; padding-left:12px;">
+                    <div style="margin-bottom:8px;"><strong>Encoded By:</strong> {{ $document->encoder->name ?? '—' }}</div>
+                    <div><strong>Received Online:</strong> {{ $document->received_via_online ? 'Yes' : 'No' }}</div>
+                </div>
+                
+                <!-- Remarks (Full Width) -->
+                <div style="grid-column:span 2; border-left:3px solid #7f8c8d; padding-left:12px;">
+                    <div><strong>Remarks:</strong> {{ $document->remarks ?? '—' }}</div>
+                </div>
+                
                 @if($document->shared_drive_link)
-                    <div style="grid-column:span 2;"><strong>Shared Drive:</strong> <a href="{{ $document->shared_drive_link }}" target="_blank" style="color:#c0392b;">{{ $document->shared_drive_link }}</a></div>
+                    <div style="grid-column:span 2; border-left:3px solid #3498db; padding-left:12px;">
+                        <div><strong>Shared Drive:</strong> <a href="{{ $document->shared_drive_link }}" target="_blank" style="color:#c0392b;">{{ $document->shared_drive_link }}</a></div>
+                    </div>
                 @endif
             </div>
 

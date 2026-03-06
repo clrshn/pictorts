@@ -65,6 +65,18 @@
                     <input type="text" name="subject" class="form-control" value="{{ old('subject', $document->subject) }}" required>
                 </div>
 
+                <!-- Memorandum Number (Optional) -->
+                <div class="form-group">
+                    <label>Memorandum Number <small style="color:#999;">(Optional - Only for MEMO documents)</small></label>
+                    <input type="text" name="memorandum_number" class="form-control" value="{{ old('memorandum_number', $document->memorandum_number) }}" placeholder="e.g., MEMO-2026-001">
+                </div>
+
+                <!-- Particulars (Optional) -->
+                <div class="form-group">
+                    <label>Particulars <small style="color:#999;">(Optional)</small></label>
+                    <textarea name="particulars" class="form-control" rows="3" placeholder="Enter specific details or particulars about this document...">{{ old('particulars', $document->particulars) }}</textarea>
+                </div>
+
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
                     <div class="form-group">
                         <label>Action Required</label>

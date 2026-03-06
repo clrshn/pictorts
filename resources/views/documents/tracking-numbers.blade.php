@@ -40,13 +40,13 @@
                                 <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:12px;">
                                     @foreach($documents as $doc)
                                         <div style="border:1px solid #34495e; border-radius:4px; padding:12px; background:#2c3e50;">
-                                            <div style="font-family:monospace; font-size:13px; font-weight:600; color:#c0392b; margin-bottom:4px;">
+                                            <div style="font-size:12px; color:#b8c5d6; margin-bottom:6px; line-height:1.4; min-height:32px; word-wrap:break-word; overflow-wrap:break-word;">
+                                                {{ Str::limit($doc->subject, 80) }}
+                                            </div>
+                                            <div style="font-family:monospace; font-size:13px; font-weight:600; color:#c0392b; margin-bottom:6px;">
                                                 {{ $doc->dts_number }}
                                             </div>
-                                            <div style="font-size:12px; color:#b8c5d6; margin-bottom:4px;">
-                                                {{ Str::limit($doc->subject, 50) }}
-                                            </div>
-                                            <div style="font-size:11px; color:#7f8c8d;">
+                                            <div style="font-size:11px; color:#7f8c8d; text-align:right;">
                                                 {{ $doc->created_at->format('M d, Y h:i A') }}
                                             </div>
                                         </div>

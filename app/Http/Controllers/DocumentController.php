@@ -65,7 +65,7 @@ class DocumentController extends Controller
             });
         }
 
-        $documents = $query->latest()->paginate(15)->withQueryString();
+        $documents = $query->orderBy('doc_number', 'asc')->paginate(15)->withQueryString();
         $offices = Office::ordered()->get();
 
         return view('documents.index', compact('documents', 'offices'));
@@ -102,8 +102,12 @@ class DocumentController extends Controller
             $documentDate = $date ? \Carbon\Carbon::parse($date) : now();
             $year = $documentDate->year;
 
-            // Format: PICTO-{TYPE}-{YEAR}-{SEQUENCE}
-            $prefix = "PICTO-{$type}-{$year}-";
+            // Get originating office code
+            $office = Office::find($originOfficeId);
+            $officeCode = $office ? $office->code : 'UNKNOWN';
+
+            // Format: PICTO-{ORIGINATING OFFICE}-{TYPE}-{YEAR}-{SEQUENCE}
+            $prefix = "PICTO-{$officeCode}-{$type}-{$year}-";
 
             $lastDoc = Document::where('doc_number', 'like', $prefix . '%')
                 ->orderBy('doc_number', 'desc')
@@ -138,6 +142,7 @@ class DocumentController extends Controller
             'dts_number' => $trackingCode,
             'picto_number' => null,
             'doc_number' => $transactionNumber,
+            'memorandum_number' => $request->memorandum_number,
             'document_type' => $request->document_type,
             'direction' => $request->direction,
             'originating_office' => $request->originating_office,
@@ -145,6 +150,7 @@ class DocumentController extends Controller
             'current_office' => $request->originating_office,
             'current_holder' => auth()->id(),
             'subject' => $request->subject,
+            'particulars' => $request->particulars,
             'action_required' => $request->action_required,
             'endorsed_to' => $request->endorsed_to,
             'date_received' => $request->date_received,
@@ -222,6 +228,8 @@ class DocumentController extends Controller
             'originating_office' => $request->originating_office,
             'to_office' => $request->to_office,
             'subject' => $request->subject,
+            'memorandum_number' => $request->memorandum_number,
+            'particulars' => $request->particulars,
             'action_required' => $request->action_required,
             'endorsed_to' => $request->endorsed_to,
             'date_received' => $request->date_received,
@@ -231,10 +239,10 @@ class DocumentController extends Controller
             'received_via_online' => $request->boolean('received_via_online'),
         ];
 
-        // Regenerate tracking code and transaction number if date changed
+        // Regenerate tracking code only if date changed (PICTO Number should remain the same)
         if ($oldDate !== $newDate) {
             $updateData['dts_number'] = $this->generateTrackingCode($request->document_type, $request->originating_office, $newDate);
-            $updateData['doc_number'] = $this->generateTransactionNumber($request->document_type, $request->originating_office, $newDate);
+            // Note: PICTO Number (doc_number) is NOT regenerated - it stays the same for the document's lifetime
             $codesRegenerated = true;
         } else {
             $codesRegenerated = false;

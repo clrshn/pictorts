@@ -18,31 +18,56 @@
             </div>
         </div>
         <div style="padding:24px;">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px 32px; font-size:13px;">
-                <div><strong>Type:</strong> {{ $financial->type ?? '—' }}</div>
-                <div><strong>Supplier:</strong> {{ $financial->supplier ?? '—' }}</div>
-                <div style="grid-column:span 2;"><strong>Subject/Title:</strong> {{ $financial->description }}</div>
-                <div><strong>PR Number:</strong> <span style="font-family:monospace;">{{ $financial->pr_number ?? '—' }}</span></div>
-                <div><strong>PR Amount:</strong> {{ $financial->pr_amount ? '₱ ' . number_format($financial->pr_amount, 2) : '—' }}</div>
-                <div><strong>PO Number:</strong> <span style="font-family:monospace;">{{ $financial->po_number ?? '—' }}</span></div>
-                <div><strong>PO Amount:</strong> {{ $financial->po_amount ? '₱ ' . number_format($financial->po_amount, 2) : '—' }}</div>
-                <div><strong>OBR Number:</strong> <span style="font-family:monospace;">{{ $financial->obr_number ?? '—' }}</span></div>
-                <div><strong>Voucher Number:</strong> <span style="font-family:monospace;">{{ $financial->voucher_number ?? '—' }}</span></div>
-                <div><strong>Office:</strong> {{ $financial->originOffice->code ?? '—' }} – {{ $financial->originOffice->name ?? '' }}</div>
-                <div><strong>Current Office:</strong> {{ $financial->currentOffice->code ?? '—' }}</div>
-                <div><strong>Current Holder:</strong> {{ $financial->holder->name ?? '—' }}</div>
-                <div style="grid-column:span 2;"><strong>Remarks:</strong> {{ $financial->remarks ?? '—' }}</div>
-            </div>
-            <div style="margin-top:12px;">
-                @php
-                    $badgeClass = match($financial->status) {
-                        'ACTIVE' => 'badge-active',
-                        'CANCELLED' => 'badge-cancelled',
-                        'FINISHED' => 'badge-finished',
-                        default => ''
-                    };
-                @endphp
-                <strong>Status:</strong> <span class="badge {{ $badgeClass }}">{{ $financial->status }}</span>
+            @php
+                $badgeClass = match($financial->status) {
+                    'ACTIVE' => 'badge-active',
+                    'CANCELLED' => 'badge-cancelled',
+                    'FINISHED' => 'badge-finished',
+                    default => ''
+                };
+            @endphp
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px 32px; font-size:13px;">
+                <!-- Subject/Title (Full Width, Top) -->
+                <div style="grid-column:span 2; border-left:3px solid #27ae60; padding-left:12px; margin-bottom:12px;">
+                    <div><strong>Subject/Title:</strong> {{ $financial->description }}</div>
+                </div>
+                
+                <!-- Financial Identification -->
+                <div style="border-left:3px solid #c0392b; padding-left:12px;">
+                    <div style="margin-bottom:8px;"><strong>Type:</strong> {{ $financial->type ?? '—' }}</div>
+                    <div style="margin-bottom:8px;"><strong>Supplier:</strong> {{ $financial->supplier ?? '—' }}</div>
+                    <div><strong>Office:</strong> {{ $financial->originOffice->code ?? '—' }} – {{ $financial->originOffice->name ?? '' }}</div>
+                </div>
+                
+                <!-- Current Status -->
+                <div style="border-left:3px solid #8e44ad; padding-left:12px;">
+                    <div style="margin-bottom:8px;"><strong>Current Office:</strong> {{ $financial->currentOffice->code ?? '—' }}</div>
+                    <div style="margin-bottom:8px;"><strong>Current Holder:</strong> {{ $financial->holder->name ?? '—' }}</div>
+                    <div><strong>Status:</strong> <span class="badge {{ $badgeClass }}">{{ $financial->status }}</span></div>
+                </div>
+                
+                <!-- Purchase Request -->
+                <div style="border-left:3px solid #3498db; padding-left:12px;">
+                    <div style="margin-bottom:8px;"><strong>PR Number:</strong> <span style="font-family:monospace; color:#2c3e50;">{{ $financial->pr_number ?? '—' }}</span></div>
+                    <div><strong>PR Amount:</strong> <span style="color:#27ae60; font-weight:600;">{{ $financial->pr_amount ? '₱ ' . number_format($financial->pr_amount, 2) : '—' }}</span></div>
+                </div>
+                
+                <!-- Purchase Order -->
+                <div style="border-left:3px solid #f39c12; padding-left:12px;">
+                    <div style="margin-bottom:8px;"><strong>PO Number:</strong> <span style="font-family:monospace; color:#2c3e50;">{{ $financial->po_number ?? '—' }}</span></div>
+                    <div><strong>PO Amount:</strong> <span style="color:#27ae60; font-weight:600;">{{ $financial->po_amount ? '₱ ' . number_format($financial->po_amount, 2) : '—' }}</span></div>
+                </div>
+                
+                <!-- Payment Information -->
+                <div style="border-left:3px solid #e74c3c; padding-left:12px;">
+                    <div style="margin-bottom:8px;"><strong>OBR Number:</strong> <span style="font-family:monospace; color:#2c3e50;">{{ $financial->obr_number ?? '—' }}</span></div>
+                    <div><strong>Voucher Number:</strong> <span style="font-family:monospace; color:#2c3e50;">{{ $financial->voucher_number ?? '—' }}</span></div>
+                </div>
+                
+                <!-- Remarks (Full Width) -->
+                <div style="grid-column:span 2; border-left:3px solid #7f8c8d; padding-left:12px;">
+                    <div><strong>Remarks:</strong> {{ $financial->remarks ?? '—' }}</div>
+                </div>
             </div>
         </div>
     </div>

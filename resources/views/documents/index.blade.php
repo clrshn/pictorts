@@ -129,7 +129,8 @@
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:60px; border-bottom:2px solid #8b0000;">SEQ #</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:150px; border-bottom:2px solid #8b0000;">TRACKING CODE</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:180px; border-bottom:2px solid #8b0000;">TRANSACTION NO</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:180px; border-bottom:2px solid #8b0000;">PICTO NO</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:150px; border-bottom:2px solid #8b0000;">MEMORANDUM NO</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; min-width:250px; border-bottom:2px solid #8b0000;">SUBJECT</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">STATUS</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DOCUMENT DATE</th>
@@ -151,6 +152,7 @@
                             </td>
                             <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:150px; font-family:monospace; font-size:12px;">{{ $doc->dts_number }}</td>
                             <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:180px; font-family:monospace; font-size:12px;">{{ $doc->doc_number ?? '—' }}</td>
+                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:150px; font-family:monospace; font-size:12px;">{{ $doc->memorandum_number ?? '—' }}</td>
                             <td style="text-align:center; padding:20px 6px; white-space:nowrap; min-width:250px;">{{ $doc->subject }}</td>
                             <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:100px;">
                                 @php
@@ -167,7 +169,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" style="padding:30px; color:#999;">No documents found.</td>
+                            <td colspan="8" style="padding:30px; color:#999;">No documents found.</td>
                         </tr>
                     @endforelse
                 </tbody>
