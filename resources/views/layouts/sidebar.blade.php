@@ -72,6 +72,9 @@
         <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}" style="display: inline-flex; justify-content: center; width: auto; padding: 12px 20px;">
             <i class="fas fa-users"></i> User Management
         </a>
+        <a href="{{ route('offices.index') }}" class="nav-item {{ request()->routeIs('offices.*') ? 'active' : '' }}" style="display: inline-flex; justify-content: center; width: auto; padding: 12px 20px;">
+            <i class="fas fa-building"></i> Office Management
+        </a>
     </div>
     @endif
 </aside>

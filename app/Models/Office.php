@@ -3,23 +3,22 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User; // added this line
 
 class Office extends Model
 {
     protected $fillable = ['code','name'];
 
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
     /**
-     * Scope to order offices with BAC second to last and Others last
+     * Scope to order offices alphabetically A-Z
      */
     public function scopeOrdered($query)
     {
-        return $query->orderByRaw("
-            CASE 
-                WHEN UPPER(code) = 'BAC' THEN 2
-                WHEN UPPER(code) = 'OTHERS' THEN 3
-                ELSE 1
-            END,
-            code ASC
-        ");
+        return $query->orderBy('code', 'asc');
     }
 }

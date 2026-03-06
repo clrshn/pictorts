@@ -72,7 +72,8 @@ class FinancialController extends Controller
             'current_office' => $request->office_origin,
             'current_holder' => auth()->id(),
             'created_by' => auth()->id(),
-            'status' => 'ACTIVE',
+            'status' => $request->status,
+            'progress' => $request->progress,
             'remarks' => $request->remarks,
         ]);
 
@@ -140,6 +141,7 @@ class FinancialController extends Controller
             'voucher_number' => $request->voucher_number,
             'office_origin' => $request->office_origin,
             'status' => $request->status ?? $financial->status,
+            'progress' => $request->progress,
             'remarks' => $request->remarks,
         ]);
 

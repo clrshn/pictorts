@@ -22,8 +22,8 @@
         <div style="padding:24px;">
             <p style="font-size:12px; color:#999; margin-bottom:16px;">Tracking Code and PICTO Number will be auto-generated upon saving</p>
             <p style="font-size:11px; color:#999; margin-bottom:16px;">
-                <strong>Tracking Code:</strong> {YEAR}{12-CHARACTER CODE} (e.g., 2026KTAYQWWBUEDG)<br>
-                <strong>PICTO Number:</strong> PICTO-{OFFICE}-{TYPE}-{YEAR}-{6-digit SEQ} (e.g., PICTO-BAC-LETTER-2026-000001)
+                <strong>Tracking Code:</strong> {YEAR}{12-CHARACTER CODE} <br>
+                <strong>PICTO Number:</strong> PICTO-{OFFICE}-{TYPE}-{YEAR}-{6-digit SEQ}
             </p>
 
             <form method="POST" action="{{ route('documents.store') }}" enctype="multipart/form-data">
@@ -81,10 +81,16 @@
                     <input type="text" name="subject" class="form-control" value="{{ old('subject') }}" required>
                 </div>
 
-                <!-- Memorandum Number (Optional) -->
+                <!-- Number (Optional) -->
                 <div class="form-group">
-                    <label>Memorandum Number <small style="color:#999;">(Optional - Only for MEMO documents)</small></label>
-                    <input type="text" name="memorandum_number" class="form-control" value="{{ old('memorandum_number') }}" placeholder="e.g., MEMO-2026-001">
+                    <label>Number <small style="color:#999;">(Optional)</small></label>
+                    <input type="text" name="memorandum_number" class="form-control" value="{{ old('memorandum_number') }}" placeholder="">
+                </div>
+
+                <!-- Period (Optional) -->
+                <div class="form-group">
+                    <label>Period <small style="color:#999;">(Optional)</small></label>
+                    <input type="text" name="period" class="form-control" value="{{ old('period') }}" placeholder="e.g., 1st Quarter, 2nd Semester, FY 2026">
                 </div>
 
                 <!-- Particulars (Optional) -->

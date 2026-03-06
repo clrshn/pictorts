@@ -65,10 +65,16 @@
                     <input type="text" name="subject" class="form-control" value="{{ old('subject', $document->subject) }}" required>
                 </div>
 
-                <!-- Memorandum Number (Optional) -->
+                <!-- Number (Optional) -->
                 <div class="form-group">
-                    <label>Memorandum Number <small style="color:#999;">(Optional - Only for MEMO documents)</small></label>
-                    <input type="text" name="memorandum_number" class="form-control" value="{{ old('memorandum_number', $document->memorandum_number) }}" placeholder="e.g., MEMO-2026-001">
+                    <label>Number <small style="color:#999;">(Optional - For MEMO documents and special numbers)</small></label>
+                    <input type="text" name="memorandum_number" class="form-control" value="{{ old('memorandum_number', $document->memorandum_number) }}" placeholder="e.g., MEMO-2026-001 or special number">
+                </div>
+
+                <!-- Period (Optional) -->
+                <div class="form-group">
+                    <label>Period <small style="color:#999;">(Optional)</small></label>
+                    <input type="text" name="period" class="form-control" value="{{ old('period', $document->period) }}" placeholder="e.g., 1st Quarter, 2nd Semester, FY 2026">
                 </div>
 
                 <!-- Particulars (Optional) -->

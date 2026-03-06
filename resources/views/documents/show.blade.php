@@ -48,7 +48,7 @@
                 <div style="border-left:3px solid #c0392b; padding-left:12px;">
                     <div style="margin-bottom:8px;"><strong>Tracking Code:</strong> <span style="font-family:monospace; color:#c0392b;">{{ $document->dts_number }}</span></div>
                     <div style="margin-bottom:8px;"><strong>PICTO No:</strong> <span style="font-family:monospace; color:#2c3e50;">{{ $document->doc_number }}</span></div>
-                    <div><strong>Memorandum No:</strong> <span style="font-family:monospace; color:#2c3e50;">{{ $document->memorandum_number ?? '—' }}</span></div>
+                    <div><strong>Number:</strong> <span style="font-family:monospace; color:#2c3e50;">{{ $document->memorandum_number ?? '—' }}</span></div>
                 </div>
                 
                 <!-- Document Details -->

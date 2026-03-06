@@ -33,8 +33,23 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Subject/Title <span style="color:#c0392b">*</span></label>
-                    <textarea name="description" class="form-control" rows="2" required placeholder="Enter subject or title of this financial transaction">{{ old('description', $financial->description) }}</textarea>
+                    <label>Description <span style="color:#c0392b">*</span></label>
+                    <textarea name="description" class="form-control" rows="2" required placeholder="Enter description of this financial transaction">{{ old('description', $financial->description) }}</textarea>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                    <div class="form-group">
+                        <label>Status <span style="color:#c0392b">*</span></label>
+                        <select name="status" class="form-control" required>
+                            <option value="">Select Status</option>
+                            <option value="ACTIVE" {{ old('status', $financial->status) === 'ACTIVE' ? 'selected' : '' }}>ACTIVE</option>
+                            <option value="CANCELLED" {{ old('status', $financial->status) === 'CANCELLED' ? 'selected' : '' }}>CANCELLED</option>
+                            <option value="FINISHED" {{ old('status', $financial->status) === 'FINISHED' ? 'selected' : '' }}>FINISHED</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <!-- Empty for balance -->
+                    </div>
                 </div>
 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
@@ -80,18 +95,29 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Status</label>
-                        <select name="status" class="form-control">
-                            @foreach(['ACTIVE','CANCELLED','FINISHED'] as $s)
-                                <option value="{{ $s }}" {{ $financial->status === $s ? 'selected' : '' }}>{{ $s }}</option>
-                            @endforeach
+                        <!-- Empty for balance -->
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                    <div class="form-group">
+                        <label>Progress <small style="color:#999;">(Optional - Manually enter progress status)</small></label>
+                        <input type="text" name="progress" class="form-control" value="{{ old('progress', $financial->progress) }}" placeholder="e.g., For Processing, Under Review, Awaiting Approval">
+                    </div>
+                    <div class="form-group">
+                        <label>Status <span style="color:#c0392b">*</span></label>
+                        <select name="status" class="form-control" required>
+                            <option value="">Select Status</option>
+                            <option value="ACTIVE" {{ old('status', $financial->status) === 'ACTIVE' ? 'selected' : '' }}>ACTIVE</option>
+                            <option value="CANCELLED" {{ old('status', $financial->status) === 'CANCELLED' ? 'selected' : '' }}>CANCELLED</option>
+                            <option value="FINISHED" {{ old('status', $financial->status) === 'FINISHED' ? 'selected' : '' }}>FINISHED</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Remarks / Notes</label>
-                    <textarea name="remarks" class="form-control" rows="2">{{ old('remarks', $financial->remarks) }}</textarea>
+                    <textarea name="remarks" class="form-control" rows="3" style="white-space: pre-wrap; wrap: soft;" placeholder="Enter remarks with proper formatting...">{{ old('remarks', $financial->remarks) }}</textarea>
                 </div>
 
                 <div class="form-group">

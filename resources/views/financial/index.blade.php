@@ -24,17 +24,17 @@
         <!-- Active Filters Indicator -->
         @if(request()->hasAny(['status', 'search']))
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; margin-bottom:12px;">
-                <span style="font-weight:600; color:#666;">Active Filters:</span>
+                <span style="color:#666;">Active Filters:</span>
                 @if(request('status'))
                     <span class="badge" style="background:#1976d2; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
                         Status: {{ request('status') }}
-                        <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer; font-weight:bold;" title="Remove status filter">×</a>
+                        <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove status filter">×</a>
                     </span>
                 @endif
                 @if(request('search'))
                     <span class="badge" style="background:#1976d2; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
                         Search: {{ request('search') }}
-                        <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer; font-weight:bold;" title="Remove search filter">×</a>
+                        <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove search filter">×</a>
                     </span>
                 @endif
                 <a href="{{ route('financial.index') }}" class="btn btn-sm btn-outline-secondary">Clear All</a>
@@ -76,7 +76,7 @@
                 <thead>
                     <tr>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; min-width:250px; border-bottom:2px solid #8b0000;">SUBJECT/TITLE</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; min-width:250px; border-bottom:2px solid #8b0000;">DESCRIPTION</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">TYPE</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">SUPPLIER</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PR NO.</th>
@@ -84,14 +84,15 @@
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PO NO.</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">OBR NO.</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:80px; border-bottom:2px solid #8b0000;">OFFICE</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PROGRESS</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">STATUS</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($records as $index => $rec)
                         <tr>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:120px;">
-                                <div style="display:flex; gap:4px; align-items:center; justify-content:center;">
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">
+                                <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
                                     <a href="{{ route('financial.show', $rec) }}" class="btn-green" title="View Details" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-route"></i></a>
                                     <a href="{{ route('financial.edit', $rec) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-edit"></i></a>
                                     <form action="{{ route('financial.destroy', $rec) }}" method="POST" style="display:inline;" id="deleteForm-{{ $rec->id }}">
@@ -100,15 +101,16 @@
                                     </form>
                                 </div>
                             </td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; min-width:250px; font-weight:600;">{{ $rec->description ?? '—' }}</td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:100px;">{{ $rec->type ?? '—' }}</td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:120px;">{{ $rec->supplier ?? '—' }}</td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:100px; font-family:monospace; font-size:12px;">{{ $rec->pr_number ?? '—' }}</td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:100px;">{{ $rec->pr_amount ? number_format($rec->pr_amount, 2) : '—' }}</td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:100px; font-family:monospace; font-size:12px;">{{ $rec->po_number ?? '—' }}</td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:100px; font-family:monospace; font-size:12px;">{{ $rec->obr_number ?? '—' }}</td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:80px;">{{ $rec->originOffice->code ?? '—' }}</td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:100px;">
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; min-width:250px;">{{ $rec->description ?? '—' }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->type ?? '—' }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $rec->supplier ?? '—' }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->pr_number ?? '—' }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->pr_amount ? number_format($rec->pr_amount, 2) : '—' }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->po_number ?? '—' }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->obr_number ?? '—' }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:80px;">{{ $rec->originOffice->code ?? '—' }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->progress ?? '—' }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">
                                 @php
                                     $badgeClass = match($rec->status) {
                                         'ACTIVE' => 'badge-active',
@@ -138,6 +140,86 @@
     <div class="notification-container" id="notificationContainer"></div>
 
     <style>
+        /* Consistent Font System */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #2c3e50;
+        }
+
+        .table-card {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+        }
+
+        .table-header h3 {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .filter-box {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+        }
+
+        .filter-box h3 {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .form-group label {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-control {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+        }
+
+        table th {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        table td {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .badge {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .badge-active { background: #27ae60; color: #fff; }
+        .badge-cancelled { background: #e74c3c; color: #fff; }
+        .badge-finished { background: #00b894; color: #fff; }
+        .badge-warning { background: #f39c12; color: #fff; }
+        .badge-info { background: #3498db; color: #fff; }
+        .badge-primary { background: #9b59b6; color: #fff; }
+        .badge-success { background: #27ae60; color: #fff; }
+        .badge-completed { background: #16a085; color: #fff; }
+
+        .btn-red, .btn-blue, .btn-green, .btn-gray, .btn-danger {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
         /* Modern Notification System */
         .notification-container {
             position: fixed;
@@ -183,6 +265,7 @@
         }
 
         .notification-title {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-weight: 600;
             font-size: 14px;
             color: #2c3e50;
@@ -213,8 +296,9 @@
         }
 
         .notification-message {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #555;
-            font-size: 13px;
+            font-size: 14px;
             line-height: 1.4;
         }
 
@@ -226,11 +310,12 @@
         }
 
         .notification-btn {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 6px 12px;
             border: none;
             border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
         }

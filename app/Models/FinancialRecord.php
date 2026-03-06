@@ -21,6 +21,7 @@ class FinancialRecord extends Model
         'current_holder',
         'created_by',
         'status',
+        'progress',
         'remarks',
     ];
 

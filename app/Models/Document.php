@@ -15,6 +15,7 @@ class Document extends Model
         'picto_number',
         'doc_number',
         'memorandum_number',
+        'period',
         'particulars',
         'document_type',
         'direction',

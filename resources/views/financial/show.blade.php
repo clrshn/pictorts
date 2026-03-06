@@ -27,9 +27,9 @@
                 };
             @endphp
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px 32px; font-size:13px;">
-                <!-- Subject/Title (Full Width, Top) -->
+                <!-- Description (Full Width, Top) -->
                 <div style="grid-column:span 2; border-left:3px solid #27ae60; padding-left:12px; margin-bottom:12px;">
-                    <div><strong>Subject/Title:</strong> {{ $financial->description }}</div>
+                    <div><strong>Description:</strong> {{ $financial->description }}</div>
                 </div>
                 
                 <!-- Financial Identification -->

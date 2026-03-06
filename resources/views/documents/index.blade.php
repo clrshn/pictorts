@@ -28,41 +28,41 @@
             <h3 style="margin:0;">Search Filter</h3>
             @if(request()->hasAny(['direction', 'status', 'type', 'month', 'year', 'search']))
                 <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
-                    <span style="font-weight:600; color:#666;">Active Filters:</span>
+                    <span style="color:#666;">Active Filters:</span>
                     @if(request('direction'))
                         <span class="badge" style="background:#1976d2; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
                             Direction: {{ request('direction') }}
-                            <a href="{{ request()->fullUrlWithQuery(['direction' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer; font-weight:bold;" title="Remove direction filter">×</a>
+                            <a href="{{ request()->fullUrlWithQuery(['direction' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove direction filter">×</a>
                         </span>
                     @endif
                     @if(request('status'))
                         <span class="badge" style="background:#28a745; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
                             Status: {{ request('status') }}
-                            <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer; font-weight:bold;" title="Remove status filter">×</a>
+                            <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove status filter">×</a>
                         </span>
                     @endif
                     @if(request('type'))
                         <span class="badge" style="background:#ffc107; color:black; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
                             Type: {{ request('type') }}
-                            <a href="{{ request()->fullUrlWithQuery(['type' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer; font-weight:bold;" title="Remove type filter">×</a>
+                            <a href="{{ request()->fullUrlWithQuery(['type' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove type filter">×</a>
                         </span>
                     @endif
                     @if(request('month'))
                         <span class="badge" style="background:#6f42c1; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
                             Month: {{ request('month') }}
-                            <a href="{{ request()->fullUrlWithQuery(['month' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer; font-weight:bold;" title="Remove month filter">×</a>
+                            <a href="{{ request()->fullUrlWithQuery(['month' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove month filter">×</a>
                         </span>
                     @endif
                     @if(request('year'))
                         <span class="badge" style="background:#fd7e14; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
                             Year: {{ request('year') }}
-                            <a href="{{ request()->fullUrlWithQuery(['year' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer; font-weight:bold;" title="Remove year filter">×</a>
+                            <a href="{{ request()->fullUrlWithQuery(['year' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove year filter">×</a>
                         </span>
                     @endif
                     @if(request('search'))
                         <span class="badge" style="background:#1976d2; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
                             Search: {{ request('search') }}
-                            <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer; font-weight:bold;" title="Remove search filter">×</a>
+                            <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove search filter">×</a>
                         </span>
                     @endif
                     <a href="{{ route('documents.index') }}" class="btn btn-sm btn-outline-secondary">Clear All</a>
@@ -130,7 +130,7 @@
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:150px; border-bottom:2px solid #8b0000;">TRACKING CODE</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:180px; border-bottom:2px solid #8b0000;">PICTO NO</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:150px; border-bottom:2px solid #8b0000;">MEMORANDUM NO</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:150px; border-bottom:2px solid #8b0000;">NUMBER</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; min-width:250px; border-bottom:2px solid #8b0000;">SUBJECT</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">STATUS</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DOCUMENT DATE</th>
@@ -139,9 +139,9 @@
                 <tbody>
                     @forelse($documents as $index => $doc)
                         <tr>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:60px;">{{ $documents->firstItem() + $index }}</td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:120px;">
-                                <div style="display:flex; gap:4px; align-items:center; justify-content:center;">
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:60px;">{{ $documents->firstItem() + $index }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">
+                                <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
                                     <a href="{{ route('documents.show', $doc) }}" class="btn-green" title="View Document & Tracking" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-route"></i></a>
                                     <a href="{{ route('documents.edit', $doc) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-edit"></i></a>
                                     <form action="{{ route('documents.destroy', $doc) }}" method="POST" style="display:inline;" id="deleteForm-{{ $doc->id }}">
@@ -150,11 +150,11 @@
                                     </form>
                                 </div>
                             </td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:150px; font-family:monospace; font-size:12px;">{{ $doc->dts_number }}</td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:180px; font-family:monospace; font-size:12px;">{{ $doc->doc_number ?? '—' }}</td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:150px; font-family:monospace; font-size:12px;">{{ $doc->memorandum_number ?? '—' }}</td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; min-width:250px;">{{ $doc->subject }}</td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:100px;">
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:150px;">{{ $doc->dts_number }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:180px;">{{ $doc->doc_number ?? '—' }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:150px;">{{ $doc->memorandum_number ?? '—' }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; min-width:250px;">{{ $doc->subject }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">
                                 @php
                                     $badgeClass = match($doc->status) {
                                         'ONGOING' => 'badge-ongoing',
@@ -165,7 +165,7 @@
                                 @endphp
                                 <span class="badge {{ $badgeClass }}">{{ $doc->status }}</span>
                             </td>
-                            <td style="text-align:center; padding:20px 6px; white-space:nowrap; width:120px;">{{ $doc->date_received ? $doc->date_received->format('F d, Y') : ($doc->created_at ? $doc->created_at->format('F d, Y') : '—') }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $doc->date_received ? $doc->date_received->format('F d, Y') : ($doc->created_at ? $doc->created_at->format('F d, Y') : '—') }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -185,6 +185,77 @@
     <div class="notification-container" id="notificationContainer"></div>
 
     <style>
+        /* Consistent Font System */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #2c3e50;
+        }
+
+        .table-card {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+        }
+
+        .table-header h3 {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .filter-box {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+        }
+
+        .filter-box h3 {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .form-group label {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-control {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+        }
+
+        table th {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        table td {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .badge {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-red, .btn-blue, .btn-green, .btn-gray, .btn-danger {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
         /* Modern Notification System */
         .notification-container {
             position: fixed;
@@ -230,6 +301,7 @@
         }
 
         .notification-title {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-weight: 600;
             font-size: 14px;
             color: #2c3e50;
@@ -260,8 +332,9 @@
         }
 
         .notification-message {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #555;
-            font-size: 13px;
+            font-size: 14px;
             line-height: 1.4;
         }
 
@@ -273,11 +346,12 @@
         }
 
         .notification-btn {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 6px 12px;
             border: none;
             border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
         }
