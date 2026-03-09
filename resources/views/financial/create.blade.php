@@ -23,7 +23,14 @@
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
                     <div class="form-group">
                         <label>Type</label>
-                        <input type="text" name="type" class="form-control" value="{{ old('type') }}" placeholder="e.g. Supplies, Equipment, Services">
+                        <select name="type" class="form-control">
+                            <option value="">Select Type</option>
+                            <option value="DV" {{ old('type') === 'DV' ? 'selected' : '' }}>DV</option>
+                            <option value="INSPEC" {{ old('type') === 'INSPEC' ? 'selected' : '' }}>INSPEC</option>
+                            <option value="OBR" {{ old('type') === 'OBR' ? 'selected' : '' }}>OBR</option>
+                            <option value="OPG" {{ old('type') === 'OPG' ? 'selected' : '' }}>OPG</option>
+                            <option value="PR" {{ old('type') === 'PR' ? 'selected' : '' }}>PR</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Supplier</label>

@@ -33,10 +33,10 @@
         </button>
         <div class="nav-dropdown-menu" id="documentsDropdown">
             <a href="{{ route('documents.index', ['direction' => 'INCOMING']) }}" class="nav-dropdown-item">
-                <i class="fas fa-arrow-down"></i> Incoming Documents
+                <i class="fas fa-arrow-down" style="width: 16px; margin-right: 8px; text-align: center;"></i> Incoming Documents
             </a>
             <a href="{{ route('documents.index', ['direction' => 'OUTGOING']) }}" class="nav-dropdown-item">
-                <i class="fas fa-arrow-up"></i> Outgoing Documents
+                <i class="fas fa-arrow-up" style="width: 16px; margin-right: 8px; text-align: center;"></i> Outgoing Documents
             </a>
         </div>
     </div>
@@ -52,13 +52,13 @@
         </button>
         <div class="nav-dropdown-menu" id="financialDropdown">
             <a href="{{ route('financial.index', ['status' => 'ACTIVE']) }}" class="nav-dropdown-item">
-                <i class="fas fa-play-circle"></i> Active
+                <i class="fas fa-play-circle" style="width: 16px; margin-right: 8px; text-align: center;"></i> Active
             </a>
             <a href="{{ route('financial.index', ['status' => 'CANCELLED']) }}" class="nav-dropdown-item">
-                <i class="fas fa-times-circle"></i> Cancelled
+                <i class="fas fa-times-circle" style="width: 16px; margin-right: 8px; text-align: center;"></i> Cancelled
             </a>
             <a href="{{ route('financial.index', ['status' => 'FINISHED']) }}" class="nav-dropdown-item">
-                <i class="fas fa-check-circle"></i> Finished
+                <i class="fas fa-check-circle" style="width: 16px; margin-right: 8px; text-align: center;"></i> Finished
             </a>
         </div>
     </div>

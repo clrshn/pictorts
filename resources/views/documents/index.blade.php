@@ -27,41 +27,41 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
             <h3 style="margin:0;">Search Filter</h3>
             @if(request()->hasAny(['direction', 'status', 'type', 'month', 'year', 'search']))
-                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
-                    <span style="color:#666;">Active Filters:</span>
+                <div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap; justify-content:flex-end; margin-bottom:12px;">
+                    <span style="color:#666; font-size:15px;">Active Filters:</span>
                     @if(request('direction'))
-                        <span class="badge" style="background:#1976d2; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
-                            Direction: {{ request('direction') }}
+                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                            {{ request('direction') }}
                             <a href="{{ request()->fullUrlWithQuery(['direction' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove direction filter">×</a>
                         </span>
                     @endif
                     @if(request('status'))
-                        <span class="badge" style="background:#28a745; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
-                            Status: {{ request('status') }}
+                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                            {{ request('status') }}
                             <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove status filter">×</a>
                         </span>
                     @endif
                     @if(request('type'))
-                        <span class="badge" style="background:#ffc107; color:black; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
-                            Type: {{ request('type') }}
+                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                            {{ request('type') }}
                             <a href="{{ request()->fullUrlWithQuery(['type' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove type filter">×</a>
                         </span>
                     @endif
                     @if(request('month'))
-                        <span class="badge" style="background:#6f42c1; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
-                            Month: {{ request('month') }}
+                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                            {{ request('month') }}
                             <a href="{{ request()->fullUrlWithQuery(['month' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove month filter">×</a>
                         </span>
                     @endif
                     @if(request('year'))
-                        <span class="badge" style="background:#fd7e14; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
-                            Year: {{ request('year') }}
+                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                            {{ request('year') }}
                             <a href="{{ request()->fullUrlWithQuery(['year' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove year filter">×</a>
                         </span>
                     @endif
                     @if(request('search'))
-                        <span class="badge" style="background:#1976d2; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
-                            Search: {{ request('search') }}
+                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                            {{ request('search') }}
                             <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove search filter">×</a>
                         </span>
                     @endif
@@ -73,8 +73,28 @@
             @if(request('status'))
                 <input type="hidden" name="status" value="{{ request('status') }}">
             @endif
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:12px;">
+            @if(request('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}">
+            @endif
+            @if(request('direction'))
+                <input type="hidden" name="direction" value="{{ request('direction') }}">
+            @endif
+            @if(request('type'))
+                <input type="hidden" name="type" value="{{ request('type') }}">
+            @endif
+            @if(request('month'))
+                <input type="hidden" name="month" value="{{ request('month') }}">
+            @endif
+            @if(request('year'))
+                <input type="hidden" name="year" value="{{ request('year') }}">
+            @endif
+            <div style="display:grid; grid-template-columns: 1fr; gap:8px;">
                 <div class="form-group" style="margin:0">
+                    <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Enter keywords...">
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:12px;">
+                <div class="form-group" style="margin:0; margin-top:12px;">
                     <label>Month</label>
                     <select name="month" class="form-control">
                         <option value="">All Months</option>
@@ -83,11 +103,11 @@
                         @endfor
                     </select>
                 </div>
-                <div class="form-group" style="margin:0">
+                <div class="form-group" style="margin:0; margin-top:12px;">
                     <label>Year</label>
                     <input type="number" name="year" class="form-control" value="{{ request('year', now()->year) }}" min="2020" max="2030">
                 </div>
-                <div class="form-group" style="margin:0">
+                <div class="form-group" style="margin:0; margin-top:12px;">
                     <label>Document Type</label>
                     <select name="type" class="form-control">
                         <option value="">All Types</option>
@@ -96,7 +116,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="form-group" style="margin:0">
+                <div class="form-group" style="margin:0; margin-top:12px;">
                     <label>Direction</label>
                     <select name="direction" class="form-control">
                         <option value="">All</option>
@@ -104,7 +124,7 @@
                         <option value="OUTGOING" {{ request('direction') === 'OUTGOING' ? 'selected' : '' }}>Outgoing</option>
                     </select>
                 </div>
-                <div class="form-group" style="margin:0; display:flex; align-items:flex-end; gap:8px;">
+                <div class="form-group" style="margin:0; margin-top:12px; display:flex; align-items:flex-end; gap:8px;">
                     <button type="submit" class="btn-red"><i class="fas fa-search"></i> Filter</button>
                     <a href="{{ route('documents.index') }}" class="btn-gray">Reset</a>
                 </div>
@@ -117,7 +137,6 @@
         <div class="table-header">
             <h3>Documents Table</h3>
             <div style="display:flex; gap:8px;">
-                <a href="{{ route('documents.tracking-numbers') }}" class="btn-blue"><i class="fas fa-qrcode"></i> Tracking Numbers</a>
                 <a href="{{ route('documents.create') }}" class="btn-red"><i class="fas fa-plus"></i> Add New Document</a>
             </div>
         </div>
@@ -131,18 +150,18 @@
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:150px; border-bottom:2px solid #8b0000;">TRACKING CODE</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:180px; border-bottom:2px solid #8b0000;">PICTO NO</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:150px; border-bottom:2px solid #8b0000;">NUMBER</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; min-width:250px; border-bottom:2px solid #8b0000;">SUBJECT</th>
+                        <th style="text-align:center; padding:12px 8px; min-width:250px; border-bottom:2px solid #8b0000;">SUBJECT</th>
+                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">REMARKS</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">STATUS</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DOCUMENT DATE</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($documents as $index => $doc)
-                        <tr>
+                        <tr class="clickable-row" data-href="{{ route('documents.show', $doc) }}" style="cursor: pointer;">
                             <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:60px;">{{ $documents->firstItem() + $index }}</td>
-                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;" onclick="event.stopPropagation();">
                                 <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
-                                    <a href="{{ route('documents.show', $doc) }}" class="btn-green" title="View Document & Tracking" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-route"></i></a>
                                     <a href="{{ route('documents.edit', $doc) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-edit"></i></a>
                                     <form action="{{ route('documents.destroy', $doc) }}" method="POST" style="display:inline;" id="deleteForm-{{ $doc->id }}">
                                         @csrf @method('DELETE')
@@ -153,7 +172,8 @@
                             <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:150px;">{{ $doc->dts_number }}</td>
                             <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:180px;">{{ $doc->doc_number ?? '—' }}</td>
                             <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:150px;">{{ $doc->memorandum_number ?? '—' }}</td>
-                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; min-width:250px;">{{ $doc->subject }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; min-width:250px; word-wrap:break-word;">{{ $doc->subject }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; min-width:200px; max-width:250px; word-wrap:break-word;">{{ $doc->remarks ?? '—' }}</td>
                             <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">
                                 @php
                                     $badgeClass = match($doc->status) {
@@ -169,7 +189,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" style="padding:30px; color:#999;">No documents found.</td>
+                            <td colspan="9" style="padding:30px; color:#999;">No documents found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -658,6 +678,18 @@
         // Auto-test on page load
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Document loaded, notification system ready');
+            
+            // Clickable table rows
+            const clickableRows = document.querySelectorAll('.clickable-row');
+            clickableRows.forEach(row => {
+                row.addEventListener('click', function() {
+                    const href = this.getAttribute('data-href');
+                    if (href) {
+                        window.location.href = href;
+                    }
+                });
+            });
+            
             // Uncomment to test automatically:
             // setTimeout(testNotification, 1000);
         });

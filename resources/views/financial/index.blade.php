@@ -19,31 +19,42 @@
 
     <!-- Search Filter -->
     <div class="filter-box">
-        <h3>Search Filter</h3>
-        
-        <!-- Active Filters Indicator -->
-        @if(request()->hasAny(['status', 'search']))
-            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; margin-bottom:12px;">
-                <span style="color:#666;">Active Filters:</span>
-                @if(request('status'))
-                    <span class="badge" style="background:#1976d2; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
-                        Status: {{ request('status') }}
-                        <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove status filter">×</a>
-                    </span>
-                @endif
-                @if(request('search'))
-                    <span class="badge" style="background:#1976d2; color:white; padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
-                        Search: {{ request('search') }}
-                        <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove search filter">×</a>
-                    </span>
-                @endif
-                <a href="{{ route('financial.index') }}" class="btn btn-sm btn-outline-secondary">Clear All</a>
-            </div>
-        @endif
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3 style="margin:0;">Search Filter</h3>
+            @if(request()->hasAny(['status', 'search']))
+                <div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
+                    <span style="color:#666; font-size:15px;">Active Filters:</span>
+                    @if(request('status'))
+                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                            {{ request('status') }}
+                            <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove status filter">×</a>
+                        </span>
+                    @endif
+                    @if(request('search'))
+                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                            {{ request('search') }}
+                            <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove search filter">×</a>
+                        </span>
+                    @endif
+                    <a href="{{ route('financial.index') }}" class="btn btn-sm btn-outline-secondary">Clear All</a>
+                </div>
+            @endif
+        </div>
         
         <form method="GET" action="{{ route('financial.index') }}">
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:12px;">
+            @if(request('status'))
+                <input type="hidden" name="status" value="{{ request('status') }}">
+            @endif
+            @if(request('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}">
+            @endif
+            <div style="display:grid; grid-template-columns: 1fr; gap:8px;">
                 <div class="form-group" style="margin:0">
+                    <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Enter keywords...">
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:12px;">
+                <div class="form-group" style="margin:0; margin-top:12px;">
                     <label>Status</label>
                     <select name="status" class="form-control">
                         <option value="">All</option>
@@ -52,11 +63,7 @@
                         <option value="FINISHED" {{ request('status') === 'FINISHED' ? 'selected' : '' }}>Finished</option>
                     </select>
                 </div>
-                <div class="form-group" style="margin:0">
-                    <label>Search</label>
-                    <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="PR, PO, supplier...">
-                </div>
-                <div class="form-group" style="margin:0; display:flex; align-items:flex-end; gap:8px;">
+                <div class="form-group" style="margin:0; margin-top:12px; display:flex; align-items:flex-end; gap:8px;">
                     <button type="submit" class="btn-red"><i class="fas fa-search"></i> Filter</button>
                     <a href="{{ route('financial.index') }}" class="btn-gray">Reset</a>
                 </div>
@@ -76,7 +83,7 @@
                 <thead>
                     <tr>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; min-width:250px; border-bottom:2px solid #8b0000;">DESCRIPTION</th>
+                        <th style="text-align:center; padding:12px 8px; min-width:250px; border-bottom:2px solid #8b0000;">DESCRIPTION</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">TYPE</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">SUPPLIER</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PR NO.</th>
@@ -90,10 +97,9 @@
                 </thead>
                 <tbody>
                     @forelse($records as $index => $rec)
-                        <tr>
-                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">
+                        <tr class="clickable-row" data-href="{{ route('financial.show', $rec) }}" style="cursor: pointer;">
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;" onclick="event.stopPropagation();">
                                 <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
-                                    <a href="{{ route('financial.show', $rec) }}" class="btn-green" title="View Details" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-route"></i></a>
                                     <a href="{{ route('financial.edit', $rec) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-edit"></i></a>
                                     <form action="{{ route('financial.destroy', $rec) }}" method="POST" style="display:inline;" id="deleteForm-{{ $rec->id }}">
                                         @csrf @method('DELETE')
@@ -101,7 +107,7 @@
                                     </form>
                                 </div>
                             </td>
-                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; min-width:250px;">{{ $rec->description ?? '—' }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; min-width:250px; max-width:300px; word-wrap:break-word;">{{ $rec->description ?? '—' }}</td>
                             <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->type ?? '—' }}</td>
                             <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $rec->supplier ?? '—' }}</td>
                             <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->pr_number ?? '—' }}</td>
@@ -525,6 +531,18 @@
         // Auto-test on page load
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Financial page loaded, notification system ready');
+            
+            // Clickable table rows
+            const clickableRows = document.querySelectorAll('.clickable-row');
+            clickableRows.forEach(row => {
+                row.addEventListener('click', function() {
+                    const href = this.getAttribute('data-href');
+                    if (href) {
+                        window.location.href = href;
+                    }
+                });
+            });
+            
             // Uncomment to test automatically:
             // setTimeout(testNotification, 1000);
         });

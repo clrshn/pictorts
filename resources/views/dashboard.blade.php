@@ -9,8 +9,7 @@
         <h3><i class="fas fa-search"></i> Quick Search</h3>
         <form method="GET" action="{{ route('documents.index') }}" style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
             <div class="form-group" style="margin:0; flex:1; min-width:280px;">
-                <label>Search Documents</label>
-                <input type="text" name="search" class="form-control" placeholder="Search by Document No., Tracking Code, Transaction Number, or Subject/Title..." style="padding:10px 14px;">
+                <input type="text" name="search" class="form-control" placeholder="Search Records" style="padding:10px 14px;">
             </div>
             <div class="form-group" style="margin:0;">
                 <label>Start Date</label>
