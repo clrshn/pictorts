@@ -748,23 +748,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Financial page loaded, notification system ready');
             
-            // Clickable table rows
-            console.log('Setting up clickable rows...');
-            
-            // Use event delegation to avoid conflicts
-            document.addEventListener('click', function(e) {
-                const row = e.target.closest('.clickable-row');
-                if (row && !e.target.closest('button') && !e.target.closest('form')) {
-                    console.log('Row clicked via delegation:', row);
-                    const href = row.getAttribute('data-href');
-                    console.log('Row href:', href);
-                    if (href) {
-                        console.log('Navigating to:', href);
-                        window.location.href = href;
-                    }
-                }
-            });
-            
             // Uncomment to test automatically:
             // setTimeout(testNotification, 1000);
         });
