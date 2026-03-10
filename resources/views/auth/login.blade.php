@@ -1,15 +1,10 @@
 <x-guest-layout>
     <!-- Logo -->
     <div class="login-logo">
-        <div style="font-size:40px; margin-bottom:6px;">
-            <i class="fas fa-file-shield" style="color:#1a1a6c;"></i>
-        </div>
         <div class="logo-title">
-            <span class="red">PICTO </span><span class="blue">RECORDS</span><br>
-            <span class="blue">& TRACKING</span><br>
-            <span class="red">SYSTEM</span>
+            <span class="red">PICTO</span><span class="blue">-RTS</span>
         </div>
-        <div class="logo-sub">PROVINCIAL GOVERNMENT OF LA UNION</div>
+        <div class="logo-sub">DOCUMENT & FINANCIAL TRACKING SYSTEM</div>
     </div>
 
     <!-- Session Status -->

@@ -73,30 +73,52 @@
 
                                     <!-- Reset Password Modal -->
                                     <div class="modal fade" id="resetPasswordModal{{ $user->id }}" tabindex="-1" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">Reset Password for {{ $user->name }}</h5>
-                                                    <button type="button" class="btn-close" onclick="document.getElementById('resetPasswordModal{{ $user->id }}').style.display='none'">&times;</button>
+                                        <div class="modal-dialog" style="max-width:450px; width:90%; margin:20px;">
+                                            <div class="modal-content" style="background:#fff; border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.2); overflow:hidden;">
+                                                <div class="modal-header" style="background:#c0392b; color:#fff; padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
+                                                    <h5 class="modal-title" style="margin:0; font-size:16px; font-weight:600; display:flex; align-items:center; gap:8px;">
+                                                        <i class="fas fa-key"></i>
+                                                        Reset Password for {{ $user->name }}
+                                                    </h5>
+                                                    <button type="button" class="btn-close" onclick="document.getElementById('resetPasswordModal{{ $user->id }}').style.display='none'" style="background:none; border:none; color:#fff; font-size:20px; cursor:pointer; padding:0; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border-radius:4px; transition:background 0.2s;">&times;</button>
                                                 </div>
                                                 <form action="{{ route('users.reset-password', $user) }}" method="POST">
                                                     @csrf
-                                                    <div class="modal-body">
-                                                        <div class="alert alert-info">
-                                                            <strong>Note:</strong> After resetting, provide the new password to the user.
+                                                    <div class="modal-body" style="padding:24px;">
+                                                        <div class="alert alert-info" style="background:#e3f2fd; color:#1565c0; border:1px solid #bbdefb; padding:12px 16px; border-radius:6px; margin-bottom:20px; font-size:13px; line-height:1.4;">
+                                                            <div style="display:flex; align-items:flex-start; gap:8px;">
+                                                                <i class="fas fa-info-circle" style="margin-top:2px;"></i>
+                                                                <div>
+                                                                    <strong>Important:</strong> After resetting, provide the new password to the user. The user will need to use this new password for their next login.
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <div class="form-group">
-                                                            <label>New Password <span class="text-danger">*</span></label>
-                                                            <input type="password" name="password" class="form-control" required>
+                                                        <div class="form-group" style="margin-bottom:16px;">
+                                                            <label style="display:block; margin-bottom:6px; color:#333; font-size:14px; font-weight:500;">
+                                                                New Password <span style="color:#dc3545;">*</span>
+                                                            </label>
+                                                            <div style="position:relative;">
+                                                                <input type="password" name="password" class="form-control" required placeholder="Enter new password" style="width:100%; padding:12px 16px 12px 40px; border:1px solid #ddd; border-radius:6px; font-size:14px; outline:none; background:#fff; color:#444; transition:border-color 0.2s, box-shadow 0.2s;">
+                                                                <i class="fas fa-lock" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#999; font-size:14px;"></i>
+                                                            </div>
                                                         </div>
-                                                        <div class="form-group">
-                                                            <label>Confirm Password <span class="text-danger">*</span></label>
-                                                            <input type="password" name="password_confirmation" class="form-control" required>
+                                                        <div class="form-group" style="margin-bottom:0;">
+                                                            <label style="display:block; margin-bottom:6px; color:#333; font-size:14px; font-weight:500;">
+                                                                Confirm Password <span style="color:#dc3545;">*</span>
+                                                            </label>
+                                                            <div style="position:relative;">
+                                                                <input type="password" name="password_confirmation" class="form-control" required placeholder="Confirm new password" style="width:100%; padding:12px 16px 12px 40px; border:1px solid #ddd; border-radius:6px; font-size:14px; outline:none; background:#fff; color:#444; transition:border-color 0.2s, box-shadow 0.2s;">
+                                                                <i class="fas fa-lock" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#999; font-size:14px;"></i>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn-gray" onclick="document.getElementById('resetPasswordModal{{ $user->id }}').style.display='none'">Cancel</button>
-                                                        <button type="submit" class="btn-red">Reset Password</button>
+                                                    <div class="modal-footer" style="background:#f8f9fa; padding:16px 20px; display:flex; justify-content:flex-end; gap:8px; border-top:1px solid #e9ecef;">
+                                                        <button type="button" class="btn-gray" onclick="document.getElementById('resetPasswordModal{{ $user->id }}').style.display='none'" style="padding:10px 20px; border:1px solid #6c757d; background:#6c757d; color:#fff; border-radius:6px; font-size:14px; font-weight:500; cursor:pointer; transition:background 0.2s;">
+                                                            <i class="fas fa-times"></i> Cancel
+                                                        </button>
+                                                        <button type="submit" class="btn-red" style="padding:10px 20px; border:1px solid #c0392b; background:#c0392b; color:#fff; border-radius:6px; font-size:14px; font-weight:500; cursor:pointer; transition:background 0.2s;">
+                                                            <i class="fas fa-key"></i> Reset Password
+                                                        </button>
                                                     </div>
                                                 </form>
                                             </div>

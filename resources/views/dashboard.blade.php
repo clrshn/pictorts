@@ -25,8 +25,10 @@
 
     
     <!-- Document Section -->
-    <div style="margin:16px 0; border-top:2px solid #e5e7eb; position:relative;">
-        <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#f4f6f9; padding:0 20px; color:#666; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Document Section</div>
+    <div style="margin:24px 0; padding:16px 0; border-top:2px solid #e5e7eb; position:relative;">
+        <div style="position:absolute; top:-14px; left:0; background:#f4f6f9; padding:0 16px 0 24px; color:#666; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px; border-right:4px solid #c0392b;">
+            Document Section
+        </div>
     </div>
 
     <!-- Document Stat Cards (clickable) -->
@@ -70,8 +72,10 @@
     </div>
 
     <!-- Visual Divider -->
-    <div style="margin:24px 0; border-top:2px solid #e5e7eb; position:relative;">
-        <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#f4f6f9; padding:0 20px; color:#666; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Financial Section</div>
+    <div style="margin:24px 0; padding:16px 0; border-top:2px solid #e5e7eb; position:relative;">
+        <div style="position:absolute; top:-14px; left:0; background:#f4f6f9; padding:0 16px 0 24px; color:#666; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px; border-right:4px solid #c0392b;">
+            Financial Section
+        </div>
     </div>
 
     <!-- Financial Cards (clickable) -->

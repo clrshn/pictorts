@@ -65,12 +65,14 @@
     @if(auth()->user() && auth()->user()->isAdmin())
     <!-- User Management (Admin Only) - Absolute Bottom -->
     <div class="nav-section" style="text-align: center; padding: 10px 0; margin: 0; position: absolute; bottom: 0; left: 0; right: 0;">
-        <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}" style="display: inline-flex; justify-content: center; width: auto; padding: 12px 20px;">
-            <i class="fas fa-users"></i> User Management
-        </a>
-        <a href="{{ route('offices.index') }}" class="nav-item {{ request()->routeIs('offices.*') ? 'active' : '' }}" style="display: inline-flex; justify-content: center; width: auto; padding: 12px 20px;">
-            <i class="fas fa-building"></i> Office Management
-        </a>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+            <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}" style="display: flex; justify-content: center; width: auto; padding: 12px 20px; white-space: nowrap;">
+                <i class="fas fa-users"></i> User Management
+            </a>
+            <a href="{{ route('offices.index') }}" class="nav-item {{ request()->routeIs('offices.*') ? 'active' : '' }}" style="display: flex; justify-content: center; width: auto; padding: 12px 20px; white-space: nowrap;">
+                <i class="fas fa-building"></i> Office Management
+            </a>
+        </div>
     </div>
     @endif
 </aside>
