@@ -105,6 +105,7 @@ class FinancialController extends Controller
 
     public function show(FinancialRecord $financial)
     {
+        $this->authorize('view', $financial);
         $financial->load(['originOffice', 'currentOffice', 'holder', 'routes.fromOffice', 'routes.toOffice', 'routes.releasedByUser', 'routes.receivedByUser', 'attachments']);
         $offices = Office::ordered()->get();
         $users = User::all();

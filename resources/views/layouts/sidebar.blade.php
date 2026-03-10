@@ -14,10 +14,6 @@
         <i class="fas fa-tachometer-alt"></i> Dashboard
     </a>
 
-    <a href="{{ route('track.page') }}" class="nav-item {{ request()->routeIs('track.page') ? 'active' : '' }}">
-        <i class="fas fa-qrcode"></i> Track Document
-    </a>
-
     <a href="{{ route('todos.index') }}" class="nav-item {{ request()->routeIs('todos.*') ? 'active' : '' }}">
         <i class="fas fa-tasks"></i> To-Do
     </a>
