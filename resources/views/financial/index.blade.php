@@ -107,7 +107,7 @@
                 </thead>
                 <tbody>
                     @forelse($records as $index => $rec)
-                        <tr class="clickable-row" data-href="{{ route('financial.show', $rec) }}" style="cursor: pointer;">
+                        <tr class="clickable-row" data-href="{{ route('financial.show', $rec) }}" style="cursor: pointer;" onclick="window.location.href='{{ route('financial.show', $rec) }}';">
                             <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;" onclick="event.stopPropagation();">
                                 <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
                                     <a href="{{ route('financial.edit', $rec) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-edit"></i></a>
@@ -749,14 +749,20 @@
             console.log('Financial page loaded, notification system ready');
             
             // Clickable table rows
-            const clickableRows = document.querySelectorAll('.clickable-row');
-            clickableRows.forEach(row => {
-                row.addEventListener('click', function() {
-                    const href = this.getAttribute('data-href');
+            console.log('Setting up clickable rows...');
+            
+            // Use event delegation to avoid conflicts
+            document.addEventListener('click', function(e) {
+                const row = e.target.closest('.clickable-row');
+                if (row && !e.target.closest('button') && !e.target.closest('form')) {
+                    console.log('Row clicked via delegation:', row);
+                    const href = row.getAttribute('data-href');
+                    console.log('Row href:', href);
                     if (href) {
+                        console.log('Navigating to:', href);
                         window.location.href = href;
                     }
-                });
+                }
             });
             
             // Uncomment to test automatically:

@@ -6,11 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class FinancialRecord extends Model
 {
-    public function getRouteKeyName()
-    {
-        return 'id';
-    }
-
     protected $fillable = [
         'type',
         'description',
