@@ -24,7 +24,6 @@
                 width: 260px; 
                 min-height: 100vh; 
                 background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); 
-                border-right: 3px solid #c0392b;
                 position: fixed; 
                 top: 0; 
                 left: 0; 
@@ -105,9 +104,9 @@
                 transition: height 0.3s ease;
             }
             .sidebar .nav-item:hover { 
-                background: rgba(192,57,43,0.08); 
+                background: linear-gradient(90deg, rgba(192,57,43,0.08) 0%, rgba(192,57,43,0.15) 100%); 
                 color: #c0392b; 
-                transform: translateX(8px);
+                transform: translateX(1px);
                 border-left-color: #2980b9;
             }
             .sidebar .nav-item:hover::before {
@@ -734,7 +733,7 @@
                 right: 20px; 
                 top: 70px; 
                 background: #ffffff; 
-                border: 4px solid #c0392b; 
+                border: 1px solid #e5e7eb; 
                 border-radius: 12px; 
                 box-shadow: 0 20px 50px rgba(0,0,0,0.8); 
                 min-width: 200px; 
@@ -809,7 +808,7 @@
                 width: 100%;
                 text-align: left;
                 position: relative;
-                margin: 4px 12px 4px 8px;
+                margin: 4px 8px;
                 border-radius: 0 8px 8px 0;
                 border-left: 4px solid transparent;
                 box-sizing: border-box;
@@ -823,7 +822,7 @@
             .nav-dropdown-btn:hover { 
                 background: rgba(192,57,43,0.08); 
                 color: #c0392b; 
-                transform: translateX(4px);
+                transform: translateX(2px);
                 border-left-color: #2980b9;
             }
             .nav-dropdown-btn::before {

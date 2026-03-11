@@ -24,7 +24,7 @@
 
     <!-- Page Header with Actions -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h2 style="margin:0; color:#c0392b;">Documents Management</h2>
+        <h2 style="margin:0; color:#c0392b;"></h2>
         <div style="display:flex; gap:8px; align-items:center;">
             <button type="button" onclick="toggleQrScanner()" class="btn-blue" style="padding:8px 12px; font-size:12px;">
                 <i class="fas fa-qrcode"></i> QR Scanner
