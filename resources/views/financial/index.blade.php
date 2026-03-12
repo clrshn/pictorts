@@ -17,7 +17,7 @@
         </script>
     @endif
 
-    <!-- Page Header with Actions -->
+    <!-- Page Header with Actions
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <h2 style="margin:0; color:#c0392b;"></h2>
         <div style="display:flex; gap:8px; align-items:center;">
@@ -25,7 +25,7 @@
                 <i class="fas fa-qrcode"></i> QR Scanner
             </button>
         </div>
-    </div>
+    </div>-->
 
     <!-- Search Filter -->
     <div class="filter-box">
@@ -46,7 +46,6 @@
                             <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove search filter">×</a>
                         </span>
                     @endif
-                    <a href="{{ route('financial.index') }}" class="btn btn-sm btn-outline-secondary">Clear All</a>
                 </div>
             @endif
         </div>
@@ -81,79 +80,149 @@
         </form>
     </div>
 
-    <!-- Financial Table -->
+    <!-- Financial Grid - Card Layout -->
     <div class="table-card">
-        <div class="table-header">
-            <h3>Financial Records Table</h3>
+        <div class="table-header" style="display: flex; justify-content: flex-end; align-items: center;">
             <a href="{{ route('financial.create') }}" class="btn-red"><i class="fas fa-plus"></i> Add New Record</a>
         </div>
 
-        <div style="overflow-x:auto; max-width:100%;">
-            <table style="min-width:1000px; width:100%; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
-                        <th style="text-align:center; padding:12px 8px; min-width:250px; border-bottom:2px solid #8b0000;">DESCRIPTION</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">TYPE</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">SUPPLIER</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PR NO.</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PR AMT</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PO NO.</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">OBR NO.</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:80px; border-bottom:2px solid #8b0000;">OFFICE</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PROGRESS</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">STATUS</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($records as $index => $rec)
-                        <tr class="clickable-row" data-href="{{ route('financial.show', $rec) }}" style="cursor: pointer;" onclick="window.location.href='{{ route('financial.show', $rec) }}';">
-                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;" onclick="event.stopPropagation();">
-                                <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
-                                    <a href="{{ route('financial.edit', $rec) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-edit"></i></a>
-                                    <form action="{{ route('financial.destroy', $rec) }}" method="POST" style="display:inline;" id="deleteForm-{{ $rec->id }}">
-                                        @csrf @method('DELETE')
-                                        <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $rec->id }}, '{{ $rec->description ?? 'Financial Record' }}')" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-trash"></i></button>
-                                    </form>
-                                </div>
-                            </td>
-                            <td style="text-align:left; padding:20px 20px 20px 20px; min-width:250px; max-width:300px; word-wrap:break-word;">{{ $rec->description ?? '—' }}</td>
-                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->type ?? '—' }}</td>
-                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $rec->supplier ?? '—' }}</td>
-                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->pr_number ?? '—' }}</td>
-                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->pr_amount ? number_format($rec->pr_amount, 2) : '—' }}</td>
-                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->po_number ?? '—' }}</td>
-                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->obr_number ?? '—' }}</td>
-                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:80px;">{{ $rec->originOffice->code ?? '—' }}</td>
-                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->progress ?? '—' }}</td>
-                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">
-                                @php
-                                    $badgeClass = match($rec->status) {
-                                        'ACTIVE' => 'badge-active',
-                                        'CANCELLED' => 'badge-cancelled',
-                                        'FINISHED' => 'badge-finished',
-                                        default => ''
-                                    };
-                                @endphp
-                                <span class="badge {{ $badgeClass }}">{{ $rec->status }}</span>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="11" style="padding:30px; color:#999;">No financial records found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; padding: 10px 0;">
+            @forelse($records as $index => $rec)
+                <div class="financial-card" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid rgba(192,57,43,0.1); border-radius: 16px; padding: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); transition: all 0.3s ease; position: relative; overflow: hidden; cursor: pointer;" onclick="window.location.href='{{ route('financial.show', $rec) }}'">
+                    <!-- Card Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                <span style="background: linear-gradient(135deg, #2980b9 0%, #64b5f6 100%); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                    #{{ $records->firstItem() + $index }}
+                                </span>
+                                <span class="badge badge-{{ $rec->status == 'ACTIVE' ? 'ongoing' : ($rec->status == 'CANCELLED' ? 'cancelled' : 'completed') }}" style="font-size: 11px; padding: 4px 8px;">{{ $rec->status }}</span>
+                            </div>
+                            <h3 style="margin: 0; color: #1a1a2e; font-size: 16px; font-weight: 600; line-height: 1.4;">{{ $rec->description ?? 'No Description' }}</h3>
+                        </div>
+                        <div style="display: flex; gap: 6px;" onclick="event.stopPropagation();">
+                            <a href="{{ route('financial.edit', $rec) }}" class="btn-blue" title="Edit" style="padding: 6px 8px; min-width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="{{ route('financial.destroy', $rec) }}" method="POST" style="display: inline;" id="deleteForm-{{ $rec->id }}">
+                                @csrf @method('DELETE')
+                                <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $rec->id }}, '{{ $rec->description ?? 'Financial Record' }}')" style="padding: 6px 8px; min-width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
 
-        <div style="padding:16px 20px; display:flex; justify-content:center;">
-            {{ $records->links() }}
+                    <!-- Financial Details -->
+                    <div style="display: grid; gap: 12px; margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-tag" style="color: #2980b9; width: 16px; text-align: center;"></i>
+                            <span style="color: #64748b; font-size: 12px; font-weight: 500;">TYPE:</span>
+                            <span style="color: #1a1a2e; font-size: 13px; font-weight: 600;">{{ $rec->type ?? '—' }}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-building" style="color: #2980b9; width: 16px; text-align: center;"></i>
+                            <span style="color: #64748b; font-size: 12px; font-weight: 500;">SUPPLIER:</span>
+                            <span style="color: #1a1a2e; font-size: 13px; font-weight: 600;">{{ $rec->supplier ?? '—' }}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-file-invoice" style="color: #2980b9; width: 16px; text-align: center;"></i>
+                            <span style="color: #64748b; font-size: 12px; font-weight: 500;">PR NO:</span>
+                            <span style="color: #1a1a2e; font-size: 13px; font-weight: 600;">{{ $rec->pr_number ?? '—' }}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-money-bill-wave" style="color: #2980b9; width: 16px; text-align: center;"></i>
+                            <span style="color: #64748b; font-size: 12px; font-weight: 500;">PR AMT:</span>
+                            <span style="color: #1a1a2e; font-size: 13px; font-weight: 600;">{{ $rec->pr_amount ? number_format($rec->pr_amount, 2) : '—' }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Additional Details -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-receipt" style="color: #27ae60; width: 16px; text-align: center;"></i>
+                            <span style="color: #64748b; font-size: 12px; font-weight: 500;">PO NO:</span>
+                            <span style="color: #1a1a2e; font-size: 13px; font-weight: 600;">{{ $rec->po_number ?? '—' }}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-file-contract" style="color: #27ae60; width: 16px; text-align: center;"></i>
+                            <span style="color: #64748b; font-size: 12px; font-weight: 500;">OBR NO:</span>
+                            <span style="color: #1a1a2e; font-size: 13px; font-weight: 600;">{{ $rec->obr_number ?? '—' }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress Section -->
+                    <div style="background: rgba(41,128,185,0.05); border-left: 3px solid #2980b9; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                            <i class="fas fa-chart-line" style="color: #2980b9; font-size: 12px;"></i>
+                            <span style="color: #2980b9; font-size: 12px; font-weight: 600;">PROGRESS</span>
+                        </div>
+                        <p style="margin: 0; color: #475569; font-size: 13px; line-height: 1.4;">{{ $rec->progress ?? 'No Progress Info' }}</p>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="display: flex; justify-content: flex-start; align-items: center; padding-top: 12px; border-top: 1px solid rgba(192,57,43,0.1);">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-home" style="color: #64748b; font-size: 12px;"></i>
+                            <span style="color: #64748b; font-size: 12px;">Office: {{ $rec->originOffice->code ?? '—' }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Hover Effect Overlay -->
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(192,57,43,0.05) 0%, rgba(41,128,185,0.05) 100%); opacity: 0; transition: opacity 0.3s ease; pointer-events: none; border-radius: 16px;"></div>
+                </div>
+            @empty
+                <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+                    <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 2px dashed rgba(192,57,43,0.2); border-radius: 16px; padding: 40px;">
+                        <i class="fas fa-coins" style="font-size: 48px; color: #2980b9; margin-bottom: 16px;"></i>
+                        <h3 style="color: #1a1a2e; margin-bottom: 8px;">No Financial Records Found</h3>
+                        <p style="color: #64748b; margin-bottom: 20px;">Start by adding your first financial record to the system.</p>
+                        <a href="{{ route('financial.create') }}" class="btn-red">
+                            <i class="fas fa-plus"></i> Add New Record
+                        </a>
+                    </div>
+                </div>
+            @endforelse
+        </div>
+        
+        <!-- Pagination -->
+        <div style="padding:16px 20px; display:flex; justify-content:center; align-items:center; gap:16px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                @if($records->onFirstPage())
+                    <span style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#d1d5db; font-size:13px; font-weight:500; cursor:not-allowed;">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </span>
+                @else
+                    <a href="{{ $records->previousPageUrl() }}" style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#64748b; font-size:13px; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s ease; display:inline-block;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#c0392b'; this.style.color='#c0392b';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'; this.style.color='#64748b';">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </a>
+                @endif
+                
+                <div style="display:flex; gap:4px;">
+                    @for($i = 1; $i <= min(3, $records->lastPage()); $i++)
+                        @if($records->currentPage() == $i)
+                            <span style="padding:8px 12px; background:linear-gradient(135deg, #c0392b 0%, #8b0000 100%); border:none; border-radius:6px; color:#ffffff; font-size:13px; font-weight:600; cursor:pointer;">{{ $i }}</span>
+                        @else
+                            <a href="{{ $records->url($i) }}" style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#64748b; font-size:13px; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s ease; display:inline-block;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#c0392b'; this.style.color='#c0392b';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'; this.style.color='#64748b';">{{ $i }}</a>
+                        @endif
+                    @endfor
+                </div>
+                
+                @if($records->hasMorePages())
+                    <a href="{{ $records->nextPageUrl() }}" style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#64748b; font-size:13px; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s ease; display:inline-block;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#c0392b'; this.style.color='#c0392b';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'; this.style.color='#64748b';">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                @else
+                    <span style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#d1d5db; font-size:13px; font-weight:500; cursor:not-allowed;">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </span>
+                @endif
+            </div>
         </div>
     </div>
 
     <!-- QR Scanner Modal -->
-    <div id="qrScannerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+     <div id="qrScannerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
         <div style="background:white; border-radius:8px; padding:20px; max-width:500px; width:90%; max-height:80vh; overflow-y:auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                 <h3 style="margin:0; color:#c0392b;">QR Code Scanner</h3>
@@ -173,7 +242,7 @@
                         <video id="qrVideo" style="width:100%; max-width:320px; height:240px; border-radius:4px; background:#000;"></video>
                         <canvas id="qrCanvas" style="display:none;"></canvas>
                         <button type="button" onclick="stopQrCamera()" style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.7); color:#fff; border:none; width:24px; height:24px; border-radius:50%; font-size:12px; cursor:pointer;">&times;</button>
-                    </div>
+                    </div> 
 
                     <!-- File Upload -->
                     <div id="qrUploadContainer" style="display:none; margin-bottom:12px;">

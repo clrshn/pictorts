@@ -74,7 +74,6 @@
     <div class="table-card">
         <div class="table-header">
             <h3>My Todos</h3>
-            <a href="{{ route('todos.create') }}" class="btn-red"><i class="fas fa-plus"></i> Add Todo</a>
         </div>
 
         <div style="overflow-x:auto;">
@@ -136,9 +135,6 @@
                             <td colspan="5" style="text-align:center; padding:40px; color:#999;">
                                 <i class="fas fa-tasks" style="font-size:48px; margin-bottom:16px; display:block;"></i>
                                 <div>No todos found. Create your first todo!</div>
-                                <a href="{{ route('todos.create') }}" class="btn-red" style="margin-top:16px;">
-                                    <i class="fas fa-plus"></i> Add Todo
-                                </a>
                             </td>
                         </tr>
                     @endforelse

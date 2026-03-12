@@ -5,8 +5,8 @@
     <div class="row">
         <div class="col-12">
             <div class="table-card">
-                <div style="background:#333; color:#fff; padding:10px 20px; font-weight:600; font-size:13px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><i class="fas fa-users"></i> User Management</div>
+                <div style="background:#f8f9fa; color:#333; padding:10px 20px; font-weight:600; font-size:18px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #dee2e6;">
+                    <div><i class="fas fa-users" style="color:#c0392b;"></i> User Management</div>
                     <div>
                         <a href="{{ route('users.create') }}" class="btn-red">
                             <i class="fas fa-plus"></i> Create User
@@ -25,6 +25,37 @@
                             {{ session('error') }}
                         </div>
                     @endif
+
+                    <!-- Search Users -->
+                    <div style="background:#f8f9fa; padding:16px; border-radius:8px; margin-bottom:20px;">
+                        <form method="GET" action="{{ route('users.index') }}">
+                            <div style="display:grid; grid-template-columns: 1fr auto; gap:12px; align-items:end;">
+                                <div class="form-group" style="margin:0;">
+                                    <label style="font-weight:600; color:#495057; margin-bottom:6px; display:block;">Search Users</label>
+                                    <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Search by name, email, or office...">
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <button type="submit" class="btn-red" style="padding:8px 16px;">
+                                        <i class="fas fa-search"></i> Search
+                                    </button>
+                                    <a href="{{ route('users.index') }}" class="btn-gray" style="padding:8px 16px;">
+                                        <i class="fas fa-times"></i> Reset
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        @if(request('search'))
+                            <div style="margin-top:12px; padding:8px 12px; background:#e3f2fd; border-left:4px solid #1976d2; border-radius:4px;">
+                                <span style="color:#1976d2; font-size:13px; font-weight:500;">
+                                    <i class="fas fa-filter"></i> Searching for: <strong>{{ request('search') }}</strong>
+                                    <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" style="margin-left:8px; color:#666; text-decoration:none;" title="Remove search">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                </span>
+                            </div>
+                        @endif
+                    </div>
 
                     <div class="table-responsive">
                         <table class="table table-hover" style="font-size:13px;">
@@ -135,8 +166,39 @@
                         </table>
                     </div>
 
-                    <div style="margin-top:20px;">
-                        {{ $users->links('pagination::bootstrap-4') }}
+                    <!-- Pagination -->
+                    <div style="padding:16px 20px; display:flex; justify-content:center; align-items:center; gap:16px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            @if($users->onFirstPage())
+                                <span style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#d1d5db; font-size:13px; font-weight:500; cursor:not-allowed;">
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </span>
+                            @else
+                                <a href="{{ $users->previousPageUrl() }}" style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#64748b; font-size:13px; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s ease; display:inline-block;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#c0392b'; this.style.color='#c0392b';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'; this.style.color='#64748b';">
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </a>
+                            @endif
+                            
+                            <div style="display:flex; gap:4px;">
+                                @for($i = 1; $i <= min(3, $users->lastPage()); $i++)
+                                    @if($users->currentPage() == $i)
+                                        <span style="padding:8px 12px; background:linear-gradient(135deg, #c0392b 0%, #8b0000 100%); border:none; border-radius:6px; color:#ffffff; font-size:13px; font-weight:600; cursor:pointer;">{{ $i }}</span>
+                                    @else
+                                        <a href="{{ $users->url($i) }}" style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#64748b; font-size:13px; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s ease; display:inline-block;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#c0392b'; this.style.color='#c0392b';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'; this.style.color='#64748b';">{{ $i }}</a>
+                                    @endif
+                                @endfor
+                            </div>
+                            
+                            @if($users->hasMorePages())
+                                <a href="{{ $users->nextPageUrl() }}" style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#64748b; font-size:13px; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s ease; display:inline-block;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#c0392b'; this.style.color='#c0392b';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'; this.style.color='#64748b';">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </a>
+                            @else
+                                <span style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#d1d5db; font-size:13px; font-weight:500; cursor:not-allowed;">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </span>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>

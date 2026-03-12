@@ -22,7 +22,7 @@
         </script>
     @endif
 
-    <!-- Page Header with Actions -->
+    <!-- Page Header with Actions
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <h2 style="margin:0; color:#c0392b;"></h2>
         <div style="display:flex; gap:8px; align-items:center;">
@@ -30,7 +30,7 @@
                 <i class="fas fa-qrcode"></i> QR Scanner
             </button>
         </div>
-    </div>
+    </div>-->
 
     <!-- Search Filter -->
     <div class="filter-box">
@@ -75,7 +75,6 @@
                             <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove search filter">×</a>
                         </span>
                     @endif
-                    <a href="{{ route('documents.index') }}" class="btn btn-sm btn-outline-secondary">Clear All</a>
                 </div>
             @endif
         </div>
@@ -121,7 +120,7 @@
                     <label>Document Type</label>
                     <select name="type" class="form-control">
                         <option value="">All Types</option>
-                        @foreach(['MEMO','EO','SO','LETTER','SP','OTHERS'] as $t)
+                        @foreach(['MEMO','EO','SO','LETTER','OTHERS'] as $t)
                             <option value="{{ $t }}" {{ request('type') === $t ? 'selected' : '' }}>{{ $t }}</option>
                         @endforeach
                     </select>
@@ -144,13 +143,9 @@
 
     <!-- Documents Table -->
     <div class="table-card">
-        <div class="table-header">
-            <h3>Documents Table</h3>
-            <div style="display:flex; gap:8px;">
-                <a href="{{ route('documents.create') }}" class="btn-red"><i class="fas fa-plus"></i> Add New Document</a>
-            </div>
+        <div class="table-header" style="display: flex; justify-content: flex-end; align-items: center;">
+            <a href="{{ route('documents.create') }}" class="btn-red"><i class="fas fa-plus"></i> Add New Document</a>
         </div>
-
         <div style="overflow-x:auto; max-width:100%;">
             <table style="min-width:900px; width:100%; border-collapse: collapse;">
                 <thead>
@@ -199,15 +194,54 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" style="padding:30px; color:#999;">No documents found.</td>
+                            <td colspan="10" style="text-align:center; padding:60px 20px;">
+                                <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 2px dashed rgba(192,57,43,0.2); border-radius: 16px; padding: 40px;">
+                                    <i class="fas fa-inbox" style="font-size: 48px; color: #c0392b; margin-bottom: 16px;"></i>
+                                    <h3 style="color: #1a1a2e; margin-bottom: 8px;">No Documents Found</h3>
+                                    <p style="color: #64748b; margin-bottom: 20px;">Start by adding your first document to the system.</p>
+                                    <a href="{{ route('documents.create') }}" class="btn-red">
+                                        <i class="fas fa-plus"></i> Add New Document
+                                    </a>
+                                </div>
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-
-        <div style="padding:16px 20px; display:flex; justify-content:center;">
-            {{ $documents->links() }}
+        <!-- Pagination -->
+        <div style="padding:16px 20px; display:flex; justify-content:center; align-items:center; gap:16px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                @if($documents->onFirstPage())
+                    <span style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#d1d5db; font-size:13px; font-weight:500; cursor:not-allowed;">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </span>
+                @else
+                    <a href="{{ $documents->previousPageUrl() }}" style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#64748b; font-size:13px; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s ease; display:inline-block;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#c0392b'; this.style.color='#c0392b';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'; this.style.color='#64748b';">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </a>
+                @endif
+                
+                <div style="display:flex; gap:4px;">
+                    @for($i = 1; $i <= min(3, $documents->lastPage()); $i++)
+                        @if($documents->currentPage() == $i)
+                            <span style="padding:8px 12px; background:linear-gradient(135deg, #c0392b 0%, #8b0000 100%); border:none; border-radius:6px; color:#ffffff; font-size:13px; font-weight:600; cursor:pointer;">{{ $i }}</span>
+                        @else
+                            <a href="{{ $documents->url($i) }}" style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#64748b; font-size:13px; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s ease; display:inline-block;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#c0392b'; this.style.color='#c0392b';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'; this.style.color='#64748b';">{{ $i }}</a>
+                        @endif
+                    @endfor
+                </div>
+                
+                @if($documents->hasMorePages())
+                    <a href="{{ $documents->nextPageUrl() }}" style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#64748b; font-size:13px; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s ease; display:inline-block;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#c0392b'; this.style.color='#c0392b';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'; this.style.color='#64748b';">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                @else
+                    <span style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#d1d5db; font-size:13px; font-weight:500; cursor:not-allowed;">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </span>
+                @endif
+            </div>
         </div>
     </div>
 

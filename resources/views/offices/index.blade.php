@@ -36,8 +36,7 @@
 
     <!-- Offices Table -->
     <div class="table-card">
-        <div class="table-header">
-            <h3>Offices Table</h3>
+        <div class="table-header" style="display: flex; justify-content: flex-end; align-items: center;">
             <a href="{{ route('offices.create') }}" class="btn-red"><i class="fas fa-plus"></i> Add New Office</a>
         </div>
 
@@ -82,8 +81,39 @@
             </table>
         </div>
 
-        <div style="padding:16px 20px; display:flex; justify-content:center;">
-            {{ $offices->links() }}
+        <!-- Pagination -->
+        <div style="padding:16px 20px; display:flex; justify-content:center; align-items:center; gap:16px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                @if($offices->onFirstPage())
+                    <span style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#d1d5db; font-size:13px; font-weight:500; cursor:not-allowed;">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </span>
+                @else
+                    <a href="{{ $offices->previousPageUrl() }}" style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#64748b; font-size:13px; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s ease; display:inline-block;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#c0392b'; this.style.color='#c0392b';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'; this.style.color='#64748b';">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </a>
+                @endif
+                
+                <div style="display:flex; gap:4px;">
+                    @for($i = 1; $i <= min(3, $offices->lastPage()); $i++)
+                        @if($offices->currentPage() == $i)
+                            <span style="padding:8px 12px; background:linear-gradient(135deg, #c0392b 0%, #8b0000 100%); border:none; border-radius:6px; color:#ffffff; font-size:13px; font-weight:600; cursor:pointer;">{{ $i }}</span>
+                        @else
+                            <a href="{{ $offices->url($i) }}" style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#64748b; font-size:13px; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s ease; display:inline-block;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#c0392b'; this.style.color='#c0392b';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'; this.style.color='#64748b';">{{ $i }}</a>
+                        @endif
+                    @endfor
+                </div>
+                
+                @if($offices->hasMorePages())
+                    <a href="{{ $offices->nextPageUrl() }}" style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#64748b; font-size:13px; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s ease; display:inline-block;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#c0392b'; this.style.color='#c0392b';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'; this.style.color='#64748b';">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                @else
+                    <span style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#d1d5db; font-size:13px; font-weight:500; cursor:not-allowed;">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </span>
+                @endif
+            </div>
         </div>
     </div>
 
