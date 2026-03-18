@@ -32,6 +32,13 @@ class Document extends Model
         'shared_drive_link',
         'received_via_online',
         'encoded_by',
+        'opg_reference_no',
+        'opa_reference_no',
+        'governors_instruction',
+        'administrators_instruction',
+        'returned',
+        'opg_action_slip',
+        'dts_no',
     ];
 
     protected $casts = [

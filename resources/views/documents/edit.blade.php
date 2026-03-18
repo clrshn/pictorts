@@ -42,8 +42,8 @@
 
                 <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
                     <div class="form-group">
-                        <label>Originating Office <span style="color:#c0392b">*</span></label>
-                        <select name="originating_office" class="form-control" required>
+                        <label>Originating Office <span id="originating-office-required" style="color:#c0392b;">*</span></label>
+                        <select name="originating_office" id="originating_office" class="form-control" {{ $document->direction === 'OUTGOING' ? '' : 'required' }}>
                             @foreach($offices as $office)
                                 <option value="{{ $office->id }}" {{ $document->originating_office == $office->id ? 'selected' : '' }}>{{ $office->code }} – {{ $office->name }}</option>
                             @endforeach
@@ -141,3 +141,28 @@
         </div>
     </div>
 </x-app-layout>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const directionSelect = document.querySelector('select[name="direction"]');
+    const originatingOfficeSelect = document.querySelector('select[name="originating_office"]');
+    const requiredSpan = document.getElementById('originating-office-required');
+    
+    function toggleOriginatingOffice() {
+        if (directionSelect.value === 'OUTGOING') {
+            originatingOfficeSelect.removeAttribute('required');
+            if (requiredSpan) {
+                requiredSpan.style.display = 'none';
+            }
+        } else {
+            originatingOfficeSelect.setAttribute('required', 'required');
+            if (requiredSpan) {
+                requiredSpan.style.display = 'inline';
+            }
+        }
+    }
+    
+    directionSelect.addEventListener('change', toggleOriginatingOffice);
+    toggleOriginatingOffice(); // Initialize on page load
+});
+</script>

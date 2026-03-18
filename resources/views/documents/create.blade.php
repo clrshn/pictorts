@@ -56,8 +56,8 @@
                 <!-- Row 2 -->
                 <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
                     <div class="form-group">
-                        <label>Originating Office <span style="color:#c0392b">*</span></label>
-                        <select name="originating_office" class="form-control" required>
+                        <label>Originating Office <span id="originating-office-required" style="color:#c0392b;">*</span></label>
+                        <select name="originating_office" id="originating_office" class="form-control" required>
                             <option value="">Select Office</option>
                             @foreach($offices as $office)
                                 <option value="{{ $office->id }}" {{ old('originating_office') == $office->id ? 'selected' : '' }}>{{ $office->code }} – {{ $office->name }}</option>
@@ -85,6 +85,44 @@
                 <div class="form-group">
                     <label>Number <small style="color:#999;">(Optional)</small></label>
                     <input type="text" name="memorandum_number" class="form-control" value="{{ old('memorandum_number') }}" placeholder="">
+                </div>
+
+                <!-- Letter Specific Fields -->
+                <div id="letter-fields" style="display:none;">
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+                        <div class="form-group">
+                            <label>OPG Reference No.</label>
+                            <input type="text" name="opg_reference_no" class="form-control" value="{{ old('opg_reference_no') }}" placeholder="Enter OPG Reference Number">
+                        </div>
+                        <div class="form-group">
+                            <label>OPA Reference No.</label>
+                            <input type="text" name="opa_reference_no" class="form-control" value="{{ old('opa_reference_no') }}" placeholder="Enter OPA Reference Number">
+                        </div>
+                        <div class="form-group">
+                            <label>Governor's Instruction</label>
+                            <input type="text" name="governors_instruction" class="form-control" value="{{ old('governors_instruction') }}" placeholder="Enter Governor's Instruction">
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+                        <div class="form-group">
+                            <label>Administrator's Instruction</label>
+                            <input type="text" name="administrators_instruction" class="form-control" value="{{ old('administrators_instruction') }}" placeholder="Enter Administrator's Instruction">
+                        </div>
+                        <div class="form-group">
+                            <label>Returned</label>
+                            <input type="text" name="returned" class="form-control" value="{{ old('returned') }}" placeholder="Enter Returned Status">
+                        </div>
+                        <div class="form-group">
+                            <label>OPG Action Slip</label>
+                            <input type="text" name="opg_action_slip" class="form-control" value="{{ old('opg_action_slip') }}" placeholder="Enter OPG Action Slip">
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr; gap:16px;">
+                        <div class="form-group">
+                            <label>DTS No.</label>
+                            <input type="text" name="dts_no" class="form-control" value="{{ old('dts_no') }}" placeholder="Enter DTS Number">
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Period (Optional) -->
@@ -153,3 +191,42 @@
         </div>
     </div>
 </x-app-layout>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const directionSelect = document.querySelector('select[name="direction"]');
+    const originatingOfficeSelect = document.querySelector('select[name="originating_office"]');
+    const originatingOfficeLabel = document.querySelector('label[for="originating_office"]') || document.querySelector('label');
+    const requiredSpan = document.getElementById('originating-office-required');
+    const documentTypeSelect = document.querySelector('select[name="document_type"]');
+    const letterFields = document.getElementById('letter-fields');
+    
+    function toggleOriginatingOffice() {
+        if (directionSelect.value === 'OUTGOING') {
+            originatingOfficeSelect.removeAttribute('required');
+            if (requiredSpan) {
+                requiredSpan.style.display = 'none';
+            }
+            originatingOfficeSelect.value = '';
+        } else {
+            originatingOfficeSelect.setAttribute('required', 'required');
+            if (requiredSpan) {
+                requiredSpan.style.display = 'inline';
+            }
+        }
+    }
+    
+    function toggleLetterFields() {
+        if (documentTypeSelect.value === 'LETTER') {
+            letterFields.style.display = 'block';
+        } else {
+            letterFields.style.display = 'none';
+        }
+    }
+    
+    directionSelect.addEventListener('change', toggleOriginatingOffice);
+    documentTypeSelect.addEventListener('change', toggleLetterFields);
+    toggleOriginatingOffice(); // Initialize on page load
+    toggleLetterFields(); // Initialize on page load
+});
+</script>

@@ -160,6 +160,13 @@ class DocumentController extends Controller
             'shared_drive_link' => $request->shared_drive_link,
             'received_via_online' => $request->boolean('received_via_online'),
             'encoded_by' => auth()->id(),
+            'opg_reference_no' => $request->opg_reference_no,
+            'opa_reference_no' => $request->opa_reference_no,
+            'governors_instruction' => $request->governors_instruction,
+            'administrators_instruction' => $request->administrators_instruction,
+            'returned' => $request->returned,
+            'opg_action_slip' => $request->opg_action_slip,
+            'dts_no' => $request->dts_no,
         ]);
 
         // Handle file uploads
@@ -239,6 +246,13 @@ class DocumentController extends Controller
             'remarks' => $request->remarks,
             'shared_drive_link' => $request->shared_drive_link,
             'received_via_online' => $request->boolean('received_via_online'),
+            'opg_reference_no' => $request->opg_reference_no,
+            'opa_reference_no' => $request->opa_reference_no,
+            'governors_instruction' => $request->governors_instruction,
+            'administrators_instruction' => $request->administrators_instruction,
+            'returned' => $request->returned,
+            'opg_action_slip' => $request->opg_action_slip,
+            'dts_no' => $request->dts_no,
         ];
 
         // Regenerate tracking code only if date changed (PICTO Number should remain the same)
