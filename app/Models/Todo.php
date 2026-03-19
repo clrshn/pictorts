@@ -13,7 +13,9 @@ class Todo extends Model
         'priority',
         'status',
         'due_date',
-        'user_id'
+        'user_id',
+        'assigned_to',
+        'remarks'
     ];
 
     protected $casts = [
@@ -51,6 +53,7 @@ class Todo extends Model
     public function getPriorityColorAttribute()
     {
         return match($this->priority) {
+            'top' => '#8b0000',
             'high' => '#e74c3c',
             'medium' => '#f39c12',
             'low' => '#3498db',
@@ -71,6 +74,7 @@ class Todo extends Model
     public function getPriorityBadgeAttribute()
     {
         return match($this->priority) {
+            'top' => 'TOP',
             'high' => 'HIGH',
             'medium' => 'MEDIUM',
             'low' => 'LOW',
@@ -81,8 +85,8 @@ class Todo extends Model
     public function getStatusBadgeAttribute()
     {
         return match($this->status) {
-            'completed' => 'COMPLETED',
-            'in_progress' => 'IN PROGRESS',
+            'completed' => 'DONE',
+            'in_progress' => 'ON GOING',
             'pending' => 'PENDING',
             default => 'PENDING'
         };

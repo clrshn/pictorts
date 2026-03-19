@@ -29,13 +29,15 @@ class TodoController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('assigned_to', 'like', "%{$search}%")
+                  ->orWhere('remarks', 'like', "%{$search}%");
             });
         }
 
         // Sort by due date and priority
         $todos = $query->orderBy('due_date', 'asc')
-                      ->orderByRaw("FIELD(priority, 'high', 'medium', 'low')")
+                      ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
                       ->orderBy('created_at', 'desc')
                       ->paginate(15);
 
@@ -58,8 +60,10 @@ class TodoController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'priority' => 'required|in:low,medium,high',
+            'priority' => 'required|in:low,medium,high,top',
             'due_date' => 'nullable|date|after_or_equal:today',
+            'assigned_to' => 'nullable|string|max:255',
+            'remarks' => 'nullable|string',
         ]);
 
         $validated['user_id'] = auth()->id();
@@ -106,15 +110,17 @@ class TodoController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'priority' => 'required|in:low,medium,high',
+            'priority' => 'required|in:low,medium,high,top',
             'status' => 'required|in:pending,in_progress,completed',
             'due_date' => 'nullable|date|after_or_equal:today',
+            'assigned_to' => 'nullable|string|max:255',
+            'remarks' => 'nullable|string',
         ]);
 
         $todo->update($validated);
 
         return redirect()->route('todos.index')
-            ->with('success', 'Todo updated successfully!');
+            ->with('updated', 'Todo updated successfully!');
     }
 
     /**
@@ -129,11 +135,11 @@ class TodoController extends Controller
         $todo->delete();
 
         return redirect()->route('todos.index')
-            ->with('success', 'Todo deleted successfully!');
+            ->with('deleted', 'Todo deleted successfully!');
     }
 
     /**
-     * Quick update todo status
+     * Quick update todo status or assigned_to
      */
     public function quickUpdate(Request $request, Todo $todo)
     {
@@ -142,11 +148,13 @@ class TodoController extends Controller
         }
 
         $validated = $request->validate([
-            'status' => 'required|in:pending,in_progress,completed'
+            'status' => 'nullable|in:pending,in_progress,completed',
+            'assigned_to' => 'nullable|string|max:255',
+            'priority' => 'nullable|in:low,medium,high,top'
         ]);
 
         $todo->update($validated);
 
-        return response()->json(['success' => true, 'status' => $todo->status]);
+        return response()->json(['success' => true, 'status' => $todo->status, 'assigned_to' => $todo->assigned_to]);
     }
 }

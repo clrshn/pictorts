@@ -5,27 +5,10 @@
     </x-slot>
 
     @if(session('success'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                showNotification({
-                    type: 'success',
-                    title: 'Success!',
-                    message: '{{ session('success') }}',
-                    duration: 3000
-                });
-            });
-        </script>
-    @endif
-
-    <!-- Page Header with Actions
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h2 style="margin:0; color:#c0392b;"></h2>
-        <div style="display:flex; gap:8px; align-items:center;">
-            <button type="button" onclick="toggleQrScanner()" class="btn-blue" style="padding:8px 12px; font-size:12px;">
-                <i class="fas fa-qrcode"></i> QR Scanner
-            </button>
+        <div class="alert-success">
+            {{ session('success') }}
         </div>
-    </div>-->
+    @endif  
 
     <!-- Search Filter -->
     <div class="filter-box">
@@ -217,53 +200,6 @@
                         Next <i class="fas fa-chevron-right"></i>
                     </span>
                 @endif
-            </div>
-        </div>
-    </div>
-
-    <!-- QR Scanner Modal -->
-     <div id="qrScannerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
-        <div style="background:white; border-radius:8px; padding:20px; max-width:500px; width:90%; max-height:80vh; overflow-y:auto;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                <h3 style="margin:0; color:#c0392b;">QR Code Scanner</h3>
-                <button onclick="toggleQrScanner()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
-            </div>
-
-            <!-- Scan Panel Only -->
-            <div>
-                <div style="border:1px solid #ddd; border-radius:4px; padding:20px; text-align:center; min-height:150px;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-                        <span style="font-size:14px; font-weight:600; color:#c0392b;">Camera Scanner</span>
-                        <span id="qrScanStatus" style="font-size:12px; color:#999;">IDLE</span>
-                    </div>
-                    
-                    <!-- Camera View -->
-                    <div id="qrCameraContainer" style="display:none; position:relative; margin-bottom:12px;">
-                        <video id="qrVideo" style="width:100%; max-width:320px; height:240px; border-radius:4px; background:#000;"></video>
-                        <canvas id="qrCanvas" style="display:none;"></canvas>
-                        <button type="button" onclick="stopQrCamera()" style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.7); color:#fff; border:none; width:24px; height:24px; border-radius:50%; font-size:12px; cursor:pointer;">&times;</button>
-                    </div> 
-
-                    <!-- File Upload -->
-                    <div id="qrUploadContainer" style="display:none; margin-bottom:12px;">
-                        <input type="file" id="qrFileInput" accept="image/*" style="display:none;" onchange="handleQrFileUpload(event)">
-                        <button type="button" onclick="document.getElementById('qrFileInput').click()" style="padding:8px 16px; background:#2980b9; color:#fff; border:none; border-radius:4px; font-size:13px; font-weight:600; cursor:pointer;">
-                            <i class="fas fa-upload"></i> Choose Image
-                        </button>
-                        <div id="qrUploadPreview" style="margin-top:8px;"></div>
-                    </div>
-
-                    <div style="padding:20px 0;">
-                        <button type="button" id="qrStartCameraBtn" onclick="startQrCamera()" style="padding:10px 24px; background:#c0392b; color:#fff; border:none; border-radius:4px; font-size:13px; font-weight:600; cursor:pointer;">
-                            <i class="fas fa-camera"></i> Start Camera
-                        </button>
-                        <div style="margin-top:10px;">
-                            <button type="button" onclick="showQrFileUpload()" style="background:none; border:none; color:#2980b9; font-size:12px; text-decoration:underline; cursor:pointer;">
-                                <i class="fas fa-image"></i> Scan an Image File
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -492,171 +428,130 @@
             }
         }
 
+        /* Notification System Styles */
+        .notification-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .notification {
+            background: #fff;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-left: 4px solid #e74c3c;
+            min-width: 300px;
+            max-width: 400px;
+            pointer-events: all;
+            animation: slideInRight 0.3s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .notification.success {
+            border-left-color: #27ae60;
+        }
+
+        .notification.warning {
+            border-left-color: #f39c12;
+        }
+
+        .notification.info {
+            border-left-color: #3498db;
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .notification-title {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: #7f8c8d;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .notification-close:hover {
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .notification-message {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #555;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .notification-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .notification-btn {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .notification-btn-confirm {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .notification-btn-confirm:hover {
+            background: #c0392b;
+        }
+
+        .notification-btn-cancel {
+            background: #ecf0f1;
+            color: #555;
+        }
+
+        .notification-btn-cancel:hover {
+            background: #bdc3c7;
+        }
+
         .notification.removing {
             animation: slideOutRight 0.3s ease-out forwards;
         }
     </style>
 
     <script>
-        // QR Scanner Variables
-        let qrCodeReader = null;
-        let qrCurrentStream = null;
-
-        function toggleQrScanner() {
-            const modal = document.getElementById('qrScannerModal');
-            
-            if (modal.style.display === 'none' || modal.style.display === '') {
-                modal.style.display = 'flex';
-                resetQrScanner();
-            } else {
-                modal.style.display = 'none';
-                stopQrCamera();
-            }
-        }
-
-        function showQrTab(tab) {
-            document.getElementById('qrPanelSearch').style.display = tab === 'search' ? 'block' : 'none';
-            document.getElementById('qrPanelScan').style.display = tab === 'scan' ? 'block' : 'none';
-            document.getElementById('qrTabSearch').style.background = tab === 'search' ? '#c0392b' : '#e9ecef';
-            document.getElementById('qrTabSearch').style.color = tab === 'search' ? '#fff' : '#555';
-            document.getElementById('qrTabScan').style.background = tab === 'scan' ? '#c0392b' : '#e9ecef';
-            document.getElementById('qrTabScan').style.color = tab === 'scan' ? '#fff' : '#555';
-        }
-
-        function searchQrCode() {
-            const code = document.getElementById('qrSearchInput').value.trim();
-            if (!code) {
-                alert('Please enter a tracking code.');
-                return;
-            }
-
-            // Set the search value and submit the form
-            const searchInput = document.querySelector('input[name="search"]');
-            if (searchInput) {
-                searchInput.value = code;
-                document.querySelector('form').submit();
-            }
-        }
-
-        function startQrCamera() {
-            if (!qrCodeReader) {
-                qrCodeReader = new ZXing.BrowserQRCodeReader();
-            }
-
-            const videoElement = document.getElementById('qrVideo');
-            const startBtn = document.getElementById('qrStartCameraBtn');
-            const cameraContainer = document.getElementById('qrCameraContainer');
-            const status = document.getElementById('qrScanStatus');
-
-            startBtn.disabled = true;
-            startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
-            status.textContent = 'STARTING';
-            status.style.color = '#f39c12';
-
-            qrCodeReader.decodeFromVideoDevice(null, videoElement, (result, err) => {
-                if (result) {
-                    document.getElementById('qrSearchInput').value = result.text;
-                    showQrTab('search');
-                    stopQrCamera();
-                    searchQrCode();
-                }
-            }).then(() => {
-                cameraContainer.style.display = 'block';
-                startBtn.style.display = 'none';
-                status.textContent = 'SCANNING';
-                status.style.color = '#27ae60';
-            }).catch((err) => {
-                console.error('Camera error:', err);
-                status.textContent = 'ERROR';
-                status.style.color = '#e74c3c';
-                startBtn.disabled = false;
-                startBtn.innerHTML = '<i class="fas fa-camera"></i> Start Camera';
-                alert('Camera access denied or not available. Please use the file upload option or enter the code manually.');
-            });
-        }
-
-        function stopQrCamera() {
-            if (qrCodeReader && qrCurrentStream) {
-                qrCodeReader.reset();
-                qrCurrentStream = null;
-            }
-            document.getElementById('qrCameraContainer').style.display = 'none';
-            document.getElementById('qrStartCameraBtn').style.display = 'inline-block';
-            document.getElementById('qrStartCameraBtn').disabled = false;
-            document.getElementById('qrStartCameraBtn').innerHTML = '<i class="fas fa-camera"></i> Start Camera';
-            document.getElementById('qrScanStatus').textContent = 'IDLE';
-            document.getElementById('qrScanStatus').style.color = '#999';
-        }
-
-        function showQrFileUpload() {
-            document.getElementById('qrUploadContainer').style.display = 'block';
-        }
-
-        function handleQrFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const preview = document.getElementById('qrUploadPreview');
-            preview.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing image...';
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    
-                    if (!qrCodeReader) {
-                        qrCodeReader = new ZXing.BrowserQRCodeReader();
-                    }
-
-                    try {
-                        const result = qrCodeReader.decodeFromImageData(imageData);
-                        if (result) {
-                            document.getElementById('qrSearchInput').value = result.text;
-                            showQrTab('search');
-                            preview.innerHTML = '<div style="color:#27ae60; font-size:12px;"><i class="fas fa-check-circle"></i> QR Code detected: ' + result.text + '</div>';
-                            setTimeout(() => {
-                                searchQrCode();
-                                document.getElementById('qrUploadContainer').style.display = 'none';
-                                preview.innerHTML = '';
-                            }, 1000);
-                        } else {
-                            preview.innerHTML = '<div style="color:#e74c3c; font-size:12px;"><i class="fas fa-exclamation-circle"></i> No QR code found in image</div>';
-                        }
-                    } catch (err) {
-                        preview.innerHTML = '<div style="color:#e74c3c; font-size:12px;"><i class="fas fa-exclamation-circle"></i> Could not read QR code from image</div>';
-                    }
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function resetQrScanner() {
-            document.getElementById('qrSearchInput').value = '';
-            document.getElementById('qrSearchError').style.display = 'none';
-            document.getElementById('qrUploadPreview').innerHTML = '';
-            showQrTab('search');
-            stopQrCamera();
-        }
-
-        document.getElementById('qrSearchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') { searchQrCode(); }
-        });
-
-        // Close modal when clicking outside
-        document.getElementById('qrScannerModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                toggleQrScanner();
-            }
-        });
-
         // Modern Notification System - Local implementation
         function showNotification(options) {
             const {

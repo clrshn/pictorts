@@ -82,20 +82,14 @@
             <div style="padding:20px 24px;">
                 <!-- Instruction -->
                 <div style="background:#f8f9fa; border:1px solid #e9ecef; border-radius:4px; padding:10px 14px; font-size:12px; color:#555; margin-bottom:16px;">
-                    Use the QR Code scanner and scan image file under Scan Tab or just enter the QR Code under Search Tab to <strong>track</strong> document
-                </div>
-
-                <!-- Search / Scan Tabs -->
-                <div style="display:flex; gap:0; margin-bottom:16px;">
-                    <button id="tabSearch" onclick="showTrackTab('search')" style="padding:10px 28px; font-size:13px; font-weight:700; border:none; cursor:pointer; border-radius:4px 0 0 4px; background:#c0392b; color:#fff;">Search</button>
-                    <button id="tabScan" onclick="showTrackTab('scan')" style="padding:10px 28px; font-size:13px; font-weight:700; border:none; cursor:pointer; border-radius:0 4px 4px 0; background:#e9ecef; color:#555;">Scan</button>
+                    Enter tracking code below to <strong>track</strong> document
                 </div>
 
                 <!-- Search Panel -->
                 <div id="panelSearch">
                     <div style="position:relative; margin-bottom:16px;">
-                        <input type="text" id="trackCodeInput" placeholder="QR Code / Tracking Number / DTS Number" style="width:100%; padding:10px 40px 10px 14px; border:1px solid #ddd; border-radius:4px; font-size:13px; outline:none;">
-                        <i class="fas fa-qrcode" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#c0392b; font-size:16px;"></i>
+                        <input type="text" id="trackCodeInput" placeholder="Tracking Number / DTS Number" style="width:100%; padding:10px 40px 10px 14px; border:1px solid #ddd; border-radius:4px; font-size:13px; outline:none;">
+                        <i class="fas fa-search" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#c0392b; font-size:16px;"></i>
                     </div>
                     <button type="button" onclick="trackDocument()" id="trackBtn" style="width:100%; padding:12px; background:#fff; color:#555; border:2px solid #ddd; border-radius:30px; font-size:14px; font-weight:700; cursor:pointer; letter-spacing:1px; transition: all 0.2s;">
                         TRACK &nbsp;<i class="fas fa-arrow-right"></i>

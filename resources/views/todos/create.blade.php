@@ -27,15 +27,35 @@
                         <label>Priority <span style="color:#c0392b">*</span></label>
                         <select name="priority" class="form-control" required>
                             <option value="">Select Priority</option>
+                            <option value="top" {{ old('priority') === 'top' ? 'selected' : '' }}>Top</option>
                             <option value="high" {{ old('priority') === 'high' ? 'selected' : '' }}>High</option>
                             <option value="medium" {{ old('priority') === 'medium' ? 'selected' : '' }}>Medium</option>
                             <option value="low" {{ old('priority') === 'low' ? 'selected' : '' }}>Low</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Due Date</label>
-                        <input type="date" name="due_date" class="form-control" value="{{ old('due_date') }}" min="{{ now()->format('Y-m-d') }}">
+                        <label>Assigned To</label>
+                        <select name="assigned_to" class="form-control">
+                            <option value="">Select Person</option>
+                            <option value="ADMIN UNIT" {{ old('assigned_to') === 'ADMIN UNIT' ? 'selected' : '' }}>ADMIN UNIT</option>
+                            <option value="CLYDE" {{ old('assigned_to') === 'CLYDE' ? 'selected' : '' }}>CLYDE</option>
+                            <option value="MARGIE" {{ old('assigned_to') === 'MARGIE' ? 'selected' : '' }}>MARGIE</option>
+                            <option value="MELETH" {{ old('assigned_to') === 'MELETH' ? 'selected' : '' }}>MELETH</option>
+                            <option value="JACKIE" {{ old('assigned_to') === 'JACKIE' ? 'selected' : '' }}>JACKIE</option>
+                            <option value="PATRICK" {{ old('assigned_to') === 'PATRICK' ? 'selected' : '' }}>PATRICK</option>
+                            <option value="MITCH" {{ old('assigned_to') === 'MITCH' ? 'selected' : '' }}>MITCH</option>
+                        </select>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" name="due_date" class="form-control" value="{{ old('due_date') }}" min="{{ now()->format('Y-m-d') }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Remarks</label>
+                    <textarea name="remarks" class="form-control" rows="3" placeholder="Add any additional remarks...">{{ old('remarks') }}</textarea>
                 </div>
 
                 <div style="display:flex; gap:12px; margin-top:24px;">

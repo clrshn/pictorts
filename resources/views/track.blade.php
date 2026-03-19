@@ -5,24 +5,18 @@
     </x-slot>
 
     <div class="filter-box" style="max-width:600px;">
-        <h3><i class="fas fa-qrcode"></i> Track Document</h3>
+        <h3><i class="fas fa-search"></i> Track Document</h3>
 
         <!-- Instruction -->
         <div style="background:#f8f9fa; border:1px solid #e9ecef; border-radius:4px; padding:10px 14px; font-size:12px; color:#555; margin-bottom:16px;">
-            Use the QR Code scanner and scan image file under Scan Tab or just enter the QR Code under Search Tab to <strong>track</strong> document
-        </div>
-
-        <!-- Search / Scan Tabs -->
-        <div style="display:flex; gap:0; margin-bottom:16px;">
-            <button id="sTabSearch" onclick="showSysTrackTab('search')" style="padding:10px 28px; font-size:13px; font-weight:700; border:none; cursor:pointer; border-radius:4px 0 0 4px; background:#c0392b; color:#fff;">Search</button>
-            <button id="sTabScan" onclick="showSysTrackTab('scan')" style="padding:10px 28px; font-size:13px; font-weight:700; border:none; cursor:pointer; border-radius:0 4px 4px 0; background:#e9ecef; color:#555;">Scan</button>
+            Enter the tracking code below to <strong>track</strong> document
         </div>
 
         <!-- Search Panel -->
         <div id="sPanelSearch">
             <div style="position:relative; margin-bottom:16px;">
                 <input type="text" id="sTrackCodeInput" placeholder="Enter tracking code (e.g., PICTO-LETTER-2026-0001)" class="form-control" style="padding-right:40px;">
-                <i class="fas fa-qrcode" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#c0392b; font-size:16px;"></i>
+                <i class="fas fa-search" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#c0392b; font-size:16px;"></i>
             </div>
             <button type="button" onclick="sysTrackDocument()" id="sTrackBtn" class="btn-red" style="width:100%; justify-content:center; padding:12px; border-radius:30px; font-size:14px; letter-spacing:1px;">
                 TRACK &nbsp;<i class="fas fa-arrow-right"></i>
@@ -30,43 +24,6 @@
             <div id="sTrackError" style="display:none; margin-top:12px; background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; padding:10px 14px; border-radius:4px; font-size:13px;"></div>
             <div id="sTrackLoading" style="display:none; margin-top:12px; text-align:center; color:#999; font-size:13px;">
                 <i class="fas fa-spinner fa-spin"></i> Searching...
-            </div>
-        </div>
-
-        <!-- Scan Panel -->
-        <div id="sPanelScan" style="display:none;">
-            <div style="border:1px solid #ddd; border-radius:4px; padding:20px; text-align:center; min-height:150px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-                    <span style="font-size:14px; font-weight:600; color:#c0392b;">Code Scanner</span>
-                    <span id="sScanStatus" style="font-size:12px; color:#999;">IDLE</span>
-                </div>
-                
-                <!-- Camera View -->
-                <div id="sCameraContainer" style="display:none; position:relative; margin-bottom:12px;">
-                    <video id="sVideo" style="width:100%; max-width:320px; height:240px; border-radius:4px; background:#000;"></video>
-                    <canvas id="sCanvas" style="display:none;"></canvas>
-                    <button type="button" onclick="stopSysCamera()" style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.7); color:#fff; border:none; width:24px; height:24px; border-radius:50%; font-size:12px; cursor:pointer;">&times;</button>
-                </div>
-
-                <!-- File Upload -->
-                <div id="sUploadContainer" style="display:none; margin-bottom:12px;">
-                    <input type="file" id="sFileInput" accept="image/*" style="display:none;" onchange="handleSysFileUpload(event)">
-                    <button type="button" onclick="document.getElementById('sFileInput').click()" style="padding:8px 16px; background:#2980b9; color:#fff; border:none; border-radius:4px; font-size:13px; font-weight:600; cursor:pointer;">
-                        <i class="fas fa-upload"></i> Choose Image
-                    </button>
-                    <div id="sUploadPreview" style="margin-top:8px;"></div>
-                </div>
-
-                <div style="padding:20px 0;">
-                    <button type="button" id="sStartCameraBtn" onclick="startSysCamera()" style="padding:10px 24px; background:#c0392b; color:#fff; border:none; border-radius:4px; font-size:13px; font-weight:600; cursor:pointer;">
-                        <i class="fas fa-camera"></i> Start Camera
-                    </button>
-                    <div style="margin-top:10px;">
-                        <button type="button" onclick="showSysFileUpload()" style="background:none; border:none; color:#2980b9; font-size:12px; text-decoration:underline; cursor:pointer;">
-                            <i class="fas fa-image"></i> Scan an Image File
-                        </button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -138,15 +95,6 @@
     </div>
 
     <script>
-        function showSysTrackTab(tab) {
-            document.getElementById('sPanelSearch').style.display = tab === 'search' ? 'block' : 'none';
-            document.getElementById('sPanelScan').style.display = tab === 'scan' ? 'block' : 'none';
-            document.getElementById('sTabSearch').style.background = tab === 'search' ? '#c0392b' : '#e9ecef';
-            document.getElementById('sTabSearch').style.color = tab === 'search' ? '#fff' : '#555';
-            document.getElementById('sTabScan').style.background = tab === 'scan' ? '#c0392b' : '#e9ecef';
-            document.getElementById('sTabScan').style.color = tab === 'scan' ? '#fff' : '#555';
-        }
-
         function showSysTracksTab(tab) {
             document.getElementById('sPanelTimeline').style.display = tab === 'timeline' ? 'block' : 'none';
             document.getElementById('sPanelTable').style.display = tab === 'table' ? 'block' : 'none';
@@ -260,112 +208,6 @@
                 document.getElementById('sTrackError').textContent = 'An error occurred. Please try again.';
                 document.getElementById('sTrackError').style.display = 'block';
             });
-        }
-
-        // QR Scanner Variables for System Page
-        let sysCodeReader = null;
-        let sysCurrentStream = null;
-
-        // System Camera Scanner Functions
-        function startSysCamera() {
-            if (!sysCodeReader) {
-                sysCodeReader = new ZXing.BrowserQRCodeReader();
-            }
-
-            const videoElement = document.getElementById('sVideo');
-            const startBtn = document.getElementById('sStartCameraBtn');
-            const cameraContainer = document.getElementById('sCameraContainer');
-            const status = document.getElementById('sScanStatus');
-
-            startBtn.disabled = true;
-            startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
-            status.textContent = 'STARTING';
-            status.style.color = '#f39c12';
-
-            sysCodeReader.decodeFromVideoDevice(null, videoElement, (result, err) => {
-                if (result) {
-                    document.getElementById('sTrackCodeInput').value = result.text;
-                    showSysTrackTab('search');
-                    stopSysCamera();
-                    sysTrackDocument();
-                }
-            }).then(() => {
-                cameraContainer.style.display = 'block';
-                startBtn.style.display = 'none';
-                status.textContent = 'SCANNING';
-                status.style.color = '#27ae60';
-            }).catch((err) => {
-                console.error('Camera error:', err);
-                status.textContent = 'ERROR';
-                status.style.color = '#e74c3c';
-                startBtn.disabled = false;
-                startBtn.innerHTML = '<i class="fas fa-camera"></i> Start Camera';
-                alert('Camera access denied or not available. Please use the file upload option or enter the code manually.');
-            });
-        }
-
-        function stopSysCamera() {
-            if (sysCodeReader && sysCurrentStream) {
-                sysCodeReader.reset();
-                sysCurrentStream = null;
-            }
-            document.getElementById('sCameraContainer').style.display = 'none';
-            document.getElementById('sStartCameraBtn').style.display = 'inline-block';
-            document.getElementById('sStartCameraBtn').disabled = false;
-            document.getElementById('sStartCameraBtn').innerHTML = '<i class="fas fa-camera"></i> Start Camera';
-            document.getElementById('sScanStatus').textContent = 'IDLE';
-            document.getElementById('sScanStatus').style.color = '#999';
-        }
-
-        // System File Upload Functions
-        function showSysFileUpload() {
-            document.getElementById('sUploadContainer').style.display = 'block';
-        }
-
-        function handleSysFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const preview = document.getElementById('sUploadPreview');
-            preview.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing image...';
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    
-                    if (!sysCodeReader) {
-                        sysCodeReader = new ZXing.BrowserQRCodeReader();
-                    }
-
-                    try {
-                        const result = sysCodeReader.decodeFromImageData(imageData);
-                        if (result) {
-                            document.getElementById('sTrackCodeInput').value = result.text;
-                            showSysTrackTab('search');
-                            preview.innerHTML = '<div style="color:#27ae60; font-size:12px;"><i class="fas fa-check-circle"></i> QR Code detected: ' + result.text + '</div>';
-                            setTimeout(() => {
-                                sysTrackDocument();
-                                document.getElementById('sUploadContainer').style.display = 'none';
-                                preview.innerHTML = '';
-                            }, 1000);
-                        } else {
-                            preview.innerHTML = '<div style="color:#e74c3c; font-size:12px;"><i class="fas fa-exclamation-circle"></i> No QR code found in image</div>';
-                        }
-                    } catch (err) {
-                        preview.innerHTML = '<div style="color:#e74c3c; font-size:12px;"><i class="fas fa-exclamation-circle"></i> Could not read QR code from image</div>';
-                    }
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
         }
 
         document.getElementById('sTrackCodeInput').addEventListener('keypress', function(e) {
