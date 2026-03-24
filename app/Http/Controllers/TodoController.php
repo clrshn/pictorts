@@ -126,13 +126,25 @@ class TodoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Todo $todo)
+    public function destroy(Request $request, Todo $todo)
     {
         if ($todo->user_id !== auth()->id()) {
             abort(403);
         }
 
-        $todo->delete();
+        try {
+            $todo->delete();
+        } catch (\Throwable $e) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Failed to delete the task.'], 500);
+            }
+            return redirect()->route('todos.index')
+                ->with('error', 'Failed to delete the todo.');
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true]);
+        }
 
         return redirect()->route('todos.index')
             ->with('deleted', 'Todo deleted successfully!');

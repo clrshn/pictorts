@@ -14,18 +14,6 @@
                     </div>
                 </div>
                 <div style="padding:20px;">
-                    @if(session('success'))
-                        <div class="alert alert-success" style="margin-bottom:20px;">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-                    
-                    @if(session('error'))
-                        <div class="alert alert-danger" style="margin-bottom:20px;">
-                            {{ session('error') }}
-                        </div>
-                    @endif
-
                     <!-- Search Users -->
                     <div style="background:#f8f9fa; padding:16px; border-radius:8px; margin-bottom:20px;">
                         <form method="GET" action="{{ route('users.index') }}">

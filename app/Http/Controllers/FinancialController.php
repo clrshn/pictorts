@@ -18,6 +18,10 @@ class FinancialController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {

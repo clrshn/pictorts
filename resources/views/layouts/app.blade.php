@@ -660,6 +660,51 @@
                 box-shadow: 0 4px 12px rgba(220,38,38,0.2);
             }
 
+            /* Global shared notification style (todo-style) */
+            .notification-container {
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                z-index: 99999 !important;
+                pointer-events: none !important;
+                width: auto !important;
+                max-width: 560px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 0 12px !important;
+            }
+            .notification {
+                background: #fff !important;
+                border: 1px solid rgba(148, 163, 184, 0.35) !important;
+                border-left: none !important;
+                border-radius: 10px !important;
+                padding: 16px 18px !important;
+                margin-bottom: 12px !important;
+                box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12) !important;
+                min-width: 320px !important;
+                max-width: 460px !important;
+                pointer-events: all !important;
+                animation: toastAppear 0.26s ease-out !important;
+                position: relative !important;
+                overflow: hidden !important;
+            }
+            .notification.success { border-color: #16a34a !important; }
+            .notification.warning { border-color: #f59e0b !important; }
+            .notification.info { border-color: #2563eb !important; }
+            .notification.danger, .notification.error { border-color: #dc2626 !important; }
+
+            .notification-header { display: flex !important; align-items: center !important; justify-content: space-between !important; margin-bottom: 8px !important; }
+            .notification-title { font-weight: 700 !important; font-size: 14px !important; color: #111827 !important; display: flex !important; align-items: center !important; gap: 8px !important; }
+            .notification-close { background: transparent !important; border: none !important; color: #6b7280 !important; font-size: 18px !important; cursor: pointer !important; width: 24px !important; height: 24px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 6px !important; transition: all 0.2s ease !important; }
+            .notification-close:hover { background: rgba(156, 163, 175, 0.2) !important; color: #111827 !important; }
+            .notification-message { font-size: 14px !important; line-height: 1.4 !important; color: #4b5563 !important; }
+            .notification.removing { animation: toastDismiss 0.2s ease-out forwards !important; }
+
+            @keyframes toastAppear { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+            @keyframes toastDismiss { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
+
             /* Form Elements - Modern Design */
             .form-group { 
                 margin-bottom: 20px; 
@@ -972,17 +1017,22 @@
 
         <!-- Logout Confirmation Modal -->
         <div id="logoutModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:9999; align-items:center; justify-content:center;">
-            <div style="background:#fff; border-radius:12px; padding:36px 40px; max-width:400px; width:90%; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.2); animation: modalIn 0.25s ease;">
-                <div style="width:70px; height:70px; border-radius:50%; border:3px solid #f39c12; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
-                    <i class="fas fa-exclamation" style="font-size:32px; color:#f39c12;"></i>
+            <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 2px dashed rgba(192,57,43,0.2); border-radius: 16px; padding: 40px; max-width:400px; width:90%; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.2); animation: modalIn 0.25s ease;">
+                <div style="width:70px; height:70px; border-radius:50%; border:3px solid #8b0000; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+                    <i class="fas fa-sign-out-alt" style="font-size:32px; color:#8b0000;"></i>
                 </div>
-                <h3 style="font-size:20px; font-weight:600; color:#333; margin-bottom:8px;">Are you sure you want to logout?</h3>
+                <h3 style="color: #1a1a2e; margin-bottom: 8px; font-weight:600;">Confirm Logout</h3>
+                <p style="color: #64748b; margin-bottom: 20px;">Are you sure you want to logout?</p>
                 <div style="margin-top:24px; display:flex; justify-content:center; gap:12px;">
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" style="padding:10px 28px; background:#2980b9; color:#fff; border:none; border-radius:4px; font-size:14px; font-weight:600; cursor:pointer;">Yes</button>
+                        <button type="submit" class="btn-red">
+                            <i class="fas fa-sign-out-alt"></i> Yes, Logout
+                        </button>
                     </form>
-                    <button type="button" onclick="document.getElementById('logoutModal').style.display='none'" style="padding:10px 28px; background:#e74c3c; color:#fff; border:none; border-radius:4px; font-size:14px; font-weight:600; cursor:pointer;">Cancel</button>
+                    <button type="button" onclick="document.getElementById('logoutModal').style.display='none'" class="btn-gray">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
                 </div>
             </div>
         </div>
@@ -1082,7 +1132,6 @@
                 const notification = document.createElement('div');
                 notification.className = `notification ${type}`;
 
-                // Determine icon based on type
                 let iconHtml = '';
                 if (icon) {
                     iconHtml = `<i class="${icon}"></i>`;
@@ -1122,7 +1171,6 @@
 
                 container.appendChild(notification);
 
-                // Auto-remove after duration
                 if (duration > 0) {
                     setTimeout(() => {
                         window.removeNotification(notification.querySelector('.notification-close'));
@@ -1144,13 +1192,13 @@
                 }
             }
 
-            // Confirmation dialog function
+            // Confirmation dialog using modern notification style (buttons in toast-like card)
             window.showConfirmDialog = function(options) {
                 const {
                     title = 'Confirm Action',
                     message = 'Are you sure you want to proceed?',
-                    confirmText = 'Confirm',
-                    cancelText = 'Cancel',
+                    confirmText = 'Yes',
+                    cancelText = 'No',
                     confirmClass = 'notification-btn-confirm',
                     onConfirm = null,
                     onCancel = null
@@ -1161,17 +1209,17 @@
                         type: 'warning',
                         title: title,
                         message: message,
-                        duration: 0, // Don't auto-close
+                        duration: 0,
                         actions: [
                             {
                                 text: cancelText,
                                 class: 'notification-btn-cancel',
-                                onclick: `window.removeNotification(this.closest('.notification').querySelector('.notification-close')); ${onCancel ? 'window.confirmDialogCancel();' : 'window.confirmDialogCancel();'}`
+                                onclick: `const n=this.closest('.notification'); window.removeNotification(n.querySelector('.notification-close')); if(typeof window.confirmDialogCancel==='function') window.confirmDialogCancel();`
                             },
                             {
                                 text: confirmText,
                                 class: confirmClass,
-                                onclick: `window.removeNotification(this.closest('.notification').querySelector('.notification-close')); window.confirmDialogConfirm();`
+                                onclick: `const n=this.closest('.notification'); window.removeNotification(n.querySelector('.notification-close')); if(typeof window.confirmDialogConfirm==='function') window.confirmDialogConfirm();`
                             }
                         ]
                     });
@@ -1227,6 +1275,14 @@
                     }
                 });
             }
+
+            function hasLegacyAlert() {
+                return document.querySelector('.alert-success, .alert-danger, .alert-warning, .alert-info, .alert-error') !== null;
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                // toast notifications are disabled; keep top flash alert blocks.
+            });
         </script>
     </body>
 </html>

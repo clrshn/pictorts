@@ -46,27 +46,18 @@
             <div class="stat-card blue" style="cursor:pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
                 <div class="info">
                     <div class="label">Incoming</div>
-                    <div class="count">{{ $docIncoming }}</div>
+                    <div class="count">{{ $incomingCount }}</div>
                 </div>
                 <div class="icon"><i class="fas fa-arrow-down"></i></div>
             </div>
         </a>
-        <a href="{{ route('documents.index', ['status' => 'ONGOING']) }}" style="text-decoration:none;">
+        <a href="{{ route('documents.index', ['direction' => 'OUTGOING']) }}" style="text-decoration:none;">
             <div class="stat-card green" style="cursor:pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
                 <div class="info">
-                    <div class="label">On going</div>
-                    <div class="count">{{ $docOngoing }}</div>
+                    <div class="label">Outgoing</div>
+                    <div class="count">{{ $outgoingCount }}</div>
                 </div>
-                <div class="icon"><i class="fas fa-sync-alt"></i></div>
-            </div>
-        </a>
-        <a href="{{ route('documents.index', ['status' => 'COMPLETED']) }}" style="text-decoration:none;">
-            <div class="stat-card teal" style="cursor:pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-                <div class="info">
-                    <div class="label">Completed</div>
-                    <div class="count">{{ $docCompleted }}</div>
-                </div>
-                <div class="icon"><i class="fas fa-check-square"></i></div>
+                <div class="icon"><i class="fas fa-arrow-up"></i></div>
             </div>
         </a>
     </div>

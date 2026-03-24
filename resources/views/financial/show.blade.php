@@ -4,10 +4,6 @@
         <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / <a href="{{ route('financial.index') }}">Financial</a> / Record #{{ $financial->id }}</div>
     </x-slot>
 
-    @if(session('success'))
-        <div class="alert-success">{{ session('success') }}</div>
-    @endif
-
     <!-- Record Details -->
     <div class="table-card" style="margin-bottom:20px;">
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px; display:flex; justify-content:space-between; align-items:center;">
@@ -43,7 +39,14 @@
                 <div style="border-left:3px solid #8e44ad; padding-left:12px;">
                     <div style="margin-bottom:8px;"><strong>Current Office:</strong> {{ $financial->currentOffice->code ?? '—' }}</div>
                     <div style="margin-bottom:8px;"><strong>Current Holder:</strong> {{ $financial->holder->name ?? '—' }}</div>
-                    <div><strong>Status:</strong> <span class="badge {{ $badgeClass }}">{{ $financial->status }}</span></div>
+                    <div style="margin-bottom:8px;"><strong>Status:</strong> <span class="badge {{ $badgeClass }}">{{ $financial->status }}</span></div>
+                    <div><strong>Progress:</strong> 
+                        @if($financial->progress)
+                            <span style="font-size: 12px; color: #64748b; font-weight: 500;">{{ $financial->progress }}</span>
+                        @else
+                            <span style="color: #9ca3af; font-size: 12px;">—</span>
+                        @endif
+                    </div>
                 </div>
                 
                 <!-- Purchase Request -->

@@ -95,16 +95,6 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <!-- Empty for balance -->
-                    </div>
-                </div>
-
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
-                    <div class="form-group">
-                        <label>Progress <small style="color:#999;">(Optional - Manually enter progress status)</small></label>
-                        <input type="text" name="progress" class="form-control" value="{{ old('progress', $financial->progress) }}" placeholder="e.g., For Processing, Under Review, Awaiting Approval">
-                    </div>
-                    <div class="form-group">
                         <label>Status <span style="color:#c0392b">*</span></label>
                         <select name="status" class="form-control" required>
                             <option value="">Select Status</option>
@@ -112,6 +102,16 @@
                             <option value="CANCELLED" {{ old('status', $financial->status) === 'CANCELLED' ? 'selected' : '' }}>CANCELLED</option>
                             <option value="FINISHED" {{ old('status', $financial->status) === 'FINISHED' ? 'selected' : '' }}>FINISHED</option>
                         </select>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                    <div class="form-group">
+                        <label>Progress <small style="color:#999;">(Optional)</small></label>
+                        <input type="text" name="progress" class="form-control" value="{{ old('progress', $financial->progress) }}" placeholder="e.g., For Processing, Under Review, Awaiting Approval">
+                    </div>
+                    <div class="form-group">
+                        <!-- Empty for balance -->
                     </div>
                 </div>
 
@@ -127,7 +127,8 @@
 
                 <div style="display:flex; gap:10px; margin-top:8px;">
                     <button type="submit" class="btn-red"><i class="fas fa-save"></i> Update Record</button>
-                    <a href="{{ route('financial.show', $financial) }}" class="btn-gray"><i class="fas fa-times"></i> Cancel</a>
+                    <a href="{{ route('financial.show', $financial) }}" class="btn-blue"><i class="fas fa-eye"></i> View</a>
+                    <a href="{{ route('financial.index') }}" class="btn-gray"><i class="fas fa-times"></i> Cancel</a>
                 </div>
             </form>
         </div>

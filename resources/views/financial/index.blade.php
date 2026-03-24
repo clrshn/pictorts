@@ -1,26 +1,50 @@
 <x-app-layout>
     <x-slot name="header">
         <h1>Financial Monitoring</h1>
-        <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / Financial</div>
+        <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / Financial Monitoring</div>
     </x-slot>
 
     @if(session('success'))
-        <div class="alert-success">
+        <div class="alert alert-success" style="margin-bottom: 16px;">
             {{ session('success') }}
         </div>
-    @endif  
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger" style="margin-bottom: 16px;">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if(session('warning'))
+        <div class="alert alert-warning" style="margin-bottom: 16px;">
+            {{ session('warning') }}
+        </div>
+    @endif
+
+    @if(session('info'))
+        <div class="alert alert-info" style="margin-bottom: 16px;">
+            {{ session('info') }}
+        </div>
+    @endif
 
     <!-- Search Filter -->
     <div class="filter-box">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
             <h3 style="margin:0;">Search Filter</h3>
-            @if(request()->hasAny(['status', 'search']))
+            @if(request()->hasAny(['status', 'type', 'search']))
                 <div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
                     <span style="color:#666; font-size:15px;">Active Filters:</span>
                     @if(request('status'))
                         <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
                             {{ request('status') }}
                             <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove status filter">×</a>
+                        </span>
+                    @endif
+                    @if(request('type'))
+                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                            {{ request('type') }}
+                            <a href="{{ request()->fullUrlWithQuery(['type' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove type filter">×</a>
                         </span>
                     @endif
                     @if(request('search'))
@@ -37,6 +61,9 @@
             @if(request('status'))
                 <input type="hidden" name="status" value="{{ request('status') }}">
             @endif
+            @if(request('type'))
+                <input type="hidden" name="type" value="{{ request('type') }}">
+            @endif
             @if(request('search'))
                 <input type="hidden" name="search" value="{{ request('search') }}">
             @endif
@@ -46,6 +73,17 @@
                 </div>
             </div>
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:12px;">
+                <div class="form-group" style="margin:0; margin-top:12px;">
+                    <label>Type</label>
+                    <select name="type" class="form-control">
+                        <option value="">All Types</option>
+                        <option value="DV" {{ request('type') === 'DV' ? 'selected' : '' }}>DV</option>
+                        <option value="INSPEC" {{ request('type') === 'INSPEC' ? 'selected' : '' }}>INSPEC</option>
+                        <option value="OBR" {{ request('type') === 'OBR' ? 'selected' : '' }}>OBR</option>
+                        <option value="OPG" {{ request('type') === 'OPG' ? 'selected' : '' }}>OPG</option>
+                        <option value="PR" {{ request('type') === 'PR' ? 'selected' : '' }}>PR</option>
+                    </select>
+                </div>
                 <div class="form-group" style="margin:0; margin-top:12px;">
                     <label>Status</label>
                     <select name="status" class="form-control">
@@ -63,111 +101,89 @@
         </form>
     </div>
 
-    <!-- Financial Grid - Card Layout -->
+    <!-- Financial Table -->
     <div class="table-card">
         <div class="table-header" style="display: flex; justify-content: flex-end; align-items: center;">
             <a href="{{ route('financial.create') }}" class="btn-red"><i class="fas fa-plus"></i> Add New Record</a>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; padding: 10px 0;">
-            @forelse($records as $index => $rec)
-                <div class="financial-card" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid rgba(192,57,43,0.1); border-radius: 16px; padding: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); transition: all 0.3s ease; position: relative; overflow: hidden; cursor: pointer;" onclick="window.location.href='{{ route('financial.show', $rec) }}'">
-                    <!-- Card Header -->
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                        <div style="flex: 1;">
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                                <span style="background: linear-gradient(135deg, #2980b9 0%, #64b5f6 100%); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                    #{{ $records->firstItem() + $index }}
-                                </span>
-                                <span class="badge badge-{{ $rec->status == 'ACTIVE' ? 'ongoing' : ($rec->status == 'CANCELLED' ? 'cancelled' : 'completed') }}" style="font-size: 11px; padding: 4px 8px;">{{ $rec->status }}</span>
+        <div style="overflow-x:auto; max-width:100%;">
+            <table style="min-width:1200px; width:100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">STATUS</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">TYPE</th>
+                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">DESCRIPTION</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">SUPPLIER</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PR #</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PO #</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">OBR #</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">VOUCHER #</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">OFFICE ORIGIN</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PROGRESS</th>
+                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">REMARKS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($records as $index => $rec)
+                    <tr class="clickable-row" data-href="{{ route('financial.show', $rec) }}" style="cursor: pointer;">
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;" onclick="event.stopPropagation();">
+                            <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
+                                <a href="{{ route('financial.edit', $rec) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form action="{{ route('financial.destroy', $rec) }}" method="POST" style="display:inline;" id="deleteForm-{{ $rec->id }}">
+                                    @csrf @method('DELETE')
+                                    <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $rec->id }}, '{{ $rec->description ?? 'Financial Record' }}')" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                             </div>
-                            <h3 style="margin: 0; color: #1a1a2e; font-size: 16px; font-weight: 600; line-height: 1.4;">{{ $rec->description ?? 'No Description' }}</h3>
-                        </div>
-                        <div style="display: flex; gap: 6px;" onclick="event.stopPropagation();">
-                            <a href="{{ route('financial.edit', $rec) }}" class="btn-blue" title="Edit" style="padding: 6px 8px; min-width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <form action="{{ route('financial.destroy', $rec) }}" method="POST" style="display: inline;" id="deleteForm-{{ $rec->id }}">
-                                @csrf @method('DELETE')
-                                <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $rec->id }}, '{{ $rec->description ?? 'Financial Record' }}')" style="padding: 6px 8px; min-width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Financial Details -->
-                    <div style="display: grid; gap: 12px; margin-bottom: 16px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-tag" style="color: #2980b9; width: 16px; text-align: center;"></i>
-                            <span style="color: #64748b; font-size: 12px; font-weight: 500;">TYPE:</span>
-                            <span style="color: #1a1a2e; font-size: 13px; font-weight: 600;">{{ $rec->type ?? '—' }}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-building" style="color: #2980b9; width: 16px; text-align: center;"></i>
-                            <span style="color: #64748b; font-size: 12px; font-weight: 500;">SUPPLIER:</span>
-                            <span style="color: #1a1a2e; font-size: 13px; font-weight: 600;">{{ $rec->supplier ?? '—' }}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-file-invoice" style="color: #2980b9; width: 16px; text-align: center;"></i>
-                            <span style="color: #64748b; font-size: 12px; font-weight: 500;">PR NO:</span>
-                            <span style="color: #1a1a2e; font-size: 13px; font-weight: 600;">{{ $rec->pr_number ?? '—' }}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-money-bill-wave" style="color: #2980b9; width: 16px; text-align: center;"></i>
-                            <span style="color: #64748b; font-size: 12px; font-weight: 500;">PR AMT:</span>
-                            <span style="color: #1a1a2e; font-size: 13px; font-weight: 600;">{{ $rec->pr_amount ? number_format($rec->pr_amount, 2) : '—' }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Additional Details -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-receipt" style="color: #27ae60; width: 16px; text-align: center;"></i>
-                            <span style="color: #64748b; font-size: 12px; font-weight: 500;">PO NO:</span>
-                            <span style="color: #1a1a2e; font-size: 13px; font-weight: 600;">{{ $rec->po_number ?? '—' }}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-file-contract" style="color: #27ae60; width: 16px; text-align: center;"></i>
-                            <span style="color: #64748b; font-size: 12px; font-weight: 500;">OBR NO:</span>
-                            <span style="color: #1a1a2e; font-size: 13px; font-weight: 600;">{{ $rec->obr_number ?? '—' }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Progress Section -->
-                    <div style="background: rgba(41,128,185,0.05); border-left: 3px solid #2980b9; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                            <i class="fas fa-chart-line" style="color: #2980b9; font-size: 12px;"></i>
-                            <span style="color: #2980b9; font-size: 12px; font-weight: 600;">PROGRESS</span>
-                        </div>
-                        <p style="margin: 0; color: #475569; font-size: 13px; line-height: 1.4;">{{ $rec->progress ?? 'No Progress Info' }}</p>
-                    </div>
-
-                    <!-- Footer -->
-                    <div style="display: flex; justify-content: flex-start; align-items: center; padding-top: 12px; border-top: 1px solid rgba(192,57,43,0.1);">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <i class="fas fa-home" style="color: #64748b; font-size: 12px;"></i>
-                            <span style="color: #64748b; font-size: 12px;">Office: {{ $rec->originOffice->code ?? '—' }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Hover Effect Overlay -->
-                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(192,57,43,0.05) 0%, rgba(41,128,185,0.05) 100%); opacity: 0; transition: opacity 0.3s ease; pointer-events: none; border-radius: 16px;"></div>
-                </div>
-            @empty
-                <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
-                    <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 2px dashed rgba(192,57,43,0.2); border-radius: 16px; padding: 40px;">
-                        <i class="fas fa-coins" style="font-size: 48px; color: #2980b9; margin-bottom: 16px;"></i>
-                        <h3 style="color: #1a1a2e; margin-bottom: 8px;">No Financial Records Found</h3>
-                        <p style="color: #64748b; margin-bottom: 20px;">Start by adding your first financial record to the system.</p>
-                        <a href="{{ route('financial.create') }}" class="btn-red">
-                            <i class="fas fa-plus"></i> Add New Record
-                        </a>
-                    </div>
-                </div>
-            @endforelse
+                        </td>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">
+                            <span class="badge badge-{{ $rec->status == 'ACTIVE' ? 'ongoing' : ($rec->status == 'CANCELLED' ? 'cancelled' : 'completed') }}" style="font-size: 11px; padding: 4px 8px;">{{ $rec->status }}</span>
+                        </td>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px; font-weight: 600;">{{ $rec->type ?? '—' }}</td>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; min-width:200px; word-wrap:break-word; font-size: 13px; font-weight: 600;">{{ $rec->description ?? 'No Description' }}</td>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $rec->supplier ?? '—' }}</td>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->pr_number ?? '—' }}</td>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->po_number ?? '—' }}</td>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->obr_number ?? '—' }}</td>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $rec->voucher_number ?? '—' }}</td>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $rec->originOffice?->code ?? '—' }}</td>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">
+                            @if($rec->progress)
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="flex: 1; min-width: 60px; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden;">
+                                        <div style="height: 100%; background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%); width: {{ $rec->progress }}%; transition: width 0.3s ease;"></div>
+                                    </div>
+                                    <span style="font-size: 12px; color: #64748b; font-weight: 500;">{{ $rec->progress }}</span>
+                                </div>
+                            @else
+                                <span style="color: #9ca3af; font-size: 12px;">—</span>
+                            @endif
+                        </td>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; min-width:200px; word-wrap:break-word; font-size: 12px; color: #64748b;">{{ $rec->remarks ?? '—' }}</td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="12" style="text-align:center; padding:60px;">
+                            <div style="background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%); border:2px dashed rgba(192,57,43,0.2); border-radius:16px; padding:40px;">
+                                <i class="fas fa-file-invoice-dollar" style="font-size:48px; color:#c0392b; margin-bottom:16px;"></i>
+                                <h3 style="color:#1a1a2e; margin-bottom:8px;">No Financial Records Found</h3>
+                                <p style="color:#64748b; margin-bottom:20px;">No financial records match your current filters.</p>
+                                <a href="{{ route('financial.create') }}" class="btn-red">
+                                    <i class="fas fa-plus"></i> Add Your First Record
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
-        
+
         <!-- Pagination -->
         <div style="padding:16px 20px; display:flex; justify-content:center; align-items:center; gap:16px;">
             <div style="display: flex; align-items: center; gap: 8px;">
@@ -201,6 +217,7 @@
                     </span>
                 @endif
             </div>
+        </div>
         </div>
     </div>
 
@@ -714,6 +731,19 @@
             
             // Uncomment to test automatically:
             // setTimeout(testNotification, 1000);
+        });
+
+        // Clickable rows functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.clickable-row').forEach(row => {
+                row.addEventListener('click', function(e) {
+                    // Don't redirect if clicking on buttons or their children
+                    if (e.target.closest('button') || e.target.closest('a')) {
+                        return;
+                    }
+                    window.location.href = this.dataset.href;
+                });
+            });
         });
     </script>
 </x-app-layout>

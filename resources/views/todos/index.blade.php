@@ -6,6 +6,30 @@
         </div>
     </x-slot>
 
+    @if(session('success'))
+        <div class="alert alert-success" style="margin-bottom: 16px;">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger" style="margin-bottom: 16px;">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if(session('warning'))
+        <div class="alert alert-warning" style="margin-bottom: 16px;">
+            {{ session('warning') }}
+        </div>
+    @endif
+
+    @if(session('info'))
+        <div class="alert alert-info" style="margin-bottom: 16px;">
+            {{ session('info') }}
+        </div>
+    @endif
+
     <div class="filter-box">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
             <h3 style="margin:0;">Search Filter</h3>
@@ -79,69 +103,104 @@
             <table style="min-width:900px; width:100%; border-collapse: collapse;">
                 <thead>
                     <tr>
-                        <th style="text-align:left; padding:15px; font-size: 12px; font-weight: 600; color: #333; border-bottom: 2px solid #8b0000; background: #f8f9fa;">DATE ADDED</th>
-                        <th style="text-align:left; padding:15px; font-size: 12px; font-weight: 600; color: #333; border-bottom: 2px solid #8b0000; background: #f8f9fa;">PRIORITY</th>
-                        <th style="text-align:left; padding:15px; font-size: 12px; font-weight: 600; color: #333; border-bottom: 2px solid #8b0000; background: #f8f9fa;">ASSIGNED TO</th>
-                        <th style="text-align:left; padding:15px; font-size: 12px; font-weight: 600; color: #333; border-bottom: 2px solid #8b0000; background: #f8f9fa;">TASK</th>
-                        <th style="text-align:left; padding:15px; font-size: 12px; font-weight: 600; color: #333; border-bottom: 2px solid #8b0000; background: #f8f9fa;">WHAT TO DO</th>
-                        <th style="text-align:left; padding:15px; font-size: 12px; font-weight: 600; color: #333; border-bottom: 2px solid #8b0000; background: #f8f9fa;">DEADLINE</th>
-                        <th style="text-align:left; padding:15px; font-size: 12px; font-weight: 600; color: #333; border-bottom: 2px solid #8b0000; background: #f8f9fa;">REMARKS</th>
-                        <th style="text-align:left; padding:15px; font-size: 12px; font-weight: 600; color: #333; border-bottom: 2px solid #8b0000; background: #f8f9fa;">STATUS</th>
-                        <th style="text-align:left; padding:15px; font-size: 12px; font-weight: 600; color: #333; border-bottom: 2px solid #8b0000; background: #f8f9fa;">ACTIONS</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DATE ADDED</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:230px; border-bottom:2px solid #8b0000;">PRIORITY</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ASSIGNED TO</th>
+                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">TASK</th>
+                        <th style="text-align:center; padding:12px 8px; min-width:250px; border-bottom:2px solid #8b0000;">WHAT TO DO</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DEADLINE</th>
+                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">REMARKS</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:230px; border-bottom:2px solid #8b0000;">STATUS</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($todos as $index=>$todo)
-                        @php
-                            $isOverdue = $todo->due_date && $todo->due_date < now() && $todo->status != 'completed';
-                            $statusClass = match($todo->status){'pending'=>'badge-ongoing','in_progress'=>'badge-delivered','completed'=>'badge-completed',default=>''};
-                            $priorityClass = match($todo->priority){'top'=>'badge-danger','high'=>'badge-warning','medium'=>'badge-info','low'=>'badge-gray',default=>''};
-                        @endphp
-                        <tr class="clickable-row" data-id="{{ $todo->id }}" style="{{ $isOverdue?'background:#fff5f5;':'' }}" data-href="{{ route('todos.edit', $todo) }}">
-                            <td style="padding:12px 15px; border-bottom: 1px solid #e9ecef; font-size: 12px; color: #495057; cursor: pointer;" onclick="window.location='{{ route('todos.edit', $todo) }}'">{{ $todo->created_at?->format('M d, Y') ?? 'No date' }}</td>
-                            <td style="padding:12px 15px; border-bottom: 1px solid #e9ecef;" onclick="event.stopPropagation();">
-                                <select class="form-control inline-select {{ $priorityClass }}" onchange="changePriority({{ $todo->id }}, this.value)" style="font-size: 11px; padding: 6px 8px; border-radius: 4px; border: 1px solid #ddd; background: white; cursor: pointer; width: 100%;">
-                                    <option value="">Select Priority</option>
-                                    <option value="top" {{ $todo->priority=='top'?'selected':'' }}>TOP</option>
-                                    <option value="high" {{ $todo->priority=='high'?'selected':'' }}>HIGH</option>
-                                    <option value="medium" {{ $todo->priority=='medium'?'selected':'' }}>MEDIUM</option>
-                                    <option value="low" {{ $todo->priority=='low'?'selected':'' }}>LOW</option>
-                                </select>
-                            </td>
-                            <td style="padding:12px 15px; border-bottom: 1px solid #e9ecef; font-size: 12px; color: #495057; cursor: pointer;" onclick="window.location='{{ route('todos.edit', $todo) }}'">{{ $todo->assigned_to ?? 'Unassigned' }}</td>
-                            <td style="padding:12px 15px; border-bottom: 1px solid #e9ecef; font-size: 13px; color: #212529; font-weight: 600; cursor: pointer;" onclick="window.location='{{ route('todos.edit', $todo) }}'">{{ $todo->title }}</td>
-                            <td style="padding:12px 15px; border-bottom: 1px solid #e9ecef; font-size: 12px; color: #6c757d; cursor: pointer;" onclick="window.location='{{ route('todos.edit', $todo) }}'">{{ $todo->description ?? 'No description' }}</td>
-                            <td style="padding:12px 15px; border-bottom: 1px solid #e9ecef; font-size: 12px; color: #495057; cursor: pointer;" onclick="window.location='{{ route('todos.edit', $todo) }}'">{{ $todo->due_date?->format('M d, Y') ?? '—' }}</td>
-                            <td style="padding:12px 15px; border-bottom: 1px solid #e9ecef; font-size: 12px; color: #6c757d; cursor: pointer;" onclick="window.location='{{ route('todos.edit', $todo) }}'">{{ $todo->remarks ?? 'No remarks' }}</td>
-                            <td style="padding:12px 15px; border-bottom: 1px solid #e9ecef;" onclick="event.stopPropagation();">
-                                <select class="form-control inline-select {{ $statusClass }}" onchange="changeStatus({{ $todo->id }}, this.value)" style="font-size: 11px; padding: 6px 8px; border-radius: 4px; border: 1px solid #ddd; background: white; cursor: pointer; width: 100%;">
-                                    <option value="pending" {{ $todo->status=='pending'?'selected':'' }}>PENDING</option>
-                                    <option value="in_progress" {{ $todo->status=='in_progress'?'selected':'' }}>ON GOING</option>
-                                    <option value="completed" {{ $todo->status=='completed'?'selected':'' }}>DONE</option>
-                                </select>
-                            </td>
-                            <td style="padding:12px 15px; border-bottom: 1px solid #e9ecef;" onclick="event.stopPropagation();">
-                                <div style="display: flex; gap: 6px; align-items: center;">
-                                    <a href="{{ route('todos.edit',$todo) }}" class="btn-blue" style="padding: 4px 8px; font-size: 11px; text-decoration: none; border-radius: 4px; background: #007bff; color: white; border: none; cursor: pointer;">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <button class="btn-danger" onclick="confirmDelete({{ $todo->id }}, '{{ $todo->title }}')" style="padding: 4px 8px; font-size: 11px; border-radius: 4px; background: #dc3545; color: white; border: none; cursor: pointer;">
+                    @forelse($todos as $index => $todo)
+
+                    <tr id="todoRow-{{ $todo->id }}" class="clickable-row" data-href="{{ route('todos.show', $todo) }}" style="cursor: pointer; {{ ($todo->due_date && $todo->due_date < now() && $todo->status != 'completed') ? 'background:#fff5f5;' : '' }}">
+
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;" onclick="event.stopPropagation();">
+                            <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
+                                <a href="{{ route('todos.edit',$todo) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form action="{{ route('todos.destroy', $todo) }}" method="POST" style="display:inline;" id="deleteForm-{{ $todo->id }}">
+                                    @csrf @method('DELETE')
+                                    <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $todo->id }}, '{{ $todo->title }}')" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
                                         <i class="fas fa-trash"></i>
                                     </button>
-                                </div>
-                            </td>
-                        </tr>
+                                </form>
+                            </div>
+                        </td>
+
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $todo->created_at?->format('M d, Y') ?? 'No date' }}</td>
+
+                        <!-- PRIORITY -->
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:230px;" onclick="event.stopPropagation();">
+                            <select 
+                                class="form-control inline-select 
+                                {{ match($todo->priority) {
+                                    'top' => 'badge-top',
+                                    'high' => 'badge-high',
+                                    'medium' => 'badge-medium',
+                                    'low' => 'badge-low',
+                                    default => ''
+                                } }}"
+                                onchange="changePriority(this, {{ $todo->id }}, this.value)"
+                                style="font-size: 11px; padding: 6px 8px; border-radius: 4px; border: 1px solid #ddd; background: white; cursor: pointer; width: 100%;">
+
+                                <option value="top" {{ $todo->priority=='top'?'selected':'' }}>TOP</option>
+                                <option value="high" {{ $todo->priority=='high'?'selected':'' }}>HIGH</option>
+                                <option value="medium" {{ $todo->priority=='medium'?'selected':'' }}>MEDIUM</option>
+                                <option value="low" {{ $todo->priority=='low'?'selected':'' }}>LOW</option>
+                            </select>
+                        </td>
+
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $todo->assigned_to ?? 'Unassigned' }}</td>
+
+                        <td style="text-align:left; padding:20px 20px 20px 20px; min-width:200px; word-wrap:break-word; font-size: 13px; font-weight: 600;">{{ $todo->title }}</td>
+
+                        <td style="text-align:left; padding:20px 20px 20px 20px; min-width:250px; word-wrap:break-word; font-size: 12px; color: #6c757d;">{{ $todo->description ?? 'No description' }}</td>
+
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $todo->due_date?->format('M d, Y') ?? '—' }}</td>
+
+                        <td style="text-align:left; padding:20px 20px 20px 20px; min-width:200px; word-wrap:break-word; font-size: 12px; color: #6c757d;">{{ $todo->remarks ?? 'No remarks' }}</td>
+
+                        <!-- STATUS -->
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:230px;" onclick="event.stopPropagation();">
+                            <select 
+                                class="form-control inline-select 
+                                {{ match($todo->status) {
+                                    'pending' => 'status-pending',
+                                    'in_progress' => 'status-ongoing',
+                                    'completed' => 'status-done',
+                                    'cancelled' => 'status-cancelled',
+                                    default => ''
+                                } }}"
+                                onchange="changeStatus(this, {{ $todo->id }}, this.value)"
+                            >
+                                <option value="pending" {{ $todo->status=='pending'?'selected':'' }}>PENDING</option>
+                                <option value="in_progress" {{ $todo->status=='in_progress'?'selected':'' }}>ON GOING</option>
+                                <option value="completed" {{ $todo->status=='completed'?'selected':'' }}>DONE</option>
+                                <option value="cancelled" {{ $todo->status=='cancelled'?'selected':'' }}>CANCELLED</option>
+                            </select>
+                        </td>
+
+                    </tr>
+
                     @empty
-                        <tr>
-                            <td colspan="9" style="text-align:center; padding:60px;">
-                                <div style="background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%); border:2px dashed rgba(192,57,43,0.2); border-radius:16px; padding:40px;">
-                                    <i class="fas fa-tasks" style="font-size:48px; color:#c0392b; margin-bottom:16px;"></i>
-                                    <h3 style="margin-bottom:8px; color:#1a1a2e;">No Tasks Found</h3>
-                                    <p style="margin-bottom:20px; color:#64748b;">Start by adding your first task to the system.</p>
-                                    <a href="{{ route('todos.create') }}" class="btn-red"><i class="fas fa-plus"></i> Add Task</a>
-                                </div>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td colspan="9" style="text-align:center; padding:60px;">
+                            <div style="background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%); border:2px dashed rgba(192,57,43,0.2); border-radius:16px; padding:40px;">
+                                <i class="fas fa-tasks" style="font-size:48px; color:#c0392b; margin-bottom:16px;"></i>
+                                <h3 style="margin-bottom:8px; color:#1a1a2e;">No Tasks Found</h3>
+                                <p style="margin-bottom:20px; color:#64748b;">Start by adding your first task.</p>
+                                <a href="{{ route('todos.create') }}" class="btn-red">
+                                    <i class="fas fa-plus"></i> Add Task
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
@@ -155,39 +214,109 @@
     <div class="notification-container" id="notificationContainer"></div>
 
     <script>
+        // Clickable rows functionality
+        document.querySelectorAll('.clickable-row').forEach(row => {
+            row.addEventListener('click', function(e) {
+                // Don't redirect if clicking on dropdowns, buttons, or their children
+                if (e.target.closest('select') || e.target.closest('button') || e.target.closest('a')) {
+                    return;
+                }
+                window.location.href = this.dataset.href;
+            });
+        });
+
         // Delete confirmation function
-        function confirmDelete(id,title){
+        function confirmDelete(id, title){
             showConfirmDialog({
-                title:'Delete Task',
-                message:`Are you sure you want to delete <strong>${title}</strong>? This cannot be undone.`,
-                confirmText:'Delete',
-                cancelText:'Cancel',
-                onConfirm:()=>{ 
-                    fetch(`/todos/${id}`, {method:'DELETE', headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}})
-                    .then(res=>res.ok ? window.location.reload() : alert('Failed to delete')); 
+                title: 'Delete Task',
+                message: `Are you sure you want to delete <strong>${title}</strong>? This cannot be undone.`,
+                confirmText: 'Delete',
+                cancelText: 'Cancel',
+                onConfirm: () => {
+                    fetch(`/todos/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(res => res.json().then(data => ({ ok: res.ok, data })))
+                    .then(result => {
+                        if (result.ok && result.data.success) {
+                            const row = document.getElementById(`todoRow-${id}`);
+                            if (row) {
+                                row.remove();
+                            }
+                            showCompletedNotification('Task deleted', 'Task has been successfully deleted.');
+                            return;
+                        }
+
+                        const errorMessage = result.data.message || result.data.error || 'Failed to delete the task.';
+                        showErrorNotification('Delete Failed', errorMessage);
+                    })
+                    .catch(() => {
+                        showErrorNotification('Delete Failed', 'An error occurred while deleting the task. Please try again.');
+                    });
                 }
             });
         }
 
         // Status update function
-        function changeStatus(id,value){
+        function changeStatus(el, id, value){
+
+            el.classList.remove(
+                'status-pending',
+                'status-ongoing',
+                'status-done',
+                'status-cancelled'
+            );
+
+            if(value === 'pending') el.classList.add('status-pending');
+            if(value === 'in_progress') el.classList.add('status-ongoing');
+            if(value === 'completed') el.classList.add('status-done');
+            if(value === 'cancelled') el.classList.add('status-cancelled');
+
             fetch(`/todos/${id}/update-status`, {
                 method:'PATCH',
-                headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}','Content-Type':'application/json'},
+                headers:{
+                    'X-CSRF-TOKEN':'{{ csrf_token() }}',
+                    'Content-Type':'application/json'
+                },
                 body: JSON.stringify({status:value})
-            }).then(res=>res.json()).then(data=>{
-                if(data.success) showCompletedNotification('Status Updated', `Status updated to ${value}`);
+            })
+            .then(res=>res.json())
+            .then(data=>{
+                if(data.success){
+                    showCompletedNotification('Status Updated', `Status updated to ${value}`);
+                }
             });
         }
+        
+        function changePriority(el, id, value){
 
-        // Priority update function
-        function changePriority(id,value){
+            // Remove all color classes
+            el.classList.remove('badge-top','badge-high','badge-medium','badge-low');
+
+            // Apply correct class
+            if(value === 'top') el.classList.add('badge-top');
+            if(value === 'high') el.classList.add('badge-high');
+            if(value === 'medium') el.classList.add('badge-medium');
+            if(value === 'low') el.classList.add('badge-low');
+
+            // API call
             fetch(`/todos/${id}/update-priority`, {
                 method:'PATCH',
-                headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}','Content-Type':'application/json'},
+                headers:{
+                    'X-CSRF-TOKEN':'{{ csrf_token() }}',
+                    'Content-Type':'application/json'
+                },
                 body: JSON.stringify({priority:value})
-            }).then(res=>res.json()).then(data=>{
-                if(data.success) showCompletedNotification('Priority Updated', `Priority updated to ${value}`);
+            })
+            .then(res=>res.json())
+            .then(data=>{
+                if(data.success){
+                    showCompletedNotification('Priority Updated', `Priority updated to ${value}`);
+                }
             });
         }
 
@@ -208,6 +337,24 @@
             setTimeout(() => {
                 removeNotification(notification.querySelector('.notification-close'));
             }, 3000);
+        }
+
+        function showErrorNotification(title, message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification warning';
+            notification.innerHTML = `
+                <div class="notification-header">
+                    <div class="notification-title">✖ ${title}</div>
+                    <button class="notification-close" onclick="removeNotification(this)">&times;</button>
+                </div>
+                <div class="notification-message">${message}</div>
+            `;
+            
+            document.getElementById('notificationContainer').appendChild(notification);
+            
+            setTimeout(() => {
+                removeNotification(notification.querySelector('.notification-close'));
+            }, 4000);
         }
 
         function removeNotification(element) {
@@ -269,56 +416,71 @@
     </script>
 
     <style>
-        .inline-select{width:100%; cursor:pointer; font-weight:600;}
-        .badge-ongoing{background:#facc15;color:white;}
-        .badge-delivered{background:#3b82f6;color:white;}
-        .badge-completed{background:#10b981;color:white;}
-        .badge-danger{background:#ef4444;color:white;}
-        .badge-warning{background:#f59e0b;color:white;}
-        .badge-info{background:#3b82f6;color:white;}
-        .badge-gray{background:#9ca3af;color:white;}
-        
-        /* Dropdown color styles */
-        .form-control.inline-select.badge-danger {
+        .inline-select {
+            width: 100%;
+            cursor: pointer;
+            font-weight: 600;
+            background: white;
+            color: #333;
+        }
+
+        /* When dropdown is OPEN → force neutral */
+        .inline-select:focus {
+            background: white !important;
+            color: #333 !important;
+        }
+
+        /* ===== PRIORITY COLORS (ONLY WHEN CLOSED) ===== */
+        .inline-select.badge-top {
             background: #dc2626 !important;
-            color: white !important;
-            border-color: #991b1b !important;
+            color: #fff !important;
         }
-        
-        .form-control.inline-select.badge-warning {
-            background: #f59e0b !important;
-            color: white !important;
-            border-color: #d97706 !important;
+
+        .inline-select.badge-high {
+            background: #ef4444 !important;
+            color: #fff !important;
         }
-        
-        .form-control.inline-select.badge-info {
-            background: #3b82f6 !important;
-            color: white !important;
-            border-color: #1e40af !important;
+
+        .inline-select.badge-medium {
+            background: #facc15 !important;
+            color: #000 !important;
         }
-        
-        .form-control.inline-select.badge-gray {
-            background: #6b7280 !important;
-            color: white !important;
-            border-color: #374151 !important;
+
+        .inline-select.badge-low {
+            background: #22c55e !important;
+            color: #fff !important;
         }
-        
-        .form-control.inline-select.badge-ongoing {
-            background: #eab308 !important;
-            color: white !important;
-            border-color: #a16207 !important;
+
+        /* ===== STATUS COLORS (ONLY WHEN CLOSED) ===== */
+        .inline-select.status-pending {
+            background: #ef4444 !important; /* RED */
+            color: #fff !important;
         }
-        
-        .form-control.inline-select.badge-delivered {
-            background: #3b82f6 !important;
-            color: white !important;
-            border-color: #1e40af !important;
+
+        .inline-select.status-ongoing {
+            background: #eab308 !important; /* YELLOW */
+            color: #000 !important;
         }
-        
-        .form-control.inline-select.badge-completed {
-            background: #16a34a !important;
-            color: white !important;
-            border-color: #15803d !important;
+
+        .inline-select.status-done {
+            background: #16a34a !important; /* GREEN */
+            color: #fff !important;
+        }
+
+        .inline-select.status-cancelled {
+            background: #6b7280 !important; /* GRAY */
+            color: #fff !important;
+}
+        /* FORCE DROPDOWN OPTIONS TO STAY CLEAN */
+        .inline-select option {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        /* Optional: better hover contrast (browser-dependent) */
+        .inline-select option:hover {
+            background: #e5e7eb !important;
+            color: #000 !important;
         }
         
         /* Notification System Styles */
@@ -329,33 +491,55 @@
             transform: translate(-50%, -50%);
             z-index: 9999;
             pointer-events: none;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 16px;
         }
 
         .notification {
             background: #fff;
-            border-radius: 8px;
-            padding: 16px 20px;
+            border-radius: 10px;
+            padding: 16px 18px;
             margin-bottom: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            border-left: 4px solid #e74c3c;
-            min-width: 300px;
-            max-width: 400px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+            border: 1px solid rgba(219, 152, 74, 0.5);
+            min-width: 320px;
+            max-width: 440px;
             pointer-events: all;
-            animation: slideInRight 0.3s ease-out;
+            animation: slideInFromTop 0.25s ease-out;
             position: relative;
             overflow: hidden;
         }
 
         .notification.success {
-            border-left-color: #27ae60;
+            border-color: #27ae60;
         }
 
         .notification.warning {
-            border-left-color: #f39c12;
+            border-color: #f39c12;
         }
 
         .notification.info {
-            border-left-color: #3498db;
+            border-color: #3498db;
+        }
+
+        .notification.danger {
+            border-color: #dc2626;
+        }
+
+        /* Notification entrance for centered overlay */
+        @keyframes slideInFromTop {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .notification-header {
@@ -440,28 +624,17 @@
         }
 
         .notification.removing {
-            animation: slideOutRight 0.3s ease-out forwards;
+            animation: slideOutOpacity 0.2s ease-out forwards;
         }
 
-        @keyframes slideInRight {
+        @keyframes slideOutOpacity {
             from {
-                transform: translateX(100%);
-                opacity: 0;
+                opacity: 1;
+                transform: translateY(0);
             }
             to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
                 opacity: 0;
+                transform: translateY(-8px);
             }
         }
     </style>

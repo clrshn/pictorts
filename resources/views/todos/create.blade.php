@@ -26,7 +26,6 @@
                     <div class="form-group">
                         <label>Priority <span style="color:#c0392b">*</span></label>
                         <select name="priority" class="form-control" required>
-                            <option value="">Select Priority</option>
                             <option value="top" {{ old('priority') === 'top' ? 'selected' : '' }}>Top</option>
                             <option value="high" {{ old('priority') === 'high' ? 'selected' : '' }}>High</option>
                             <option value="medium" {{ old('priority') === 'medium' ? 'selected' : '' }}>Medium</option>

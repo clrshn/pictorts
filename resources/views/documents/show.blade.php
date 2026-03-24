@@ -98,7 +98,6 @@
                         default => ''
                     };
                 @endphp
-                <strong>Status:</strong> <span class="badge {{ $badgeClass }}">{{ $document->status }}</span>
             </div>
         </div>
     </div>

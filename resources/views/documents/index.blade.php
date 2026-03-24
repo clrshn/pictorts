@@ -5,15 +5,7 @@
     </x-slot>
 
     @if(session('success'))
-        <div style="
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            font-weight: 500;
-        ">
+        <div class="alert alert-success" style="margin-bottom: 16px;">
             {{ session('success') }}
         </div>
     @endif
@@ -136,7 +128,6 @@
             <table style="min-width:900px; width:100%; border-collapse: collapse;">
                 <thead>
                     <tr>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:60px; border-bottom:2px solid #8b0000;">SEQ #</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:150px; border-bottom:2px solid #8b0000;">TRACKING CODE</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:180px; border-bottom:2px solid #8b0000;">PICTO NO</th>
@@ -150,7 +141,6 @@
                 <tbody>
                     @forelse($documents as $index => $doc)
                         <tr class="clickable-row" data-href="{{ route('documents.show', $doc) }}" style="cursor: pointer;">
-                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:60px;">{{ $documents->firstItem() + $index }}</td>
                             <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;" onclick="event.stopPropagation();">
                                 <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
                                     <a href="{{ route('documents.edit', $doc) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-edit"></i></a>
@@ -180,7 +170,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" style="text-align:center; padding:60px 20px;">
+                            <td colspan="8" style="text-align:center; padding:60px 20px;">
                                 <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 2px dashed rgba(192,57,43,0.2); border-radius: 16px; padding: 40px;">
                                     <i class="fas fa-inbox" style="font-size: 48px; color: #c0392b; margin-bottom: 16px;"></i>
                                     <h3 style="color: #1a1a2e; margin-bottom: 8px;">No Documents Found</h3>
@@ -340,29 +330,34 @@
 
         .notification {
             background: #fff;
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 16px 20px;
             margin-bottom: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            border-left: 4px solid #e74c3c;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            border-left: none;
             min-width: 300px;
-            max-width: 400px;
+            max-width: 420px;
             pointer-events: all;
-            animation: slideInRight 0.3s ease-out;
+            animation: slideInFromTop 0.25s ease-out;
             position: relative;
             overflow: hidden;
         }
 
         .notification.success {
-            border-left-color: #27ae60;
+            border-color: #27ae60;
         }
 
         .notification.warning {
-            border-left-color: #f39c12;
+            border-color: #f39c12;
         }
 
         .notification.info {
-            border-left-color: #3498db;
+            border-color: #3498db;
+        }
+
+        .notification.danger {
+            border-color: #dc2626;
         }
 
         .notification-header {

@@ -135,7 +135,8 @@
 
                 <div style="display:flex; gap:10px; margin-top:8px;">
                     <button type="submit" class="btn-red"><i class="fas fa-save"></i> Update Document</button>
-                    <a href="{{ route('documents.show', $document) }}" class="btn-gray"><i class="fas fa-times"></i> Cancel</a>
+                    <a href="{{ route('documents.show', $document) }}" class="btn-blue"><i class="fas fa-eye"></i> View</a>
+                    <a href="{{ route('documents.index') }}" class="btn-gray"><i class="fas fa-times"></i> Cancel</a>
                 </div>
             </form>
         </div>
