@@ -133,7 +133,7 @@
                             </div>
                         </td>
 
-                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $todo->created_at?->format('M d, Y') ?? 'No date' }}</td>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $todo->created_at?->format('n-j-Y') ?? 'No date' }}</td>
 
                         <!-- PRIORITY -->
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:230px;" onclick="event.stopPropagation();">
@@ -206,8 +206,39 @@
             </table>
         </div>
 
-        <div style="padding:16px 20px; display:flex; justify-content:center; gap:12px;">
-            {{ $todos->links() }}
+        <!-- Pagination -->
+        <div style="padding:16px 20px; display:flex; justify-content:center; align-items:center; gap:16px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                @if($todos->onFirstPage())
+                    <span style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#d1d5db; font-size:13px; font-weight:500; cursor:not-allowed;">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </span>
+                @else
+                    <a href="{{ $todos->previousPageUrl() }}" style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#64748b; font-size:13px; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s ease; display:inline-block;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#c0392b'; this.style.color='#c0392b';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'; this.style.color='#64748b';">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </a>
+                @endif
+                
+                <div style="display:flex; gap:4px;">
+                    @for($i = 1; $i <= min(3, $todos->lastPage()); $i++)
+                        @if($todos->currentPage() == $i)
+                            <span style="padding:8px 12px; background:linear-gradient(135deg, #c0392b 0%, #8b0000 100%); border:none; border-radius:6px; color:#ffffff; font-size:13px; font-weight:600; cursor:pointer;">{{ $i }}</span>
+                        @else
+                            <a href="{{ $todos->url($i) }}" style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#64748b; font-size:13px; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s ease; display:inline-block;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#c0392b'; this.style.color='#c0392b';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'; this.style.color='#64748b';">{{ $i }}</a>
+                        @endif
+                    @endfor
+                </div>
+                
+                @if($todos->hasMorePages())
+                    <a href="{{ $todos->nextPageUrl() }}" style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#64748b; font-size:13px; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s ease; display:inline-block;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#c0392b'; this.style.color='#c0392b';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'; this.style.color='#64748b';">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                @else
+                    <span style="padding:8px 12px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px; color:#d1d5db; font-size:13px; font-weight:500; cursor:not-allowed;">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </span>
+                @endif
+            </div>
         </div>
     </div>
 

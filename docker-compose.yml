@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: pictorts_app
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+
+  web:
+    image: nginx:latest
+    container_name: pictorts_nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - app
+
+  db:
+    image: mysql:8.0
+    container_name: pictorts_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: pictorts
+    ports:
+      - "3306:3306"
