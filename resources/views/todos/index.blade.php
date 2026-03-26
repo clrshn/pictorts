@@ -86,6 +86,17 @@
                     </select>
                 </div>
 
+                <div class="form-group">
+                    <label>Sort By</label>
+                    <select name="sort_by" class="form-control">
+                        <option value="">Default</option>
+                        <option value="newest" {{ request('sort_by')=='newest'?'selected':'' }}>Newest to Oldest</option>
+                        <option value="oldest" {{ request('sort_by')=='oldest'?'selected':'' }}>Oldest to Newest</option>
+                        <option value="az" {{ request('sort_by')=='az'?'selected':'' }}>A-Z</option>
+                        <option value="za" {{ request('sort_by')=='za'?'selected':'' }}>Z-A</option>
+                    </select>
+                </div>
+
                 <div class="form-group" style="display:flex; align-items:flex-end; gap:8px;">
                     <button type="submit" class="btn-red"><i class="fas fa-search"></i> Filter</button>
                     <a href="{{ route('todos.index') }}" class="btn-gray">Reset</a>

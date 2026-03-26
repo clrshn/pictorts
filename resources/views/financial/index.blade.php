@@ -67,6 +67,18 @@
             @if(request('search'))
                 <input type="hidden" name="search" value="{{ request('search') }}">
             @endif
+            @if(request('sort_by'))
+                <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
+            @endif
+            @if(request('description_sort'))
+                <input type="hidden" name="description_sort" value="{{ request('description_sort') }}">
+            @endif
+            @if(request('pr_amount_sort'))
+                <input type="hidden" name="pr_amount_sort" value="{{ request('pr_amount_sort') }}">
+            @endif
+            @if(request('pr_number_sort'))
+                <input type="hidden" name="pr_number_sort" value="{{ request('pr_number_sort') }}">
+            @endif
             <div style="display:grid; grid-template-columns: 1fr; gap:8px;">
                 <div class="form-group" style="margin:0">
                     <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Enter keywords...">
@@ -93,6 +105,13 @@
                         <option value="FINISHED" {{ request('status') === 'FINISHED' ? 'selected' : '' }}>Finished</option>
                     </select>
                 </div>
+                <div class="form-group" style="margin:0; margin-top:12px;">
+                    <label>Sort By</label>
+                    <select name="sort_by" class="form-control">
+                        <option value="newest" {{ request('sort_by')=='newest'?'selected':'' }}>Newest to Oldest</option>
+                        <option value="oldest" {{ request('sort_by')=='oldest'?'selected':'' }}>Oldest to Newest</option>
+                    </select>
+                </div>
                 <div class="form-group" style="margin:0; margin-top:12px; display:flex; align-items:flex-end; gap:8px;">
                     <button type="submit" class="btn-red"><i class="fas fa-search"></i> Filter</button>
                     <a href="{{ route('financial.index') }}" class="btn-gray">Reset</a>
@@ -114,9 +133,38 @@
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">STATUS</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">TYPE</th>
-                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">DESCRIPTION</th>
+                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span>DESCRIPTION</span>
+                            <select name="description_sort" class="form-control" style="width: auto; padding: 4px 8px; font-size: 12px;" onchange="this.form.submit()">
+                                <option value="">Sort</option>
+                                <option value="asc" {{ request('description_sort')=='asc'?'selected':'' }}>A-Z</option>
+                                <option value="desc" {{ request('description_sort')=='desc'?'selected':'' }}>Z-A</option>
+                            </select>
+                        </div>
+                    </th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">SUPPLIER</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PR #</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span>PR AMOUNT</span>
+                            <select name="pr_amount_sort" class="form-control" style="width: auto; padding: 4px 8px; font-size: 12px;" onchange="this.form.submit()">
+                                <option value="">Sort</option>
+                                <option value="desc" {{ request('pr_amount_sort')=='desc'?'selected':'' }}>Highest</option>
+                                <option value="asc" {{ request('pr_amount_sort')=='asc'?'selected':'' }}>Lowest</option>
+                            </select>
+                        </div>
+                    </th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span>PR #</span>
+                            <select name="pr_number_sort" class="form-control" style="width: auto; padding: 4px 8px; font-size: 12px;" onchange="this.form.submit()">
+                                <option value="">Sort</option>
+                                <option value="asc" {{ request('pr_number_sort')=='asc'?'selected':'' }}>First to Last</option>
+                                <option value="desc" {{ request('pr_number_sort')=='desc'?'selected':'' }}>Last to First</option>
+                            </select>
+                        </div>
+                    </th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">PO AMOUNT</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PO #</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">OBR #</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">VOUCHER #</th>
@@ -147,12 +195,14 @@
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px; font-weight: 600;">{{ $rec->type ?? '—' }}</td>
                         <td style="text-align:left; padding:20px 20px 20px 20px; min-width:200px; word-wrap:break-word; font-size: 13px; font-weight: 600;">{{ $rec->description ?? 'No Description' }}</td>
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $rec->supplier ?? '—' }}</td>
+                        <td style="text-align:right; padding:20px 20px 20px 20px; white-space:nowrap; width:120px; font-weight:600;">{{ number_format($rec->pr_amount ?? 0, 2) }}</td>
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->pr_number ?? '—' }}</td>
+                        <td style="text-align:right; padding:20px 20px 20px 20px; white-space:nowrap; width:120px; font-weight:600;">{{ number_format($rec->po_amount ?? 0, 2) }}</td>
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->po_number ?? '—' }}</td>
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">{{ $rec->obr_number ?? '—' }}</td>
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $rec->voucher_number ?? '—' }}</td>
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $rec->originOffice?->code ?? '—' }}</td>
-                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">
+                        <td style="text-align:left; padding:20px 20px 20px 20px; width:100px; vertical-align: middle;">
                             @if($rec->progress)
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <div style="flex: 1; min-width: 60px; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden;">
@@ -743,6 +793,59 @@
                     }
                     window.location.href = this.dataset.href;
                 });
+            });
+        });
+
+        function toggleSort(column) {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Remove all column sort parameters
+            urlParams.delete('description_sort');
+            urlParams.delete('pr_amount_sort');
+            urlParams.delete('pr_number_sort');
+            
+            // Get current sort state for this column
+            const currentSort = urlParams.get(column + '_sort') || '';
+            
+            // Toggle between desc, asc, and none
+            let newSort = 'desc';
+            if (currentSort === 'desc') {
+                newSort = 'asc';
+            } else if (currentSort === 'asc') {
+                newSort = ''; // Remove sort to go back to default
+            }
+            
+            // Set new sort for this column
+            if (newSort) {
+                urlParams.set(column + '_sort', newSort);
+            } else {
+                urlParams.delete(column + '_sort');
+            }
+            
+            // Reload page with new sort
+            window.location.href = window.location.pathname + '?' + urlParams.toString();
+        }
+
+        // Highlight active sort arrows
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            ['description', 'pr_amount', 'pr_number'].forEach(column => {
+                const sortValue = urlParams.get(column + '_sort');
+                const icon = document.getElementById(column + '-sort');
+                
+                if (icon) {
+                    if (sortValue === 'asc') {
+                        icon.className = 'fas fa-chevron-up';
+                        icon.style.color = '#8b0000';
+                    } else if (sortValue === 'desc') {
+                        icon.className = 'fas fa-chevron-down';
+                        icon.style.color = '#8b0000';
+                    } else {
+                        icon.className = 'fas fa-chevron-down';
+                        icon.style.color = '#ccc';
+                    }
+                }
             });
         });
     </script>

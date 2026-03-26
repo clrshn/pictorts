@@ -12,7 +12,7 @@ class TodoController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Todo::forUser();
+        $query = Todo::query();
 
         // Filter by status
         if ($request->filled('status') && $request->status !== 'ALL') {
@@ -36,10 +36,39 @@ class TodoController extends Controller
         }
 
         // Sort by due date and priority
-        $todos = $query->orderBy('due_date', 'asc')
-                      ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
-                      ->orderBy('created_at', 'desc')
-                      ->paginate(15);
+        if ($request->filled('sort_by')) {
+            if ($request->sort_by === 'newest') {
+                $todos = $query->orderBy('created_at', 'desc')
+                              ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
+                              ->orderBy('due_date', 'asc')
+                              ->paginate(15);
+            } elseif ($request->sort_by === 'oldest') {
+                $todos = $query->orderBy('created_at', 'asc')
+                              ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
+                              ->orderBy('due_date', 'asc')
+                              ->paginate(15);
+            } elseif ($request->sort_by === 'az') {
+                $todos = $query->orderBy('title', 'asc')
+                              ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
+                              ->orderBy('due_date', 'asc')
+                              ->paginate(15);
+            } elseif ($request->sort_by === 'za') {
+                $todos = $query->orderBy('title', 'desc')
+                              ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
+                              ->orderBy('due_date', 'asc')
+                              ->paginate(15);
+            } else {
+                $todos = $query->orderBy('due_date', 'asc')
+                              ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
+                              ->orderBy('created_at', 'desc')
+                              ->paginate(15);
+            }
+        } else {
+            $todos = $query->orderBy('due_date', 'asc')
+                          ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
+                          ->orderBy('created_at', 'desc')
+                          ->paginate(15);
+        }
 
         return view('todos.index', compact('todos'));
     }
@@ -79,10 +108,6 @@ class TodoController extends Controller
      */
     public function show(Todo $todo)
     {
-        if ($todo->user_id !== auth()->id()) {
-            abort(403);
-        }
-
         return view('todos.show', compact('todo'));
     }
 
@@ -91,10 +116,6 @@ class TodoController extends Controller
      */
     public function edit(Todo $todo)
     {
-        if ($todo->user_id !== auth()->id()) {
-            abort(403);
-        }
-
         return view('todos.edit', compact('todo'));
     }
 
@@ -103,10 +124,6 @@ class TodoController extends Controller
      */
     public function update(Request $request, Todo $todo)
     {
-        if ($todo->user_id !== auth()->id()) {
-            abort(403);
-        }
-
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -128,10 +145,6 @@ class TodoController extends Controller
      */
     public function destroy(Request $request, Todo $todo)
     {
-        if ($todo->user_id !== auth()->id()) {
-            abort(403);
-        }
-
         try {
             $todo->delete();
         } catch (\Throwable $e) {
@@ -155,10 +168,6 @@ class TodoController extends Controller
      */
     public function quickUpdate(Request $request, Todo $todo)
     {
-        if ($todo->user_id !== auth()->id()) {
-            abort(403);
-        }
-
         $validated = $request->validate([
             'status' => 'nullable|in:pending,in_progress,completed',
             'assigned_to' => 'nullable|string|max:255',

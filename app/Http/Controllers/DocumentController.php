@@ -65,7 +65,22 @@ class DocumentController extends Controller
             });
         }
 
-        $documents = $query->orderBy('doc_number', 'asc')->paginate(15)->withQueryString();
+        // Sort by date
+        if ($request->filled('sort_by')) {
+            if ($request->sort_by === 'newest') {
+                $documents = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
+            } elseif ($request->sort_by === 'oldest') {
+                $documents = $query->orderBy('created_at', 'asc')->paginate(15)->withQueryString();
+            } elseif ($request->sort_by === 'az') {
+                $documents = $query->orderBy('subject', 'asc')->paginate(15)->withQueryString();
+            } elseif ($request->sort_by === 'za') {
+                $documents = $query->orderBy('subject', 'desc')->paginate(15)->withQueryString();
+            } else {
+                $documents = $query->orderBy('doc_number', 'asc')->paginate(15)->withQueryString();
+            }
+        } else {
+            $documents = $query->orderBy('doc_number', 'asc')->paginate(15)->withQueryString();
+        }
         $offices = Office::ordered()->get();
 
         return view('documents.index', compact('documents', 'offices'));

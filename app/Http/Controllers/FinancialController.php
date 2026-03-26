@@ -40,7 +40,37 @@ class FinancialController extends Controller
             });
         }
 
-        $records = $query->latest()->paginate(15)->withQueryString();
+        // Handle all sorting options
+        if ($request->filled('description_sort')) {
+            if ($request->description_sort === 'asc') {
+                $query->orderBy('description', 'asc');
+            } elseif ($request->description_sort === 'desc') {
+                $query->orderBy('description', 'desc');
+            }
+        } elseif ($request->filled('pr_amount_sort')) {
+            if ($request->pr_amount_sort === 'asc') {
+                $query->orderBy('pr_amount', 'asc');
+            } elseif ($request->pr_amount_sort === 'desc') {
+                $query->orderBy('pr_amount', 'desc');
+            }
+        } elseif ($request->filled('pr_number_sort')) {
+            if ($request->pr_number_sort === 'asc') {
+                $query->orderByRaw('CAST(SUBSTRING_INDEX(pr_number, "-", -1) AS UNSIGNED) asc');
+            } elseif ($request->pr_number_sort === 'desc') {
+                $query->orderByRaw('CAST(SUBSTRING_INDEX(pr_number, "-", -1) AS UNSIGNED) desc');
+            }
+        } else {
+            // Sort by date from main filter
+            if ($request->filled('sort_by')) {
+                if ($request->sort_by === 'newest') {
+                    $query->orderBy('created_at', 'desc');
+                } elseif ($request->sort_by === 'oldest') {
+                    $query->orderBy('created_at', 'asc');
+                }
+            }
+        }
+
+        $records = $query->paginate(15)->withQueryString();
         $offices = Office::ordered()->get();
 
         return view('financial.index', compact('records', 'offices'));

@@ -75,6 +75,9 @@
             @if(request('year'))
                 <input type="hidden" name="year" value="{{ request('year') }}">
             @endif
+            @if(request('sort_by'))
+                <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
+            @endif
             <div style="display:grid; grid-template-columns: 1fr; gap:8px;">
                 <div class="form-group" style="margin:0">
                     <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Enter keywords...">
@@ -109,6 +112,16 @@
                         <option value="">All</option>
                         <option value="INCOMING" {{ request('direction') === 'INCOMING' ? 'selected' : '' }}>Incoming</option>
                         <option value="OUTGOING" {{ request('direction') === 'OUTGOING' ? 'selected' : '' }}>Outgoing</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin:0; margin-top:12px;">
+                    <label>Sort By</label>
+                    <select name="sort_by" class="form-control">
+                        <option value="">Default</option>
+                        <option value="newest" {{ request('sort_by')=='newest'?'selected':'' }}>Newest to Oldest</option>
+                        <option value="oldest" {{ request('sort_by')=='oldest'?'selected':'' }}>Oldest to Newest</option>
+                        <option value="az" {{ request('sort_by')=='az'?'selected':'' }}>A-Z</option>
+                        <option value="za" {{ request('sort_by')=='za'?'selected':'' }}>Z-A</option>
                     </select>
                 </div>
                 <div class="form-group" style="margin:0; margin-top:12px; display:flex; align-items:flex-end; gap:8px;">
