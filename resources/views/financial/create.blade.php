@@ -25,11 +25,22 @@
                         <label>Type</label>
                         <select name="type" class="form-control">
                             <option value="">Select Type</option>
+                            <option value="PR" {{ old('type') === 'PR' ? 'selected' : '' }}>PR</option>
+                            <option value="PCV" {{ old('type') === 'PCV' ? 'selected' : '' }}>PCV</option>
                             <option value="DV" {{ old('type') === 'DV' ? 'selected' : '' }}>DV</option>
+                            <option value="PO" {{ old('type') === 'PO' ? 'selected' : '' }}>PO</option>
                             <option value="INSPEC" {{ old('type') === 'INSPEC' ? 'selected' : '' }}>INSPEC</option>
                             <option value="OBR" {{ old('type') === 'OBR' ? 'selected' : '' }}>OBR</option>
+                            <option value="IAR" {{ old('type') === 'IAR' ? 'selected' : '' }}>IAR</option>
+                            <option value="IT" {{ old('type') === 'IT' ? 'selected' : '' }}>IT</option>
+                            <option value="AIR" {{ old('type') === 'AIR' ? 'selected' : '' }}>AIR</option>
+                            <option value="PRI" {{ old('type') === 'PRI' ? 'selected' : '' }}>PRI</option>
+                            <option value="POST INSPECTION" {{ old('type') === 'POST INSPECTION' ? 'selected' : '' }}>POST INSPECTION</option>
+                            <option value="LIQUADATION" {{ old('type') === 'LIQUADATION' ? 'selected' : '' }}>LIQUADATION</option>
+                            <option value="PAYROLL" {{ old('type') === 'PAYROLL' ? 'selected' : '' }}>PAYROLL</option>
+                            <option value="ACCTG" {{ old('type') === 'ACCTG' ? 'selected' : '' }}>ACCTG</option>
+                            <option value="PTO" {{ old('type') === 'PTO' ? 'selected' : '' }}>PTO</option>
                             <option value="OPG" {{ old('type') === 'OPG' ? 'selected' : '' }}>OPG</option>
-                            <option value="PR" {{ old('type') === 'PR' ? 'selected' : '' }}>PR</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -45,10 +56,6 @@
 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
                     <div class="form-group">
-                        <label>Progress <small style="color:#999;">(Optional)</small></label>
-                        <input type="text" name="progress" class="form-control" value="{{ old('progress') }}" placeholder="">
-                    </div>
-                    <div class="form-group">
                         <label>Status <span style="color:#c0392b">*</span></label>
                         <select name="status" class="form-control" required>
                             <option value="">Select Status</option>
@@ -56,6 +63,9 @@
                             <option value="CANCELLED" {{ old('status') === 'CANCELLED' ? 'selected' : '' }}>CANCELLED</option>
                             <option value="FINISHED" {{ old('status') === 'FINISHED' ? 'selected' : '' }}>FINISHED</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <!-- Empty div to maintain grid layout -->
                     </div>
                 </div>
 
@@ -100,6 +110,11 @@
                             <option value="{{ $office->id }}" {{ old('office_origin') == $office->id ? 'selected' : '' }}>{{ $office->code }} – {{ $office->name }}</option>
                         @endforeach
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Progress <small style="color:#999;">(Optional)</small></label>
+                    <input type="text" name="progress" class="form-control" value="{{ old('progress') }}" placeholder="">
                 </div>
 
                 <div class="form-group">

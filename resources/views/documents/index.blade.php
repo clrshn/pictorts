@@ -146,7 +146,7 @@
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:180px; border-bottom:2px solid #8b0000;">PICTO NO</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:150px; border-bottom:2px solid #8b0000;">NUMBER</th>
                         <th style="text-align:center; padding:12px 8px; min-width:250px; border-bottom:2px solid #8b0000;">SUBJECT</th>
-                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">REMARKS</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ORIGINATING OFFICE</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">STATUS</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DOCUMENT DATE</th>
                     </tr>
@@ -167,7 +167,7 @@
                             <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:180px;">{{ $doc->doc_number ?? '—' }}</td>
                             <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:150px;">{{ $doc->memorandum_number ?? '—' }}</td>
                             <td style="text-align:left; padding:20px 20px 20px 20px; min-width:250px; word-wrap:break-word;">{{ $doc->subject }}</td>
-                            <td style="text-align:left; padding:20px 20px 20px 20px; min-width:200px; max-width:250px; word-wrap:break-word;">{{ $doc->remarks ?? '—' }}</td>
+                            <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px; font-size: 12px;">{{ $doc->originatingOffice->code ?? '—' }}</td>
                             <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">
                                 @php
                                     $badgeClass = match($doc->status) {
@@ -183,7 +183,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" style="text-align:center; padding:60px 20px;">
+                            <td colspan="9" style="text-align:center; padding:60px 20px;">
                                 <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 2px dashed rgba(192,57,43,0.2); border-radius: 16px; padding: 40px;">
                                     <i class="fas fa-inbox" style="font-size: 48px; color: #c0392b; margin-bottom: 16px;"></i>
                                     <h3 style="color: #1a1a2e; margin-bottom: 8px;">No Documents Found</h3>

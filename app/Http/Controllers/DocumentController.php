@@ -250,6 +250,8 @@ class DocumentController extends Controller
             'direction' => $request->direction,
             'originating_office' => $request->originating_office,
             'to_office' => $request->to_office,
+            'current_office' => $request->originating_office,
+            'current_holder' => auth()->id(),
             'subject' => $request->subject,
             'memorandum_number' => $request->memorandum_number,
             'period' => $request->period,
@@ -270,13 +272,32 @@ class DocumentController extends Controller
             'dts_no' => $request->dts_no,
         ];
 
-        // Regenerate tracking code only if date changed (PICTO Number should remain the same)
+        // Regenerate tracking code if date changed
         if ($oldDate !== $newDate) {
             $updateData['dts_number'] = $this->generateTrackingCode($request->document_type, $request->originating_office, $newDate);
-            // Note: PICTO Number (doc_number) is NOT regenerated - it stays the same for the document's lifetime
             $codesRegenerated = true;
         } else {
             $codesRegenerated = false;
+        }
+
+        // Also update current_office and current_holder if originating office changed
+        if ($document->originating_office != $request->originating_office) {
+            $updateData['current_office'] = $request->originating_office;
+            $updateData['current_holder'] = auth()->id();
+            // Regenerate PICTO number when originating office changes
+            $updateData['doc_number'] = $this->generateTransactionNumber($request->document_type, $request->originating_office, $document->date_received);
+            $codesRegenerated = true;
+            
+            // Add route entry to track office change
+            $document->routes()->create([
+                'from_office' => $document->current_office,
+                'to_office' => $request->originating_office,
+                'released_by' => auth()->id(),
+                'datetime_released' => now(),
+                'datetime_received' => now(),
+                'received_by' => auth()->id(),
+                'remarks' => 'Document originating office updated from ' . ($document->originatingOffice->code ?? 'Unknown') . ' to ' . ($request->originating_office ? \App\Models\Office::find($request->originating_office)->code : 'Unknown'),
+            ]);
         }
 
         $document->update($updateData);
@@ -284,8 +305,8 @@ class DocumentController extends Controller
         // Add completion entry if status changed to COMPLETED
         if ($request->status === 'COMPLETED' && $document->status !== 'COMPLETED') {
             $document->routes()->create([
-                'from_office' => $document->current_office,
-                'to_office' => $document->current_office,
+                'from_office' => $updateData['current_office'] ?? $document->current_office,
+                'to_office' => $updateData['current_office'] ?? $document->current_office,
                 'released_by' => auth()->id(),
                 'datetime_released' => now(),
                 'datetime_received' => now(),

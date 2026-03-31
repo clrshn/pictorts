@@ -40,37 +40,26 @@ class FinancialController extends Controller
             });
         }
 
-        // Handle all sorting options
-        if ($request->filled('description_sort')) {
-            if ($request->description_sort === 'asc') {
-                $query->orderBy('description', 'asc');
-            } elseif ($request->description_sort === 'desc') {
-                $query->orderBy('description', 'desc');
-            }
-        } elseif ($request->filled('pr_amount_sort')) {
-            if ($request->pr_amount_sort === 'asc') {
-                $query->orderBy('pr_amount', 'asc');
-            } elseif ($request->pr_amount_sort === 'desc') {
-                $query->orderBy('pr_amount', 'desc');
-            }
-        } elseif ($request->filled('pr_number_sort')) {
-            if ($request->pr_number_sort === 'asc') {
-                $query->orderByRaw('CAST(SUBSTRING_INDEX(pr_number, "-", -1) AS UNSIGNED) asc');
-            } elseif ($request->pr_number_sort === 'desc') {
-                $query->orderByRaw('CAST(SUBSTRING_INDEX(pr_number, "-", -1) AS UNSIGNED) desc');
+        // Sort by various options
+        if ($request->filled('sort_by')) {
+            if ($request->sort_by === 'newest') {
+                $records = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
+            } elseif ($request->sort_by === 'oldest') {
+                $records = $query->orderBy('created_at', 'asc')->paginate(15)->withQueryString();
+            } elseif ($request->sort_by === 'az') {
+                $records = $query->orderBy('description', 'asc')->paginate(15)->withQueryString();
+            } elseif ($request->sort_by === 'za') {
+                $records = $query->orderBy('description', 'desc')->paginate(15)->withQueryString();
+            } elseif ($request->sort_by === 'highest') {
+                $records = $query->orderBy('pr_amount', 'desc')->paginate(15)->withQueryString();
+            } elseif ($request->sort_by === 'lowest') {
+                $records = $query->orderBy('pr_amount', 'asc')->paginate(15)->withQueryString();
+            } else {
+                $records = $query->latest()->paginate(15)->withQueryString();
             }
         } else {
-            // Sort by date from main filter
-            if ($request->filled('sort_by')) {
-                if ($request->sort_by === 'newest') {
-                    $query->orderBy('created_at', 'desc');
-                } elseif ($request->sort_by === 'oldest') {
-                    $query->orderBy('created_at', 'asc');
-                }
-            }
+            $records = $query->latest()->paginate(15)->withQueryString();
         }
-
-        $records = $query->paginate(15)->withQueryString();
         $offices = Office::ordered()->get();
 
         return view('financial.index', compact('records', 'offices'));
@@ -164,7 +153,7 @@ class FinancialController extends Controller
             'files.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
-        $financial->update([
+        $updateData = [
             'type' => $request->type,
             'description' => $request->description,
             'supplier' => $request->supplier,
@@ -175,16 +164,33 @@ class FinancialController extends Controller
             'obr_number' => $request->obr_number,
             'voucher_number' => $request->voucher_number,
             'office_origin' => $request->office_origin,
+            'current_office' => $request->office_origin,
+            'current_holder' => auth()->id(),
             'status' => $request->status ?? $financial->status,
             'progress' => $request->progress,
             'remarks' => $request->remarks,
-        ]);
+        ];
+
+        // Add route entry if office origin changed
+        if ($financial->office_origin != $request->office_origin) {
+            $financial->routes()->create([
+                'from_office' => $financial->current_office,
+                'to_office' => $request->office_origin,
+                'released_by' => auth()->id(),
+                'datetime_released' => now(),
+                'datetime_received' => now(),
+                'received_by' => auth()->id(),
+                'remarks' => 'Financial record office origin updated from ' . ($financial->originOffice->code ?? 'Unknown') . ' to ' . ($request->office_origin ? \App\Models\Office::find($request->office_origin)->code : 'Unknown'),
+            ]);
+        }
+
+        $financial->update($updateData);
 
         // Add completion entry if status changed to COMPLETED
         if ($request->status === 'COMPLETED' && $financial->status !== 'COMPLETED') {
             $financial->routes()->create([
-                'from_office' => $financial->current_office,
-                'to_office' => $financial->current_office,
+                'from_office' => $updateData['current_office'] ?? $financial->current_office,
+                'to_office' => $updateData['current_office'] ?? $financial->current_office,
                 'released_by' => auth()->id(),
                 'datetime_released' => now(),
                 'datetime_received' => now(),

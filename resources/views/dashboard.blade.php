@@ -11,14 +11,6 @@
             <div class="form-group" style="margin:0; flex:1; min-width:280px;">
                 <input type="text" name="search" class="form-control" placeholder="Search Records" style="padding:10px 14px;">
             </div>
-            <div class="form-group" style="margin:0;">
-                <label>Start Date</label>
-                <input type="date" name="date_from" class="form-control">
-            </div>
-            <div class="form-group" style="margin:0;">
-                <label>End Date</label>
-                <input type="date" name="date_to" class="form-control">
-            </div>
             <button type="submit" class="btn-red" style="height:40px;"><i class="fas fa-search"></i> Search</button>
         </form>
     </div>

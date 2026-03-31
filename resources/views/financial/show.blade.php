@@ -69,7 +69,7 @@
                 
                 <!-- Remarks (Full Width) -->
                 <div style="grid-column:span 2; border-left:3px solid #7f8c8d; padding-left:12px;">
-                    <div><strong>Remarks:</strong> {{ $financial->remarks ?? '—' }}</div>
+                    <div><strong>Remarks:</strong> <span style="white-space: pre-line;">{{ $financial->remarks ?? '—' }}</span></div>
                 </div>
             </div>
         </div>

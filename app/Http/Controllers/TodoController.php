@@ -24,6 +24,11 @@ class TodoController extends Controller
             $query->byPriority($request->priority);
         }
 
+        // Filter by assigned person
+        if ($request->filled('assigned_to') && $request->assigned_to !== '') {
+            $query->where('assigned_to', $request->assigned_to);
+        }
+
         // Search
         if ($request->filled('search')) {
             $search = $request->search;

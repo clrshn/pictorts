@@ -50,6 +50,15 @@
         </div>
 
         <form method="GET" action="{{ route('todos.index') }}">
+            @if(request('status'))
+                <input type="hidden" name="status" value="{{ request('status') }}">
+            @endif
+            @if(request('priority'))
+                <input type="hidden" name="priority" value="{{ request('priority') }}">
+            @endif
+            @if(request('assigned_to'))
+                <input type="hidden" name="assigned_to" value="{{ request('assigned_to') }}">
+            @endif
             <div style="display:grid; grid-template-columns: 1fr; gap:8px;">
                 <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Enter keywords...">
             </div>
@@ -120,8 +129,7 @@
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ASSIGNED TO</th>
                         <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">TASK</th>
                         <th style="text-align:center; padding:12px 8px; min-width:250px; border-bottom:2px solid #8b0000;">WHAT TO DO</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DEADLINE</th>
-                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">REMARKS</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DUE DATE</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:230px; border-bottom:2px solid #8b0000;">STATUS</th>
                     </tr>
                 </thead>
@@ -171,11 +179,9 @@
 
                         <td style="text-align:left; padding:20px 20px 20px 20px; min-width:200px; word-wrap:break-word; font-size: 13px; font-weight: 600;">{{ $todo->title }}</td>
 
-                        <td style="text-align:left; padding:20px 20px 20px 20px; min-width:250px; word-wrap:break-word; font-size: 12px; color: #6c757d;">{{ $todo->description ?? 'No description' }}</td>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; min-width:250px; word-wrap:break-word; font-size: 12px; color: #6c757d; white-space: pre-line;">{{ $todo->description ?? 'No description' }}</td>
 
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $todo->due_date?->format('M d, Y') ?? '—' }}</td>
-
-                        <td style="text-align:left; padding:20px 20px 20px 20px; min-width:200px; word-wrap:break-word; font-size: 12px; color: #6c757d;">{{ $todo->remarks ?? 'No remarks' }}</td>
 
                         <!-- STATUS -->
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:230px;" onclick="event.stopPropagation();">

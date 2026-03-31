@@ -58,26 +58,17 @@
         </div>
         
         <form method="GET" action="{{ route('financial.index') }}">
-            @if(request('status'))
-                <input type="hidden" name="status" value="{{ request('status') }}">
-            @endif
             @if(request('type'))
                 <input type="hidden" name="type" value="{{ request('type') }}">
+            @endif
+            @if(request('status'))
+                <input type="hidden" name="status" value="{{ request('status') }}">
             @endif
             @if(request('search'))
                 <input type="hidden" name="search" value="{{ request('search') }}">
             @endif
             @if(request('sort_by'))
                 <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
-            @endif
-            @if(request('description_sort'))
-                <input type="hidden" name="description_sort" value="{{ request('description_sort') }}">
-            @endif
-            @if(request('pr_amount_sort'))
-                <input type="hidden" name="pr_amount_sort" value="{{ request('pr_amount_sort') }}">
-            @endif
-            @if(request('pr_number_sort'))
-                <input type="hidden" name="pr_number_sort" value="{{ request('pr_number_sort') }}">
             @endif
             <div style="display:grid; grid-template-columns: 1fr; gap:8px;">
                 <div class="form-group" style="margin:0">
@@ -89,11 +80,22 @@
                     <label>Type</label>
                     <select name="type" class="form-control">
                         <option value="">All Types</option>
+                        <option value="PR" {{ request('type') === 'PR' ? 'selected' : '' }}>PR</option>
+                        <option value="PCV" {{ request('type') === 'PCV' ? 'selected' : '' }}>PCV</option>
                         <option value="DV" {{ request('type') === 'DV' ? 'selected' : '' }}>DV</option>
+                        <option value="PO" {{ request('type') === 'PO' ? 'selected' : '' }}>PO</option>
                         <option value="INSPEC" {{ request('type') === 'INSPEC' ? 'selected' : '' }}>INSPEC</option>
                         <option value="OBR" {{ request('type') === 'OBR' ? 'selected' : '' }}>OBR</option>
+                        <option value="IAR" {{ request('type') === 'IAR' ? 'selected' : '' }}>IAR</option>
+                        <option value="IT" {{ request('type') === 'IT' ? 'selected' : '' }}>IT</option>
+                        <option value="AIR" {{ request('type') === 'AIR' ? 'selected' : '' }}>AIR</option>
+                        <option value="PRI" {{ request('type') === 'PRI' ? 'selected' : '' }}>PRI</option>
+                        <option value="POST INSPECTION" {{ request('type') === 'POST INSPECTION' ? 'selected' : '' }}>POST INSPECTION</option>
+                        <option value="LIQUADATION" {{ request('type') === 'LIQUADATION' ? 'selected' : '' }}>LIQUADATION</option>
+                        <option value="PAYROLL" {{ request('type') === 'PAYROLL' ? 'selected' : '' }}>PAYROLL</option>
+                        <option value="ACCTG" {{ request('type') === 'ACCTG' ? 'selected' : '' }}>ACCTG</option>
+                        <option value="PTO" {{ request('type') === 'PTO' ? 'selected' : '' }}>PTO</option>
                         <option value="OPG" {{ request('type') === 'OPG' ? 'selected' : '' }}>OPG</option>
-                        <option value="PR" {{ request('type') === 'PR' ? 'selected' : '' }}>PR</option>
                     </select>
                 </div>
                 <div class="form-group" style="margin:0; margin-top:12px;">
@@ -108,8 +110,13 @@
                 <div class="form-group" style="margin:0; margin-top:12px;">
                     <label>Sort By</label>
                     <select name="sort_by" class="form-control">
+                        <option value="">Default</option>
                         <option value="newest" {{ request('sort_by')=='newest'?'selected':'' }}>Newest to Oldest</option>
                         <option value="oldest" {{ request('sort_by')=='oldest'?'selected':'' }}>Oldest to Newest</option>
+                        <option value="az" {{ request('sort_by')=='az'?'selected':'' }}>A-Z (Description)</option>
+                        <option value="za" {{ request('sort_by')=='za'?'selected':'' }}>Z-A (Description)</option>
+                        <option value="highest" {{ request('sort_by')=='highest'?'selected':'' }}>Highest to Lowest (PR Amount)</option>
+                        <option value="lowest" {{ request('sort_by')=='lowest'?'selected':'' }}>Lowest to Highest (PR Amount)</option>
                     </select>
                 </div>
                 <div class="form-group" style="margin:0; margin-top:12px; display:flex; align-items:flex-end; gap:8px;">
@@ -123,7 +130,7 @@
     <!-- Financial Table -->
     <div class="table-card">
         <div class="table-header" style="display: flex; justify-content: flex-end; align-items: center;">
-            <a href="{{ route('financial.create') }}" class="btn-red"><i class="fas fa-plus"></i> Add New Record</a>
+            <a href="{{ route('financial.create') }}" class="btn-red" style="display: flex; align-items: center; justify-content: center; text-align: center;"><i class="fas fa-plus"></i> Add New Record</a>
         </div>
 
         <div style="overflow-x:auto; max-width:100%;">
@@ -133,44 +140,16 @@
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">STATUS</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">TYPE</th>
-                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <span>DESCRIPTION</span>
-                            <select name="description_sort" class="form-control" style="width: auto; padding: 4px 8px; font-size: 12px;" onchange="this.form.submit()">
-                                <option value="">Sort</option>
-                                <option value="asc" {{ request('description_sort')=='asc'?'selected':'' }}>A-Z</option>
-                                <option value="desc" {{ request('description_sort')=='desc'?'selected':'' }}>Z-A</option>
-                            </select>
-                        </div>
-                    </th>
+                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">DESCRIPTION</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">SUPPLIER</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <span>PR AMOUNT</span>
-                            <select name="pr_amount_sort" class="form-control" style="width: auto; padding: 4px 8px; font-size: 12px;" onchange="this.form.submit()">
-                                <option value="">Sort</option>
-                                <option value="desc" {{ request('pr_amount_sort')=='desc'?'selected':'' }}>Highest</option>
-                                <option value="asc" {{ request('pr_amount_sort')=='asc'?'selected':'' }}>Lowest</option>
-                            </select>
-                        </div>
-                    </th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <span>PR #</span>
-                            <select name="pr_number_sort" class="form-control" style="width: auto; padding: 4px 8px; font-size: 12px;" onchange="this.form.submit()">
-                                <option value="">Sort</option>
-                                <option value="asc" {{ request('pr_number_sort')=='asc'?'selected':'' }}>First to Last</option>
-                                <option value="desc" {{ request('pr_number_sort')=='desc'?'selected':'' }}>Last to First</option>
-                            </select>
-                        </div>
-                    </th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">PR AMOUNT</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PR #</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">PO AMOUNT</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PO #</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">OBR #</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">VOUCHER #</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">OFFICE ORIGIN</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PROGRESS</th>
-                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">REMARKS</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -214,11 +193,10 @@
                                 <span style="color: #9ca3af; font-size: 12px;">—</span>
                             @endif
                         </td>
-                        <td style="text-align:left; padding:20px 20px 20px 20px; min-width:200px; word-wrap:break-word; font-size: 12px; color: #64748b;">{{ $rec->remarks ?? '—' }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="12" style="text-align:center; padding:60px;">
+                        <td colspan="11" style="text-align:center; padding:60px;">
                             <div style="background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%); border:2px dashed rgba(192,57,43,0.2); border-radius:16px; padding:40px;">
                                 <i class="fas fa-file-invoice-dollar" style="font-size:48px; color:#c0392b; margin-bottom:16px;"></i>
                                 <h3 style="color:#1a1a2e; margin-bottom:8px;">No Financial Records Found</h3>

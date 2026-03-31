@@ -24,7 +24,25 @@
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
                     <div class="form-group">
                         <label>Type</label>
-                        <input type="text" name="type" class="form-control" value="{{ old('type', $financial->type) }}">
+                        <select name="type" class="form-control">
+                            <option value="">Select Type</option>
+                            <option value="PR" {{ old('type', $financial->type) === 'PR' ? 'selected' : '' }}>PR</option>
+                            <option value="PCV" {{ old('type', $financial->type) === 'PCV' ? 'selected' : '' }}>PCV</option>
+                            <option value="DV" {{ old('type', $financial->type) === 'DV' ? 'selected' : '' }}>DV</option>
+                            <option value="PO" {{ old('type', $financial->type) === 'PO' ? 'selected' : '' }}>PO</option>
+                            <option value="INSPEC" {{ old('type', $financial->type) === 'INSPEC' ? 'selected' : '' }}>INSPEC</option>
+                            <option value="OBR" {{ old('type', $financial->type) === 'OBR' ? 'selected' : '' }}>OBR</option>
+                            <option value="IAR" {{ old('type', $financial->type) === 'IAR' ? 'selected' : '' }}>IAR</option>
+                            <option value="IT" {{ old('type', $financial->type) === 'IT' ? 'selected' : '' }}>IT</option>
+                            <option value="AIR" {{ old('type', $financial->type) === 'AIR' ? 'selected' : '' }}>AIR</option>
+                            <option value="PRI" {{ old('type', $financial->type) === 'PRI' ? 'selected' : '' }}>PRI</option>
+                            <option value="POST INSPECTION" {{ old('type', $financial->type) === 'POST INSPECTION' ? 'selected' : '' }}>POST INSPECTION</option>
+                            <option value="LIQUADATION" {{ old('type', $financial->type) === 'LIQUADATION' ? 'selected' : '' }}>LIQUADATION</option>
+                            <option value="PAYROLL" {{ old('type', $financial->type) === 'PAYROLL' ? 'selected' : '' }}>PAYROLL</option>
+                            <option value="ACCTG" {{ old('type', $financial->type) === 'ACCTG' ? 'selected' : '' }}>ACCTG</option>
+                            <option value="PTO" {{ old('type', $financial->type) === 'PTO' ? 'selected' : '' }}>PTO</option>
+                            <option value="OPG" {{ old('type', $financial->type) === 'OPG' ? 'selected' : '' }}>OPG</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Supplier</label>
@@ -95,6 +113,13 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label>Progress <small style="color:#999;">(Optional)</small></label>
+                        <input type="text" name="progress" class="form-control" value="{{ old('progress', $financial->progress) }}" placeholder="e.g., For Processing, Under Review, Awaiting Approval">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                    <div class="form-group">
                         <label>Status <span style="color:#c0392b">*</span></label>
                         <select name="status" class="form-control" required>
                             <option value="">Select Status</option>
@@ -107,8 +132,7 @@
 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
                     <div class="form-group">
-                        <label>Progress <small style="color:#999;">(Optional)</small></label>
-                        <input type="text" name="progress" class="form-control" value="{{ old('progress', $financial->progress) }}" placeholder="e.g., For Processing, Under Review, Awaiting Approval">
+                        <!-- Empty for balance -->
                     </div>
                     <div class="form-group">
                         <!-- Empty for balance -->
