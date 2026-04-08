@@ -27,3 +27,8 @@ services:
       MYSQL_DATABASE: pictorts
     ports:
       - "3306:3306"
+    volumes:
+      - pictorts_db_data:/var/lib/mysql
+
+volumes:
+  pictorts_db_data:

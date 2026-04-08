@@ -27,16 +27,13 @@
                 
                 <!-- Schedule Information -->
                 <div style="border-left:3px solid #f39c12; padding-left:12px;">
-                    <div><strong>Due Date:</strong> 
-                        @if($todo->due_date)
-                            <span style="{{ $todo->isOverdue() ? 'color:#e74c3c; font-weight:600;' : '' }}">
-                                {{ $todo->due_date->format('F d, Y') }}
-                                @if($todo->isOverdue())
-                                    <span style="margin-left:8px; font-size:11px;"><i class="fas fa-exclamation-triangle"></i> Overdue</span>
-                                @endif
+                    <div><strong>DATE ADDED:</strong> 
+                        @if($todo->date_added)
+                            <span>
+                                {{ $todo->date_added->format('F d, Y') }}
                             </span>
                         @else
-                            <span style="color:#999;">No due date</span>
+                            <span style="color:#999;">No date added</span>
                         @endif
                     </div>
                     <div style="margin-top:8px;"><strong>Assigned To:</strong> {{ $todo->assigned_to ?? 'Unassigned' }}</div>
@@ -56,14 +53,6 @@
                 <div style="grid-column:span 2; border-left:3px solid #e74c3c; padding-left:12px; margin-top:8px;">
                     <div><strong>Remarks:</strong> {{ $todo->remarks ?? '—' }}</div>
                 </div>
-            </div>
-            <div style="margin-top:16px; padding-top:16px; border-top:1px solid #e5e7eb;">
-                <div style="font-size:12px; color:#666; margin-bottom:4px;">Created:</div>
-                <div style="font-size:13px; color:#333;">{{ $todo->created_at->format('F d, Y h:i A') }}</div>
-                @if($todo->updated_at != $todo->created_at)
-                    <div style="font-size:12px; color:#666; margin-top:8px; margin-bottom:4px;">Last Updated:</div>
-                    <div style="font-size:13px; color:#333;">{{ $todo->updated_at->format('F d, Y h:i A') }}</div>
-                @endif
             </div>
         </div>
     </div>

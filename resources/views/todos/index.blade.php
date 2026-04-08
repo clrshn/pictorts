@@ -6,27 +6,12 @@
         </div>
     </x-slot>
 
-    @if(session('success'))
-        <div class="alert alert-success" style="margin-bottom: 16px;">
-            {{ session('success') }}
-        </div>
-    @endif
+    @include('components.notifications')
 
-    @if(session('error'))
-        <div class="alert alert-danger" style="margin-bottom: 16px;">
-            {{ session('error') }}
-        </div>
-    @endif
-
-    @if(session('warning'))
-        <div class="alert alert-warning" style="margin-bottom: 16px;">
-            {{ session('warning') }}
-        </div>
-    @endif
-
-    @if(session('info'))
-        <div class="alert alert-info" style="margin-bottom: 16px;">
-            {{ session('info') }}
+    <!-- Debug: Current sort_by parameter -->
+    @if(request('sort_by'))
+        <div style="background: #f0f8ff; border: 1px solid #b3d9ff; padding: 8px; margin-bottom: 10px; border-radius: 4px; font-size: 12px;">
+            <strong>DEBUG:</strong> Current sort_by = "{{ request('sort_by') }}"
         </div>
     @endif
 
@@ -129,14 +114,14 @@
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ASSIGNED TO</th>
                         <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">TASK</th>
                         <th style="text-align:center; padding:12px 8px; min-width:250px; border-bottom:2px solid #8b0000;">WHAT TO DO</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DUE DATE</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DEADLINE</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:230px; border-bottom:2px solid #8b0000;">STATUS</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($todos as $index => $todo)
 
-                    <tr id="todoRow-{{ $todo->id }}" class="clickable-row" data-href="{{ route('todos.show', $todo) }}" style="cursor: pointer; {{ ($todo->due_date && $todo->due_date < now() && $todo->status != 'completed') ? 'background:#fff5f5;' : '' }}">
+                    <tr id="todoRow-{{ $todo->id }}" class="clickable-row" data-href="{{ route('todos.show', $todo) }}" style="cursor: pointer; {{ ($todo->date_added && $todo->date_added < now() && $todo->status != 'completed') ? 'background:#fff5f5;' : '' }}">
 
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;" onclick="event.stopPropagation();">
                             <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
@@ -152,7 +137,7 @@
                             </div>
                         </td>
 
-                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $todo->created_at?->format('n-j-Y') ?? 'No date' }}</td>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $todo->date_added ? $todo->date_added->format('n-j-Y') : ($todo->created_at ? $todo->created_at->format('n-j-Y') : 'No date') }}</td>
 
                         <!-- PRIORITY -->
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:230px;" onclick="event.stopPropagation();">
@@ -181,7 +166,7 @@
 
                         <td style="text-align:left; padding:20px 20px 20px 20px; min-width:250px; word-wrap:break-word; font-size: 12px; color: #6c757d; white-space: pre-line;">{{ $todo->description ?? 'No description' }}</td>
 
-                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $todo->due_date?->format('M d, Y') ?? '—' }}</td>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $todo->date_added?->format('M d, Y') ?? '—' }}</td>
 
                         <!-- STATUS -->
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:230px;" onclick="event.stopPropagation();">
@@ -189,16 +174,16 @@
                                 class="form-control inline-select 
                                 {{ match($todo->status) {
                                     'pending' => 'status-pending',
-                                    'in_progress' => 'status-ongoing',
-                                    'completed' => 'status-done',
+                                    'on-going' => 'status-ongoing',
+                                    'done' => 'status-done',
                                     'cancelled' => 'status-cancelled',
                                     default => ''
                                 } }}"
                                 onchange="changeStatus(this, {{ $todo->id }}, this.value)"
                             >
                                 <option value="pending" {{ $todo->status=='pending'?'selected':'' }}>PENDING</option>
-                                <option value="in_progress" {{ $todo->status=='in_progress'?'selected':'' }}>ON GOING</option>
-                                <option value="completed" {{ $todo->status=='completed'?'selected':'' }}>DONE</option>
+                                <option value="on-going" {{ $todo->status=='on-going'?'selected':'' }}>ON-GOING</option>
+                                <option value="done" {{ $todo->status=='done'?'selected':'' }}>DONE</option>
                                 <option value="cancelled" {{ $todo->status=='cancelled'?'selected':'' }}>CANCELLED</option>
                             </select>
                         </td>
@@ -320,8 +305,8 @@
             );
 
             if(value === 'pending') el.classList.add('status-pending');
-            if(value === 'in_progress') el.classList.add('status-ongoing');
-            if(value === 'completed') el.classList.add('status-done');
+            if(value === 'on-going') el.classList.add('status-ongoing');
+            if(value === 'done') el.classList.add('status-done');
             if(value === 'cancelled') el.classList.add('status-cancelled');
 
             fetch(`/todos/${id}/update-status`, {
@@ -334,8 +319,18 @@
             })
             .then(res=>res.json())
             .then(data=>{
+                console.log('Status update response:', data);
                 if(data.success){
                     showCompletedNotification('Status Updated', `Status updated to ${value}`);
+                    // Refresh the specific row to show updated status
+                    const row = document.getElementById(`todoRow-${id}`);
+                    if(row) {
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    }
+                } else {
+                    console.error('Status update failed:', data);
                 }
             });
         }

@@ -14,6 +14,7 @@
                     </div>
                 </div>
                 <div style="padding:20px;">
+                    @include('components.notifications')
                     <!-- Search Users -->
                     <div style="background:#f8f9fa; padding:16px; border-radius:8px; margin-bottom:20px;">
                         <form method="GET" action="{{ route('users.index') }}">

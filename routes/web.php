@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Todos
     Route::resource('todos', \App\Http\Controllers\TodoController::class);
+    Route::patch('/todos/{todo}/update-status', [\App\Http\Controllers\TodoController::class, 'updateStatus'])->name('todos.updateStatus');
     Route::patch('/todos/{todo}/quick-update', [\App\Http\Controllers\TodoController::class, 'quickUpdate'])->name('todos.quickUpdate');
 
     // User Management (Admin only)

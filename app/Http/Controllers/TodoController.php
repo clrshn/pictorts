@@ -43,12 +43,12 @@ class TodoController extends Controller
         // Sort by due date and priority
         if ($request->filled('sort_by')) {
             if ($request->sort_by === 'newest') {
-                $todos = $query->orderBy('created_at', 'desc')
+                $todos = $query->orderBy('date_added', 'desc')
                               ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
                               ->orderBy('due_date', 'asc')
                               ->paginate(15);
             } elseif ($request->sort_by === 'oldest') {
-                $todos = $query->orderBy('created_at', 'asc')
+                $todos = $query->orderBy('date_added', 'asc')
                               ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
                               ->orderBy('due_date', 'asc')
                               ->paginate(15);
@@ -65,13 +65,13 @@ class TodoController extends Controller
             } else {
                 $todos = $query->orderBy('due_date', 'asc')
                               ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
-                              ->orderBy('created_at', 'desc')
+                              ->orderBy('date_added', 'desc')
                               ->paginate(15);
             }
         } else {
             $todos = $query->orderBy('due_date', 'asc')
                           ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
-                          ->orderBy('created_at', 'desc')
+                          ->orderBy('date_added', 'desc')
                           ->paginate(15);
         }
 
@@ -98,9 +98,16 @@ class TodoController extends Controller
             'due_date' => 'nullable|date|after_or_equal:today',
             'assigned_to' => 'nullable|string|max:255',
             'remarks' => 'nullable|string',
+            'date_added' => 'nullable|date',
         ]);
 
         $validated['user_id'] = auth()->id();
+        
+        // If date_added is provided, use it; otherwise use current date
+        if (isset($validated['date_added'])) {
+            $validated['created_at'] = $validated['date_added'];
+        }
+        unset($validated['date_added']);
 
         Todo::create($validated);
 
@@ -133,16 +140,37 @@ class TodoController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'priority' => 'required|in:low,medium,high,top',
-            'status' => 'required|in:pending,in_progress,completed',
+            'status' => 'required|in:pending,on-going,done,cancelled',
             'due_date' => 'nullable|date|after_or_equal:today',
             'assigned_to' => 'nullable|string|max:255',
             'remarks' => 'nullable|string',
+            'date_added' => 'nullable|date',
         ]);
+
+        // If date_added is provided, update created_at
+        if (isset($validated['date_added'])) {
+            $validated['created_at'] = $validated['date_added'];
+        }
+        unset($validated['date_added']);
 
         $todo->update($validated);
 
         return redirect()->route('todos.index')
             ->with('updated', 'Todo updated successfully!');
+    }
+
+    /**
+     * Update todo status via AJAX
+     */
+    public function updateStatus(Request $request, Todo $todo)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:pending,on-going,done,cancelled',
+        ]);
+
+        $todo->update(['status' => $validated['status']]);
+
+        return response()->json(['success' => true, 'status' => $validated['status']]);
     }
 
     /**

@@ -9,11 +9,7 @@
                     <i class="fas fa-user-edit"></i> Edit User: {{ $user->name }}
                 </div>
                 <div style="padding:20px;">
-                    @if(session('success'))
-                        <div class="alert alert-success" style="margin-bottom:20px;">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+                    @include('components.notifications')
 
                     <form action="{{ route('users.update', $user) }}" method="POST">
                         @csrf

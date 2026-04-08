@@ -15,11 +15,13 @@ class Todo extends Model
         'due_date',
         'user_id',
         'assigned_to',
-        'remarks'
+        'remarks',
+        'date_added'
     ];
 
     protected $casts = [
         'due_date' => 'date',
+        'date_added' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

@@ -148,7 +148,7 @@
                         <th style="text-align:center; padding:12px 8px; min-width:250px; border-bottom:2px solid #8b0000;">SUBJECT</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ORIGINATING OFFICE</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">STATUS</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DOCUMENT DATE</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DATE RECEIVED</th>
                     </tr>
                 </thead>
                 <tbody>

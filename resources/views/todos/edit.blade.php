@@ -4,6 +4,8 @@
         <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / <a href="{{ route('todos.index') }}">Todo List</a> / Edit Todo</div>
     </x-slot>
 
+    @include('components.notifications')
+
     <div class="table-card">
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">
             <i class="fas fa-edit"></i> EDIT TODO
@@ -13,12 +15,12 @@
                 @csrf @method('PUT')
 
                 <div class="form-group">
-                    <label>Title <span style="color:#c0392b">*</span></label>
-                    <input type="text" name="title" class="form-control" value="{{ old('title', $todo->title) }}" required placeholder="Enter todo title...">
+                    <label>Task <span style="color:#c0392b">*</span></label>
+                    <input type="text" name="title" class="form-control" value="{{ old('title', $todo->title) }}" required placeholder="Enter task description...">
                 </div>
 
                 <div class="form-group">
-                    <label>Description</label>
+                    <label>What to-do <span style="color:#c0392b">*</span></label>
                     <textarea name="description" class="form-control" rows="4" placeholder="Add more details about this todo...">{{ old('description', $todo->description) }}</textarea>
                 </div>
 
@@ -38,8 +40,9 @@
                         <select name="status" class="form-control" required>
                             <option value="">Select Status</option>
                             <option value="pending" {{ old('status', $todo->status) === 'pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="in_progress" {{ old('status', $todo->status) === 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                            <option value="completed" {{ old('status', $todo->status) === 'completed' ? 'selected' : '' }}>Completed</option>
+                            <option value="on-going" {{ old('status', $todo->status) === 'on-going' ? 'selected' : '' }}>On-going</option>
+                            <option value="done" {{ old('status', $todo->status) === 'done' ? 'selected' : '' }}>Done</option>
+                            <option value="cancelled" {{ old('status', $todo->status) === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                         </select>
                     </div>
                 </div>
@@ -56,6 +59,11 @@
                         <option value="PATRICK" {{ old('assigned_to', $todo->assigned_to) === 'PATRICK' ? 'selected' : '' }}>PATRICK</option>
                         <option value="MITCH" {{ old('assigned_to', $todo->assigned_to) === 'MITCH' ? 'selected' : '' }}>MITCH</option>
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label>DATE ADDED</label>
+                    <input type="date" name="date_added" class="form-control" value="{{ old('date_added', $todo->date_added ? $todo->date_added->format('Y-m-d') : '') }}">
                 </div>
 
                 <div class="form-group">

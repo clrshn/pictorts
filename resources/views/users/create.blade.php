@@ -9,11 +9,7 @@
                     <i class="fas fa-user-plus"></i> Create New User
                 </div>
                 <div style="padding:20px;">
-                    @if(session('success'))
-                        <div class="alert alert-success" style="margin-bottom:20px;">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+                    @include('components.notifications')
 
                     <form action="{{ route('users.store') }}" method="POST">
                         @csrf

@@ -55,7 +55,7 @@
                 <div style="border-left:3px solid #3498db; padding-left:12px;">
                     <div style="margin-bottom:8px;"><strong>Direction:</strong> {{ $document->direction }}</div>
                     <div style="margin-bottom:8px;"><strong>Originating Office:</strong> {{ $document->originatingOffice->name ?? '—' }}</div>
-                    <div><strong>Date:</strong> {{ $document->date_received ? $document->date_received->format('F d, Y') : ($document->created_at ? $document->created_at->format('F d, Y h:i A') : '—') }}</div>
+                    <div style="margin-bottom:8px;"><strong>Date Received:</strong> {{ $document->date_received ? $document->date_received->format('F d, Y') : ($document->created_at ? $document->created_at->format('F d, Y') : '—') }}</div>
                 </div>
                 
                 <!-- Action Information -->
