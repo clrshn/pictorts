@@ -124,18 +124,18 @@
                         <option value="za" {{ request('sort_by')=='za'?'selected':'' }}>Z-A</option>
                     </select>
                 </div>
-                <div class="form-group" style="margin:0; margin-top:12px; display:flex; align-items:flex-end; gap:8px;">
-                    <button type="submit" class="btn-red"><i class="fas fa-search"></i> Filter</button>
-                    <a href="{{ route('documents.index') }}" class="btn-gray">Reset</a>
                 </div>
+            <div class="form-group" style="display:flex; gap:12px; margin-top:24px; justify-content:flex-end;">
+                <button type="submit" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center; vertical-align: top;"><i class="fas fa-search"></i> Filter</button>
+                <a href="{{ route('documents.index') }}" class="btn-gray" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center; vertical-align: top;">Reset</a>
             </div>
         </form>
     </div>
 
     <!-- Documents Table -->
     <div class="table-card">
-        <div class="table-header" style="display: flex; justify-content: flex-end; align-items: center;">
-            <a href="{{ route('documents.create') }}" class="btn-red"><i class="fas fa-plus"></i> Add New Document</a>
+        <div class="table-header" style="display:flex; justify-content:flex-end;">
+            <a href="{{ route('documents.create') }}" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-plus"></i> Add New Document</a>
         </div>
         <div style="overflow-x:auto; max-width:100%;">
             <table style="min-width:900px; width:100%; border-collapse: collapse;">

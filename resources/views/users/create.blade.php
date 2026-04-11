@@ -1,12 +1,42 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h1>Create User</h1>
+        <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / <a href="{{ route('users.index') }}">User Management</a> / Create User</div>
+    </x-slot>
 
-@section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="table-card">
-                <div style="background:#333; color:#fff; padding:10px 20px; font-weight:600; font-size:13px;">
-                    <i class="fas fa-user-plus"></i> Create New User
+    @if(session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification({
+                        type: 'success',
+                        title: 'Success!',
+                        message: '{{ session('success') }}',
+                        duration: 3000
+                    });
+                }
+            });
+        </script>
+    @endif
+
+    @if(session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification({
+                        type: 'danger',
+                        title: 'Error!',
+                        message: '{{ session('error') }}',
+                        duration: 3000
+                    });
+                }
+            });
+        </script>
+    @endif
+
+    <div class="table-card">
+                <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">
+                    <i class="fas fa-user-plus"></i> 
                 </div>
                 <div style="padding:20px;">
                     @include('components.notifications')
@@ -26,7 +56,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Email (Username) <span class="text-danger">*</span></label>
+                                    <label>Email <span class="text-danger">*</span></label>
                                     <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>
                                     @error('email')
                                         <div class="text-danger small">{{ $message }}</div>
@@ -110,5 +140,4 @@
             </div>
         </div>
     </div>
-</div>
-@endsection
+</x-app-layout>

@@ -1,12 +1,42 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h1>Edit User</h1>
+        <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / <a href="{{ route('users.index') }}">User Management</a> / Edit User</div>
+    </x-slot>
 
-@section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="table-card">
-                <div style="background:#333; color:#fff; padding:10px 20px; font-weight:600; font-size:13px;">
-                    <i class="fas fa-user-edit"></i> Edit User: {{ $user->name }}
+    @if(session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification({
+                        type: 'success',
+                        title: 'Success!',
+                        message: '{{ session('success') }}',
+                        duration: 3000
+                    });
+                }
+            });
+        </script>
+    @endif
+
+    @if(session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification({
+                        type: 'danger',
+                        title: 'Error!',
+                        message: '{{ session('error') }}',
+                        duration: 3000
+                    });
+                }
+            });
+        </script>
+    @endif
+
+    <div class="table-card">
+                <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">
+                    <i class="fas fa-user-edit"></i> 
                 </div>
                 <div style="padding:20px;">
                     @include('components.notifications')
@@ -72,11 +102,11 @@
                             <strong>Note:</strong> You cannot change the password here. Use the "Reset Password" button in the users list.
                         </div>
 
-                        <div class="form-group">
-                            <button type="submit" class="btn-red">
+                        <div class="form-group" style="display:flex; gap:12px; margin-top:24px; justify-content:flex-end;">
+                            <button type="submit" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center; vertical-align: top;">
                                 <i class="fas fa-save"></i> Update User
                             </button>
-                            <a href="{{ route('users.index') }}" class="btn-gray">
+                            <a href="{{ route('users.index') }}" class="btn-gray" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center; vertical-align: top;">
                                 <i class="fas fa-arrow-left"></i> Back to Users
                             </a>
                         </div>
@@ -85,5 +115,4 @@
             </div>
         </div>
     </div>
-</div>
-@endsection
+</x-app-layout>

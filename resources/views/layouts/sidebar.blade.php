@@ -29,39 +29,33 @@
 
     <!-- Documents Dropdown -->
     <div class="nav-dropdown">
-        <button class="nav-dropdown-btn {{ request()->routeIs('documents.index') && !request()->has('direction') ? 'active' : '' }}" onclick="toggleDocumentsDropdown()">
-            <div style="display: flex; align-items: center; flex: 1;">
-                <i class="fas fa-list" style="width: 22px; margin-right: 10px; text-align: center;"></i>
-                <span>All Documents</span>
-            </div>
-        </button>
-        <div class="nav-dropdown-menu" id="documentsDropdown">
-            <a href="{{ route('documents.index', ['direction' => 'INCOMING']) }}" class="nav-dropdown-item">
-                <i class="fas fa-arrow-down" style="width: 16px; margin-right: 8px; text-align: center;"></i> Incoming Documents
+        <a href="{{ route('documents.index') }}" class="nav-item {{ request()->routeIs('documents.index') && !request()->has('direction') ? 'active' : '' }}" onclick="toggleDocumentsDropdown()">
+            <i class="fas fa-list"></i> All Documents <i class="fas fa-chevron-down" style="float: right; font-size: 10px; margin-top: 2px;"></i>
+        </a>
+        <div class="nav-sub" id="documentsDropdown">
+            <a href="{{ route('documents.index', ['direction' => 'INCOMING']) }}" class="nav-item">
+                <i class="fas fa-arrow-down"></i> Incoming Documents
             </a>
-            <a href="{{ route('documents.index', ['direction' => 'OUTGOING']) }}" class="nav-dropdown-item">
-                <i class="fas fa-arrow-up" style="width: 16px; margin-right: 8px; text-align: center;"></i> Outgoing Documents
+            <a href="{{ route('documents.index', ['direction' => 'OUTGOING']) }}" class="nav-item">
+                <i class="fas fa-arrow-up"></i> Outgoing Documents
             </a>
         </div>
     </div>
 
     <!-- Financial Dropdown -->
     <div class="nav-dropdown">
-        <button class="nav-dropdown-btn {{ request()->routeIs('financial.index') && !request()->has('status') ? 'active' : '' }}" onclick="toggleFinancialDropdown()">
-            <div style="display: flex; align-items: center; flex: 1;">
-                <i class="fas fa-coins" style="width: 22px; margin-right: 10px; text-align: center;"></i>
-                <span>All Financial</span>
-            </div>
-        </button>
-        <div class="nav-dropdown-menu" id="financialDropdown">
-            <a href="{{ route('financial.index', ['status' => 'ACTIVE']) }}" class="nav-dropdown-item">
-                <i class="fas fa-play-circle" style="width: 16px; margin-right: 8px; text-align: center;"></i> Active
+        <a href="{{ route('financial.index') }}" class="nav-item {{ request()->routeIs('financial.index') && !request()->has('status') ? 'active' : '' }}" onclick="toggleFinancialDropdown()">
+            <i class="fas fa-coins"></i> All Financial <i class="fas fa-chevron-down" style="float: right; font-size: 10px; margin-top: 2px;"></i>
+        </a>
+        <div class="nav-sub" id="financialDropdown">
+            <a href="{{ route('financial.index', ['status' => 'ACTIVE']) }}" class="nav-item">
+                <i class="fas fa-play-circle"></i> Active
             </a>
-            <a href="{{ route('financial.index', ['status' => 'CANCELLED']) }}" class="nav-dropdown-item">
-                <i class="fas fa-times-circle" style="width: 16px; margin-right: 8px; text-align: center;"></i> Cancelled
+            <a href="{{ route('financial.index', ['status' => 'CANCELLED']) }}" class="nav-item">
+                <i class="fas fa-times-circle"></i> Cancelled
             </a>
-            <a href="{{ route('financial.index', ['status' => 'FINISHED']) }}" class="nav-dropdown-item">
-                <i class="fas fa-check-circle" style="width: 16px; margin-right: 8px; text-align: center;"></i> Finished
+            <a href="{{ route('financial.index', ['status' => 'FINISHED']) }}" class="nav-item">
+                <i class="fas fa-check-circle"></i> Finished
             </a>
         </div>
     </div>

@@ -5,7 +5,7 @@
     </x-slot>
 
     <div class="table-card">
-        <div style="background:#333; color:#fff; padding:10px 20px; font-weight:600; font-size:13px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px; display:flex; justify-content:space-between; align-items:center;">
             <div><i class="fas fa-qrcode"></i> All Tracking Numbers</div>
             <div>
                 <a href="{{ route('documents.create') }}" class="btn-red">

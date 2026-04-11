@@ -78,7 +78,7 @@
     <!-- Attachments -->
     @if($financial->attachments->count())
     <div class="table-card" style="margin-bottom:20px;">
-        <div style="background:#333; color:#fff; padding:10px 20px; font-weight:600; font-size:13px;">
+        <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">
             <i class="fas fa-paperclip"></i> Attachments
         </div>
         <div style="padding:16px;">
@@ -113,7 +113,7 @@
     <!-- Forward -->
     @if($financial->status === 'ACTIVE')
     <div class="table-card" style="margin-bottom:20px;">
-        <div style="background:#2c3e50; color:#fff; padding:10px 20px; font-weight:600; font-size:13px;">
+        <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">
             <i class="fas fa-share"></i> Forward / Route Record
         </div>
         <div style="padding:16px;">
@@ -148,7 +148,7 @@
 
     <!-- Routing History -->
     <div class="table-card">
-        <div style="background:#333; color:#fff; padding:10px 20px; font-weight:600; font-size:13px;">
+        <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">
             <i class="fas fa-route"></i> Routing History
         </div>
         <div style="padding:20px;">

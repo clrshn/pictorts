@@ -88,9 +88,9 @@
                     </select>
                 </div>
 
-                <div class="form-group" style="display:flex; align-items:flex-end; gap:8px;">
-                    <button type="submit" class="btn-red"><i class="fas fa-search"></i> Filter</button>
-                    <a href="{{ route('todos.index') }}" class="btn-gray">Reset</a>
+                <div class="form-group" style="display:flex; gap:12px; margin-top:24px; justify-content:flex-end;">
+                    <button type="submit" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center; vertical-align: top;"><i class="fas fa-search"></i> Filter</button>
+                    <a href="{{ route('todos.index') }}" class="btn-gray" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center; vertical-align: top;">Reset</a>
                 </div>
             </div>
         </form>
@@ -98,7 +98,7 @@
 
     <div class="table-card">
         <div class="table-header" style="display:flex; justify-content:flex-end;">
-            <a href="{{ route('todos.create') }}" class="btn-red"><i class="fas fa-plus"></i> Add Task</a>
+            <a href="{{ route('todos.create') }}" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-plus"></i> Add Task</a>
         </div>
 
         <div style="overflow-x:auto; max-width:100%;">

@@ -119,18 +119,18 @@
                         <option value="lowest" {{ request('sort_by')=='lowest'?'selected':'' }}>Lowest to Highest (PR Amount)</option>
                     </select>
                 </div>
-                <div class="form-group" style="margin:0; margin-top:12px; display:flex; align-items:flex-end; gap:8px;">
-                    <button type="submit" class="btn-red"><i class="fas fa-search"></i> Filter</button>
-                    <a href="{{ route('financial.index') }}" class="btn-gray">Reset</a>
                 </div>
+            <div class="form-group" style="display:flex; gap:12px; margin-top:24px; justify-content:flex-end;">
+                <button type="submit" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center; vertical-align: top;"><i class="fas fa-search"></i> Filter</button>
+                <a href="{{ route('financial.index') }}" class="btn-gray" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center; vertical-align: top;">Reset</a>
             </div>
         </form>
     </div>
 
     <!-- Financial Table -->
     <div class="table-card">
-        <div class="table-header" style="display: flex; justify-content: flex-end; align-items: center;">
-            <a href="{{ route('financial.create') }}" class="btn-red" style="display: flex; align-items: center; justify-content: center; text-align: center;"><i class="fas fa-plus"></i> Add New Record</a>
+        <div class="table-header" style="display:flex; justify-content:flex-end;">
+            <a href="{{ route('financial.create') }}" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-plus"></i> Add New Record</a>
         </div>
 
         <div style="overflow-x:auto; max-width:100%;">

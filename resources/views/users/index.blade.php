@@ -1,19 +1,45 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h1>User Management</h1>
+        <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / User Management</div>
+    </x-slot>
 
-@section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="table-card">
-                <div style="background:#f8f9fa; color:#333; padding:10px 20px; font-weight:600; font-size:18px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #dee2e6;">
-                    <div><i class="fas fa-users" style="color:#c0392b;"></i> User Management</div>
-                    <div>
-                        <a href="{{ route('users.create') }}" class="btn-red">
-                            <i class="fas fa-plus"></i> Create User
-                        </a>
-                    </div>
-                </div>
-                <div style="padding:20px;">
+    @if(session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification({
+                        type: 'success',
+                        title: 'Success!',
+                        message: '{{ session('success') }}',
+                        duration: 3000
+                    });
+                }
+            });
+        </script>
+    @endif
+
+    @if(session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification({
+                        type: 'danger',
+                        title: 'Error!',
+                        message: '{{ session('error') }}',
+                        duration: 3000
+                    });
+                }
+            });
+        </script>
+    @endif
+
+    <div class="table-card">
+        <div class="table-header" style="display: flex; justify-content: flex-end; align-items: center;">
+            <a href="{{ route('users.create') }}" class="btn-red"><i class="fas fa-plus"></i> Create User</a>
+        </div>
+
+        <div style="padding:20px;">
                     @include('components.notifications')
                     <!-- Search Users -->
                     <div style="background:#f8f9fa; padding:16px; border-radius:8px; margin-bottom:20px;">
@@ -51,7 +77,7 @@
                             <thead style="background:#f8f9fa;">
                                 <tr>
                                     <th>Name</th>
-                                    <th>Email (Username)</th>
+                                    <th>Email</th>
                                     <th>Office</th>
                                     <th>Role</th>
                                     <th>Created</th>
@@ -505,4 +531,4 @@
         // setTimeout(testNotification, 1000);
     });
 </script>
-@endsection
+</x-app-layout>

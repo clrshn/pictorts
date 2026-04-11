@@ -302,18 +302,18 @@
             .header-account .user-btn {
                 background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%); 
                 color: #ffffff; 
-                padding: 10px 20px; 
-                border-radius: 25px; 
-                font-size: 13px; 
+                padding: 6px 12px; 
+                border-radius: 20px; 
+                font-size: 11px; 
                 font-weight: 700; 
                 display: flex; 
                 align-items: center; 
-                gap: 8px; 
+                gap: 6px; 
                 cursor: pointer; 
                 border: 2px solid rgba(255,255,255,0.2); 
-                box-shadow: 0 4px 12px rgba(192,57,43,0.4); 
+                box-shadow: 0 3px 8px rgba(192,57,43,0.4); 
                 transition: all 0.3s ease; 
-                min-height: 44px; 
+                min-height: 36px; 
                 width: auto; 
                 justify-content: space-between;
                 white-space: nowrap;
@@ -393,34 +393,36 @@
             .top-bar .user-area .user-btn { 
                 background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%); 
                 color: #ffffff; 
-                padding: 10px 20px; 
-                border-radius: 25px; 
-                font-size: 13px; 
+                padding: 6px 20px; 
+                border-radius: 20px; 
+                font-size: 14px; 
                 font-weight: 700; 
+                text-transform: uppercase; 
                 display: flex; 
                 align-items: center; 
-                gap: 8px; 
+                gap: 6px; 
                 cursor: pointer; 
                 border: 2px solid rgba(255,255,255,0.2);
-                box-shadow: 0 4px 12px rgba(192,57,43,0.4);
+                box-shadow: 0 3px 8px rgba(192,57,43,0.4);
                 transition: all 0.3s ease;
-                min-height: 44px;
+                min-height: 36px;
                 width: 100%;
-                justify-content: space-between;
+                justify-content: center;
+                min-width: 250px;
             }
             .top-bar .user-area .user-btn:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 6px 16px rgba(192,57,43,0.4);
             }
             .top-bar .user-area .user-btn .avatar { 
-                width: 40px; 
-                height: 40px; 
+                width: 32px; 
+                height: 32px; 
                 border-radius: 50%; 
                 background: linear-gradient(135deg, #2980b9 0%, #64b5f6 100%); 
                 display: flex; 
                 align-items: center; 
                 justify-content: center; 
-                font-size: 16px;
+                font-size: 14px;
                 border: 2px solid rgba(255,255,255,0.3);
             }
 
@@ -647,7 +649,7 @@
             }
             .table-card table tbody td { 
                 padding: 14px 16px; 
-                font-size: 13px; 
+                font-size: 14px; 
                 color: #475569; 
                 border-bottom: 1px solid rgba(192,57,43,0.05); 
                 text-align: center; 
@@ -659,44 +661,27 @@
                 position: relative;
             }
             .table-card table tbody tr:hover { 
-                background: linear-gradient(90deg, rgba(37,99,235,0.8) 0%, rgba(220,38,38,0.8) 50%, rgba(37,99,235,0.8) 100%); 
-                transform: scale(1.01);
-                box-shadow: 0 6px 20px rgba(37,99,235,0.3);
+                background: linear-gradient(90deg, rgba(37,99,235,0.15) 0%, rgba(220,38,38,0.2) 50%, rgba(37,99,235,0.15) 100%); 
+                transform: translateY(-1px);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
                 position: relative;
             }
-            .table-card table tbody tr:hover::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: linear-gradient(90deg, rgba(37,99,235,0.1) 0%, rgba(220,38,38,0.1) 50%, rgba(37,99,235,0.1) 100%);
-                z-index: -1;
-                animation: shimmer 2s ease-in-out infinite;
-            }
             .table-card table tbody tr:hover td { 
-                color: #ffffff; 
-                font-weight: 600;
-                text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+                color: #1a1a2e; 
+                font-weight: 700;
             }
 
             /* Buttons - Modern Design */
             .btn-red { 
                 background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); 
                 color: #fff; 
-                padding: 10px 20px; 
+                padding: 6px 12px; 
                 border-radius: 8px; 
-                font-size: 13px; 
+                font-size: 14px; 
                 font-weight: 600; 
                 border: none; 
                 cursor: pointer; 
-                text-decoration: none; 
-                display: inline-flex; 
-                align-items: center; 
-                gap: 8px; 
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                box-shadow: 0 4px 12px rgba(220,38,38,0.3);
+                transition: all 0.3s ease;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
             }
@@ -711,7 +696,7 @@
                 color: #fff; 
                 padding: 8px 16px; 
                 border-radius: 6px; 
-                font-size: 12px; 
+                font-size: 14px; 
                 border: none; 
                 cursor: pointer; 
                 text-decoration: none; 
@@ -727,19 +712,21 @@
             .btn-orange { 
                 background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%); 
                 color: #fff; 
-                padding: 8px 16px; 
+                padding: 5px 10px; 
                 border-radius: 6px; 
-                font-size: 12px; 
+                font-size: 11px; 
+                font-weight: 600; 
                 border: none; 
                 cursor: pointer; 
                 text-decoration: none; 
                 transition: all 0.3s ease;
-                box-shadow: 0 2px 8px rgba(234,88,12,0.3);
+                box-shadow: 0 2px 6px rgba(234,88,12,0.3);
             }
             .btn-orange:hover { 
                 background: linear-gradient(135deg, #c2410c 0%, #b91c1c 100%); 
                 color: #fff; 
                 transform: translateY(-1px); 
+                box-shadow: 0 4px 12px rgba(29,78,216,0.4);
                 box-shadow: 0 4px 12px rgba(194,65,28,0.4);
             }
             .btn-danger { 
@@ -765,7 +752,7 @@
                 color: #fff; 
                 padding: 10px 20px; 
                 border-radius: 8px; 
-                font-size: 13px; 
+                font-size: 14px; 
                 font-weight: 600; 
                 border: none; 
                 cursor: pointer; 
@@ -786,7 +773,7 @@
                 color: #fff; 
                 padding: 10px 20px; 
                 border-radius: 8px; 
-                font-size: 13px; 
+                font-size: 14px; 
                 font-weight: 600; 
                 border: none; 
                 cursor: pointer; 
@@ -996,10 +983,10 @@
             .search-input:focus { border-color: #c0392b; }
             .search-input:hover { border-color: #007bff; border-width: 2px; box-shadow: 0 4px 8px rgba(0,123,255,0.3); transform: translateY(-2px); background: #f8f9ff; }
 
-            /* Form controls */
+            /* Form controls - Standardized */
             .form-group { margin-bottom: 16px; }
-            .form-group label { display: block; font-size: 13px; font-weight: 600; color: #555; margin-bottom: 5px; }
-            .form-control { width: 100%; border: 1px solid #ddd; border-radius: 4px; padding: 8px 12px; font-size: 13px; outline: none; background: #fff; transition: all 0.2s ease; }
+            .form-group label { display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+            .form-control { width: 100%; border: 1px solid #ddd; border-radius: 4px; padding: 10px 14px; font-size: 14px; outline: none; background: #fff; transition: all 0.3s ease; }
             .form-control:focus { border-color: #c0392b; box-shadow: 0 0 0 2px rgba(192,57,43,0.1); }
             .form-control:hover { border-color: #007bff; border-width: 2px; box-shadow: 0 4px 8px rgba(0,123,255,0.3); transform: translateY(-2px); background: #f8f9ff; }
             select.form-control { appearance: auto; }
@@ -1025,13 +1012,13 @@
             .user-dropdown-menu { 
                 display: none; 
                 position: fixed; 
-                right: 20px; 
-                top: 70px; 
+                right: 35px; 
+                top: 160px; 
                 background: #ffffff; 
                 border: 1px solid #e5e7eb; 
-                border-radius: 12px; 
-                box-shadow: 0 20px 50px rgba(0,0,0,0.8); 
-                min-width: 200px; 
+                border-radius: 10px; 
+                box-shadow: 0 15px 35px rgba(0,0,0,0.8); 
+                min-width: 180px; 
                 z-index: 999999999; 
                 overflow: visible;
                 animation: dropdownSlide 0.3s ease;
@@ -1059,16 +1046,15 @@
                 align-items: center;
                 width: 100%; 
                 text-align: left; 
-                padding: 12px 16px; 
+                padding: 8px 12px; 
                 color: #1a1a2e; 
-                text-decoration: none; 
-                font-size: 14px; 
+                font-size: 12px; 
                 font-weight: 600;
                 border: none;
                 background: none;
                 cursor: pointer;
-                margin: 3px;
-                border-radius: 6px;
+                margin: 2px;
+                border-radius: 5px;
                 transition: all 0.3s ease;
                 position: relative;
                 z-index: 1;
@@ -1080,10 +1066,10 @@
                 box-shadow: 0 4px 12px rgba(192,57,43,0.4);
             }
             .user-dropdown-menu a i, .user-dropdown-menu button i {
-                width: 18px;
+                width: 16px;
                 text-align: center;
-                margin-right: 10px;
-                font-size: 14px;
+                margin-right: 8px;
+                font-size: 12px;
             }
 
             /* Sidebar Dropdowns */
@@ -1238,8 +1224,7 @@
                 <div class="user-area">
                     <div class="user-dropdown" id="userDropdown">
                         <button class="user-btn" id="userDropdownBtn" type="button" onclick="toggleUserDropdown()">
-                            <span class="avatar"><i class="fas fa-user"></i></span>
-                            <span>{{ Auth::user()->name ?? 'User' }} - {{ Auth::user()->office->code ?? 'PICTO' }}</span>
+                            <span style="flex: 1; text-align: center;">{{ Auth::user()->name ?? 'User' }} - {{ Auth::user()->office->code ?? 'PICTO' }}</span>
                             <i class="fas fa-chevron-down" id="dropdownArrow" style="font-size:12px; margin-left:4px; transition:transform 0.3s ease;"></i>
                         </button>
                     </div>
