@@ -13,7 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'disable.csrf' => \App\Http\Middleware\DisableCsrf::class,
         ]);
+        $middleware->web(append: \App\Http\Middleware\DisableCsrf::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

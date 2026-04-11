@@ -174,6 +174,20 @@ class TodoController extends Controller
     }
 
     /**
+     * Update todo priority via AJAX
+     */
+    public function updatePriority(Request $request, Todo $todo)
+    {
+        $validated = $request->validate([
+            'priority' => 'required|in:low,medium,high,top',
+        ]);
+
+        $todo->update(['priority' => $validated['priority']]);
+
+        return response()->json(['success' => true, 'priority' => $validated['priority']]);
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Request $request, Todo $todo)

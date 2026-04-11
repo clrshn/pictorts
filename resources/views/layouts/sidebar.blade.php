@@ -1,11 +1,20 @@
 <aside class="sidebar">
-    <!-- Logo -->
-    <div class="logo-area">
-        <div style="width:44px;height:44px;background:#c0392b;border-radius:8px;display:flex;align-items:center;justify-content:center;">
-            <i class="fas fa-file-alt" style="color:#fff;font-size:20px;"></i>
+    <!-- Navigation starts here -->
+
+    <!-- Profile Section -->
+    <div class="profile-section" style="text-align: center; padding: 20px;">
+        <div class="profile-avatar" style="margin: 0 auto 20px auto; width: 80px; height: 80px;">
+            @if(auth()->user() && auth()->user()->profile_photo_path)
+                <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+            @else
+                <div class="profile-avatar-placeholder">
+                    <i class="fas fa-user"></i>
+                </div>
+            @endif
         </div>
-        <div class="logo-text">
-            <span>PICTO</span> RECORDS<br>& TRACKING<br><span>SYSTEM</span>
+        <div class="profile-info">
+            <div class="profile-name" style="text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">{{ auth()->user()->name ?? 'JOHN DOE' }}</div>
+            <div class="profile-role" style="text-transform: uppercase; font-size: 12px; opacity: 0.8;">{{ auth()->user()->role ?? 'ADMINISTRATOR' }}</div>
         </div>
     </div>
 
@@ -25,7 +34,6 @@
                 <i class="fas fa-list" style="width: 22px; margin-right: 10px; text-align: center;"></i>
                 <span>All Documents</span>
             </div>
-            <i class="fas fa-chevron-down dropdown-arrow" id="documentsArrow"></i>
         </button>
         <div class="nav-dropdown-menu" id="documentsDropdown">
             <a href="{{ route('documents.index', ['direction' => 'INCOMING']) }}" class="nav-dropdown-item">
@@ -44,7 +52,6 @@
                 <i class="fas fa-coins" style="width: 22px; margin-right: 10px; text-align: center;"></i>
                 <span>All Financial</span>
             </div>
-            <i class="fas fa-chevron-down dropdown-arrow" id="financialArrow"></i>
         </button>
         <div class="nav-dropdown-menu" id="financialDropdown">
             <a href="{{ route('financial.index', ['status' => 'ACTIVE']) }}" class="nav-dropdown-item">
@@ -83,7 +90,6 @@ let financialDropdownOpen = false;
 
 function toggleDocumentsDropdown() {
     const dropdown = document.getElementById('documentsDropdown');
-    const arrow = document.getElementById('documentsArrow');
     
     if (!documentsDropdownOpen) {
         // First click - go to all documents and open dropdown
@@ -94,7 +100,6 @@ function toggleDocumentsDropdown() {
     } else {
         // Second click - close dropdown
         dropdown.classList.remove('show');
-        arrow.style.transform = 'rotate(0deg)';
         documentsDropdownOpen = false;
         sessionStorage.removeItem('openDocumentsDropdown');
     }
@@ -102,7 +107,6 @@ function toggleDocumentsDropdown() {
 
 function toggleFinancialDropdown() {
     const dropdown = document.getElementById('financialDropdown');
-    const arrow = document.getElementById('financialArrow');
     
     if (!financialDropdownOpen) {
         // First click - go to all financial and open dropdown
@@ -113,7 +117,6 @@ function toggleFinancialDropdown() {
     } else {
         // Second click - close dropdown
         dropdown.classList.remove('show');
-        arrow.style.transform = 'rotate(0deg)';
         financialDropdownOpen = false;
         sessionStorage.removeItem('openFinancialDropdown');
     }
@@ -124,9 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Open documents dropdown if requested
     if (sessionStorage.getItem('openDocumentsDropdown') === 'true') {
         const dropdown = document.getElementById('documentsDropdown');
-        const arrow = document.getElementById('documentsArrow');
         dropdown.classList.add('show');
-        arrow.style.transform = 'rotate(180deg)';
         documentsDropdownOpen = true;
         sessionStorage.removeItem('openDocumentsDropdown');
     }
@@ -134,9 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Open financial dropdown if requested
     if (sessionStorage.getItem('openFinancialDropdown') === 'true') {
         const dropdown = document.getElementById('financialDropdown');
-        const arrow = document.getElementById('financialArrow');
         dropdown.classList.add('show');
-        arrow.style.transform = 'rotate(180deg)';
         financialDropdownOpen = true;
         sessionStorage.removeItem('openFinancialDropdown');
     }
@@ -147,16 +146,12 @@ document.addEventListener('click', function(event) {
     if (!event.target.closest('.nav-dropdown')) {
         // Close documents dropdown
         const documentsDropdown = document.getElementById('documentsDropdown');
-        const documentsArrow = document.getElementById('documentsArrow');
         documentsDropdown.classList.remove('show');
-        documentsArrow.style.transform = 'rotate(0deg)';
         documentsDropdownOpen = false;
         
         // Close financial dropdown
         const financialDropdown = document.getElementById('financialDropdown');
-        const financialArrow = document.getElementById('financialArrow');
         financialDropdown.classList.remove('show');
-        financialArrow.style.transform = 'rotate(0deg)';
         financialDropdownOpen = false;
     }
 });

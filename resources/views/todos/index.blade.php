@@ -8,24 +8,21 @@
 
     @include('components.notifications')
 
-    <!-- Debug: Current sort_by parameter -->
-    @if(request('sort_by'))
-        <div style="background: #f0f8ff; border: 1px solid #b3d9ff; padding: 8px; margin-bottom: 10px; border-radius: 4px; font-size: 12px;">
-            <strong>DEBUG:</strong> Current sort_by = "{{ request('sort_by') }}"
-        </div>
-    @endif
-
     <div class="filter-box">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
             <h3 style="margin:0;">Search Filter</h3>
 
-            @if(request()->hasAny(['status','priority','assigned_to','search']))
+            @if(request()->hasAny(['status','priority','assigned_to','search','sort_by']))
                 <div style="display:flex; gap:4px; flex-wrap:wrap; align-items:center;">
                     <span style="color:#666; font-size:15px;">Active Filters:</span>
-                    @foreach(['status','priority','assigned_to','search'] as $filter)
+                    @foreach(['status','priority','assigned_to','search','sort_by'] as $filter)
                         @if(request($filter))
                             <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
-                                {{ request($filter) }}
+                                @if($filter == 'sort_by')
+                                    {{ request('sort_by') == 'newest' ? 'NEWEST TO OLDEST' : (request('sort_by') == 'oldest' ? 'OLDEST TO NEWEST' : (request('sort_by') == 'az' ? 'A-Z' : (request('sort_by') == 'za' ? 'Z-A' : request('sort_by')))) }}
+                                @else
+                                    {{ request($filter) }}
+                                @endif
                                 <a href="{{ request()->fullUrlWithQuery([$filter => null]) }}" style="text-decoration:none; color:white; margin-left:2px;">×</a>
                             </span>
                         @endif

@@ -22,10 +22,10 @@
             /* Sidebar - Light Design */
             .sidebar { 
                 width: 260px; 
-                min-height: 100vh; 
+                min-height: calc(100vh - 100px); 
                 background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); 
                 position: fixed; 
-                top: 0; 
+                top: 100px; 
                 left: 0; 
                 z-index: 1000; 
                 transition: all 0.3s ease; 
@@ -44,6 +44,8 @@
                 gap: 12px; 
                 border-bottom: 2px solid rgba(255,255,255,0.1);
                 position: relative;
+                width: 100%;
+                box-sizing: border-box;
             }
             .sidebar .logo-area::after {
                 content: '';
@@ -104,10 +106,11 @@
                 transition: height 0.3s ease;
             }
             .sidebar .nav-item:hover { 
-                background: linear-gradient(90deg, rgba(192,57,43,0.08) 0%, rgba(192,57,43,0.15) 100%); 
+                background: linear-gradient(90deg, rgba(192,57,43,0.08) 0%, rgba(41,128,185,0.12) 50%, rgba(192,57,43,0.15) 100%); 
                 color: #c0392b; 
-                transform: translateX(1px);
+                transform: translateX(4px);
                 border-left-color: #2980b9;
+                box-shadow: 0 4px 16px rgba(192,57,43,0.2);
             }
             .sidebar .nav-item:hover::before {
                 height: 100%;
@@ -129,6 +132,86 @@
                 text-align: center; 
                 font-size: 16px;
                 color: inherit;
+            }
+            .sidebar .profile-section { 
+                padding: 20px; 
+                display: flex; 
+                flex-direction: column; 
+                align-items: center; 
+                gap: 16px; 
+                border-bottom: 1px solid rgba(192,57,43,0.1);
+                background: linear-gradient(135deg, rgba(192,57,43,0.05) 0%, rgba(41,128,185,0.02) 100%);
+                position: relative;
+                overflow: hidden;
+            }
+            .sidebar .profile-section::after {
+                content: '';
+                position: absolute;
+                bottom: -1px;
+                left: 20px;
+                right: 20px;
+                height: 1px;
+                background: linear-gradient(90deg, transparent, #2980b9, transparent);
+                animation: slideGradient 4s ease-in-out infinite;
+            }
+            .sidebar .profile-avatar { 
+                width: 80px; 
+                height: 80px; 
+                border-radius: 50%; 
+                border: 3px solid #c0392b;
+                box-shadow: 0 4px 12px rgba(192,57,43,0.3);
+                overflow: hidden;
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto;
+            }
+            .sidebar .profile-avatar-placeholder {
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #ffffff;
+                font-size: 24px;
+            }
+            .sidebar .profile-avatar::before {
+                content: '';
+                position: absolute;
+                top: -2px;
+                left: -2px;
+                right: -2px;
+                bottom: -2px;
+                background: linear-gradient(45deg, #2980b9, #c0392b, #2980b9);
+                border-radius: 50%;
+                z-index: -1;
+                animation: rotate 3s linear infinite;
+            }
+            @keyframes rotate {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            .sidebar .profile-info { 
+                flex: 1; 
+            }
+            .sidebar .profile-name { 
+                font-size: 16px; 
+                font-weight: 700; 
+                color: #1a1a2e; 
+                margin-bottom: 4px;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            }
+            .sidebar .profile-role { 
+                font-size: 12px; 
+                color: #64748b; 
+                margin-bottom: 8px;
+                font-weight: 500;
+            }
+            .sidebar .profile-rating { 
+                display: flex; 
+                gap: 2px; 
             }
             .sidebar .nav-section { 
                 padding: 12px 24px 8px; 
@@ -168,14 +251,106 @@
                 border-radius: 4px;
             }
 
+            /* Static Header - Modern Design */
+            .static-header { 
+                position: fixed; 
+                top: 0; 
+                left: 0; 
+                right: 0; 
+                height: 100px; 
+                background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); 
+                border-bottom: 2px solid rgba(192,57,43,0.1); 
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                backdrop-filter: blur(10px);
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+            }
+            .header-content { 
+                max-width: 1200px; 
+                margin: 0 auto; 
+                padding: 0 32px; 
+                height: 100%; 
+                display: flex; 
+                align-items: center; 
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+            .header-logo { 
+                display: flex; 
+                align-items: center; 
+                gap: 16px;
+            }
+            .header-title h2 { 
+                margin: 0; 
+                color: #1a1a2e; 
+                font-size: 24px; 
+                font-weight: 700; 
+                text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            }
+            .header-title p { 
+                margin: 8px 0 0; 
+                color: #64748b; 
+                font-size: 14px; 
+            }
+            .header-account { 
+                display: flex; 
+                align-items: center; 
+                flex-shrink: 0;
+            }
+            .header-account .user-btn {
+                background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%); 
+                color: #ffffff; 
+                padding: 10px 20px; 
+                border-radius: 25px; 
+                font-size: 13px; 
+                font-weight: 700; 
+                display: flex; 
+                align-items: center; 
+                gap: 8px; 
+                cursor: pointer; 
+                border: 2px solid rgba(255,255,255,0.2); 
+                box-shadow: 0 4px 12px rgba(192,57,43,0.4); 
+                transition: all 0.3s ease; 
+                min-height: 44px; 
+                width: auto; 
+                justify-content: space-between;
+                white-space: nowrap;
+            }
+
             /* Main Content - Modern Design */
             .main-content { 
                 margin-left: 260px; 
                 min-height: 100vh; 
-                background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); 
+                background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%); 
                 transition: all 0.3s; 
                 display: flex; 
                 flex-direction: column;
+                position: relative;
+                padding-top: 220px;
+                overflow-x: hidden;
+            }
+            .main-content.expanded { 
+                margin-left: 0; 
+            }
+            .main-content::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 260px;
+                right: 0;
+                bottom: 0;
+                background: 
+                    radial-gradient(circle at 20% 80%, rgba(192,57,43,0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(41,128,185,0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 40%, rgba(245,158,11,0.05) 0%, transparent 50%);
+                pointer-events: none;
+                z-index: -1;
+                transition: left 0.3s ease;
+            }
+            .main-content.expanded::before {
+                left: 0;
             }
             .main-content.expanded { margin-left: 0; }
             .top-bar { 
@@ -188,6 +363,15 @@
                 border-bottom: 1px solid rgba(192,57,43,0.1); 
                 box-shadow: 0 2px 8px rgba(0,0,0,0.06);
                 backdrop-filter: blur(10px);
+                position: fixed;
+                top: 100px;
+                left: 260px;
+                right: 0;
+                z-index: 997;
+                transition: left 0.3s ease;
+            }
+            .main-content.expanded .top-bar {
+                left: 0;
             }
             .top-bar .close-btn { 
                 font-size: 20px; 
@@ -221,28 +405,40 @@
                 box-shadow: 0 4px 12px rgba(192,57,43,0.4);
                 transition: all 0.3s ease;
                 min-height: 44px;
+                width: 100%;
+                justify-content: space-between;
             }
             .top-bar .user-area .user-btn:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 6px 16px rgba(192,57,43,0.4);
             }
             .top-bar .user-area .user-btn .avatar { 
-                width: 32px; 
-                height: 32px; 
+                width: 40px; 
+                height: 40px; 
                 border-radius: 50%; 
                 background: linear-gradient(135deg, #2980b9 0%, #64b5f6 100%); 
                 display: flex; 
                 align-items: center; 
                 justify-content: center; 
-                font-size: 14px;
+                font-size: 16px;
                 border: 2px solid rgba(255,255,255,0.3);
             }
 
             .page-header { 
-                padding: 24px 32px 16px; 
+                padding: 12px 32px 8px; 
                 background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
                 backdrop-filter: blur(10px);
                 border-bottom: 1px solid rgba(192,57,43,0.1);
+                position: fixed;
+                top: 164px;
+                left: 260px;
+                right: 0;
+                z-index: 998;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+                transition: left 0.3s ease;
+            }
+            .main-content.expanded .page-header {
+                left: 0;
             }
             .page-header h1 { 
                 font-size: 24px; 
@@ -298,17 +494,21 @@
 
             /* Cards - Modern Design */
             .stat-card { 
-                border-radius: 16px; 
-                padding: 24px 28px; 
+                border-radius: 20px; 
+                padding: 28px 32px; 
                 color: #fff; 
                 display: flex; 
                 align-items: center; 
                 justify-content: space-between; 
-                min-height: 100px;
+                min-height: 110px;
                 position: relative;
                 overflow: hidden;
-                backdrop-filter: blur(10px);
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                backdrop-filter: blur(20px);
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                border: 1px solid rgba(255,255,255,0.2);
+                box-shadow: 
+                    0 8px 32px rgba(0,0,0,0.1),
+                    inset 0 1px 0 rgba(255,255,255,0.2);
             }
             .stat-card::before {
                 content: '';
@@ -372,7 +572,7 @@
                 border: 1px solid rgba(192,57,43,0.1); 
                 border-radius: 12px; 
                 padding: 20px 24px; 
-                margin-bottom: 24px;
+                margin: 20px 0 24px 0;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.08);
                 backdrop-filter: blur(10px);
             }
@@ -459,13 +659,26 @@
                 position: relative;
             }
             .table-card table tbody tr:hover { 
-                background: linear-gradient(90deg, rgba(41,128,185,0.05) 0%, rgba(192,57,43,0.02) 100%); 
+                background: linear-gradient(90deg, rgba(37,99,235,0.8) 0%, rgba(220,38,38,0.8) 50%, rgba(37,99,235,0.8) 100%); 
                 transform: scale(1.01);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                box-shadow: 0 6px 20px rgba(37,99,235,0.3);
+                position: relative;
+            }
+            .table-card table tbody tr:hover::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(90deg, rgba(37,99,235,0.1) 0%, rgba(220,38,38,0.1) 50%, rgba(37,99,235,0.1) 100%);
+                z-index: -1;
+                animation: shimmer 2s ease-in-out infinite;
             }
             .table-card table tbody tr:hover td { 
-                color: #1a1a2e; 
-                font-weight: 500;
+                color: #ffffff; 
+                font-weight: 600;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.3);
             }
 
             /* Buttons - Modern Design */
@@ -705,6 +918,43 @@
             @keyframes toastAppear { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
             @keyframes toastDismiss { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
 
+            /* Upload Option Buttons - Modern Design */
+            .upload-option-btn { 
+                color: #fff; 
+                padding: 20px 16px; 
+                border-radius: 12px; 
+                border: none; 
+                cursor: pointer; 
+                text-decoration: none; 
+                display: flex; 
+                flex-direction: column; 
+                align-items: center; 
+                justify-content: center; 
+                gap: 4px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                position: relative;
+                overflow: hidden;
+                min-height: 90px;
+            }
+            .upload-option-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 70%);
+                pointer-events: none;
+            }
+            .upload-option-btn:hover { 
+                transform: translateY(-2px); 
+                box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            }
+            .upload-option-btn:active {
+                transform: translateY(0);
+            }
+
             /* Form Elements - Modern Design */
             .form-group { 
                 margin-bottom: 20px; 
@@ -887,7 +1137,7 @@
             .nav-dropdown-btn.active { 
                 background: linear-gradient(90deg, rgba(192,57,43,0.15) 0%, rgba(41,128,185,0.08) 100%); 
                 color: #c0392b; 
-                border-left-color: #c0392b;
+                border-left: 4px solid #c0392b;
                 font-weight: 600;
                 box-shadow: 0 4px 12px rgba(192,57,43,0.15);
             }
@@ -961,6 +1211,20 @@
         </style>
     </head>
     <body class="font-sans antialiased">
+        <!-- Static Header -->
+        <div class="static-header">
+            <div class="header-content">
+                <div class="header-logo">
+                    <div style="width:56px;height:56px;background:#c0392b;border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-file-alt" style="color:#fff;font-size:24px;"></i>
+                    </div>
+                    <div class="header-title">
+                        <h2 style="margin:0; color:#1a1a2e; font-size:24px; font-weight:700;">PICTO RECORDS & TRACKING SYSTEM</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Sidebar -->
         @include('layouts.sidebar')
 
