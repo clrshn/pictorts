@@ -138,7 +138,28 @@
                 <thead>
                     <tr>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">STATUS</th>
+                        <th style="text-align:center; padding:12px 50px; white-space:nowrap; width:180px; border-bottom:2px solid #8b0000; position: relative;">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;" onclick="toggleStatusDropdown()">
+        <span>STATUS</span>
+        <i class="fas fa-chevron-down" id="statusDropdownIcon" style="font-size: 10px; transition: transform 0.3s ease;"></i>
+    </div>
+    
+    <!-- Status Dropdown Menu -->
+    <div id="statusDropdown" style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); background: white; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 1000; min-width: 120px; display: none;">
+        <a href="{{ request()->fullUrlWithQuery(['status' => 'ACTIVE']) }}" class="dropdown-item" style="display: block; padding: 8px 12px; text-decoration: none; color: #333; font-size: 13px; border-bottom: 1px solid #eee; transition: background 0.2s ease;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+            <i class="fas fa-play-circle" style="color: #27ae60; margin-right: 6px;"></i> Active
+        </a>
+        <a href="{{ request()->fullUrlWithQuery(['status' => 'CANCELLED']) }}" class="dropdown-item" style="display: block; padding: 8px 12px; text-decoration: none; color: #333; font-size: 13px; border-bottom: 1px solid #eee; transition: background 0.2s ease;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+            <i class="fas fa-times-circle" style="color: #e74c3c; margin-right: 6px;"></i> Cancelled
+        </a>
+        <a href="{{ request()->fullUrlWithQuery(['status' => 'FINISHED']) }}" class="dropdown-item" style="display: block; padding: 8px 12px; text-decoration: none; color: #333; font-size: 13px; border-bottom: 1px solid #eee; transition: background 0.2s ease;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+            <i class="fas fa-check-circle" style="color: #3498db; margin-right: 6px;"></i> Finished
+        </a>
+        <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="dropdown-item" style="display: block; padding: 8px 12px; text-decoration: none; color: #333; font-size: 13px; transition: background 0.2s ease;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+            <i class="fas fa-list" style="color: #6b7280; margin-right: 6px;"></i> All Status
+        </a>
+    </div>
+</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">TYPE</th>
                         <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">DESCRIPTION</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">SUPPLIER</th>
@@ -168,8 +189,22 @@
                                 </form>
                             </div>
                         </td>
-                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px;">
-                            <span class="badge badge-{{ $rec->status == 'ACTIVE' ? 'ongoing' : ($rec->status == 'CANCELLED' ? 'cancelled' : 'completed') }}" style="font-size: 11px; padding: 4px 8px;">{{ $rec->status }}</span>
+                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:180px;" onclick="event.stopPropagation();">
+                            <select 
+                                class="form-control inline-select 
+                                {{ match($rec->status) {
+                                    'ACTIVE' => 'status-active',
+                                    'CANCELLED' => 'status-cancelled',
+                                    'FINISHED' => 'status-finished',
+                                    default => ''
+                                } }}"
+                                onchange="updateFinancialStatus(this, {{ $rec->id }}, this.value)"
+                                style="font-size: 11px; padding: 6px 8px; border-radius: 4px; border: 1px solid #ddd; background: white; cursor: pointer; width: 100%;">
+                                
+                                <option value="ACTIVE" {{ $rec->status=='ACTIVE'?'selected':'' }}>ACTIVE</option>
+                                <option value="CANCELLED" {{ $rec->status=='CANCELLED'?'selected':'' }}>CANCELLED</option>
+                                <option value="FINISHED" {{ $rec->status=='FINISHED'?'selected':'' }}>FINISHED</option>
+                            </select>
                         </td>
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:100px; font-weight: 600;">{{ $rec->type ?? '—' }}</td>
                         <td style="text-align:left; padding:20px 20px 20px 20px; min-width:200px; word-wrap:break-word; font-size: 13px; font-weight: 600;">{{ $rec->description ?? 'No Description' }}</td>
@@ -326,6 +361,38 @@
         .badge-primary { background: #9b59b6; color: #fff; }
         .badge-success { background: #27ae60; color: #fff; }
         .badge-completed { background: #16a085; color: #fff; }
+
+        /* Inline Status Dropdown Styles */
+        .inline-select.status-active {
+            background: #27ae60 !important;
+            color: #fff !important;
+            border-color: #27ae60 !important;
+        }
+
+        .inline-select.status-cancelled {
+            background: #e74c3c !important;
+            color: #fff !important;
+            border-color: #e74c3c !important;
+        }
+
+        .inline-select.status-finished {
+            background: #3498db !important;
+            color: #fff !important;
+            border-color: #3498db !important;
+        }
+
+        /* When dropdown is OPEN -> force neutral */
+        .inline-select:focus {
+            background: white !important;
+            color: #333 !important;
+            border-color: #ddd !important;
+        }
+
+        /* FORCE DROPDOWN OPTIONS TO STAY CLEAN */
+        .inline-select option {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
 
         .btn-red, .btn-blue, .btn-green, .btn-gray, .btn-danger {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -719,6 +786,109 @@
                     delete window.confirmDialogConfirm;
                     delete window.confirmDialogCancel;
                 };
+            });
+        }
+
+        // Status dropdown toggle function
+        function toggleStatusDropdown() {
+            const dropdown = document.getElementById('statusDropdown');
+            const icon = document.getElementById('statusDropdownIcon');
+            
+            if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+                dropdown.style.display = 'block';
+                icon.style.transform = 'rotate(180deg)';
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', closeStatusDropdown);
+            } else {
+                dropdown.style.display = 'none';
+                icon.style.transform = 'rotate(0deg)';
+                document.removeEventListener('click', closeStatusDropdown);
+            }
+        }
+
+        function closeStatusDropdown(event) {
+            const dropdown = document.getElementById('statusDropdown');
+            const icon = document.getElementById('statusDropdownIcon');
+            const statusHeader = event.target.closest('th');
+            
+            // Close if clicking outside the status header
+            if (!statusHeader || !statusHeader.querySelector('#statusDropdown')) {
+                dropdown.style.display = 'none';
+                icon.style.transform = 'rotate(0deg)';
+                document.removeEventListener('click', closeStatusDropdown);
+            }
+        }
+
+        function updateFinancialStatus(selectElement, recordId, newStatus) {
+            const oldStatus = selectElement.getAttribute('data-old-status') || selectElement.value;
+            
+            // Show loading state
+            selectElement.disabled = true;
+            selectElement.style.opacity = '0.6';
+            
+            // API call to update status
+            fetch(`/financial/${recordId}/update-status`, {
+                method:'PATCH',
+                headers:{
+                    'X-CSRF-TOKEN':'{{ csrf_token() }}',
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify({
+                    status: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    // Update the select element's classes to match new status
+                    selectElement.className = selectElement.className.replace(/status-\w+/g, '');
+                    selectElement.classList.add('form-control', 'inline-select', `status-${newStatus.toLowerCase()}`);
+                    
+                    // Show success notification
+                    showNotification({
+                        type: 'success',
+                        title: 'Status Updated',
+                        message: `Financial record status changed to ${newStatus}`,
+                        duration: 3000
+                    });
+                    
+                    // Update the row styling if needed
+                    const row = selectElement.closest('tr');
+                    if (newStatus === 'CANCELLED') {
+                        row.style.opacity = '0.7';
+                    } else {
+                        row.style.opacity = '1';
+                    }
+                } else {
+                    // Revert the change on error
+                    selectElement.value = oldStatus;
+                    showNotification({
+                        type: 'warning',
+                        title: 'Update Failed',
+                        message: data.message || 'Failed to update status',
+                        duration: 5000
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error updating status:', error);
+                // Revert the change on error
+                selectElement.value = oldStatus;
+                showNotification({
+                    type: 'danger',
+                    title: 'Error',
+                    message: 'An error occurred while updating status',
+                    duration: 5000
+                });
+            })
+            .finally(() => {
+                // Re-enable the select element
+                selectElement.disabled = false;
+                selectElement.style.opacity = '1';
+                
+                // Store current value as old status for next change
+                selectElement.setAttribute('data-old-status', selectElement.value);
             });
         }
 

@@ -415,14 +415,14 @@
                 box-shadow: 0 6px 16px rgba(192,57,43,0.4);
             }
             .top-bar .user-area .user-btn .avatar { 
-                width: 32px; 
-                height: 32px; 
+                width: 24px; 
+                height: 24px; 
                 border-radius: 50%; 
                 background: linear-gradient(135deg, #2980b9 0%, #64b5f6 100%); 
                 display: flex; 
                 align-items: center; 
                 justify-content: center; 
-                font-size: 14px;
+                font-size: 12px;
                 border: 2px solid rgba(255,255,255,0.3);
             }
 
@@ -771,7 +771,7 @@
             .btn-gray { 
                 background: linear-gradient(135deg, #64748b 0%, #475569 100%); 
                 color: #fff; 
-                padding: 10px 20px; 
+                padding: 5px 20px; 
                 border-radius: 8px; 
                 font-size: 14px; 
                 font-weight: 600; 
@@ -1201,8 +1201,8 @@
         <div class="static-header">
             <div class="header-content">
                 <div class="header-logo">
-                    <div style="width:56px;height:56px;background:#c0392b;border-radius:12px;display:flex;align-items:center;justify-content:center;">
-                        <i class="fas fa-file-alt" style="color:#fff;font-size:24px;"></i>
+                    <div style="width:80px;height:80px;border-radius:35px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 12px rgba(192,57,43,0.2);border:2px solid rgba(192,57,43,0.1);">
+                        <img src="{{ asset('images/logo7.png') }}" alt="Header Logo" style="width:100%;height:100%;object-fit:contain;padding:0px;">
                     </div>
                     <div class="header-title">
                         <h2 style="margin:0; color:#1a1a2e; font-size:24px; font-weight:700;">PICTO RECORDS & TRACKING SYSTEM</h2>

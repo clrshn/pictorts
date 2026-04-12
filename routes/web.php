@@ -7,6 +7,7 @@ use App\Http\Controllers\FinancialController;
 use App\Http\Controllers\TrackController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OfficeController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -30,6 +31,7 @@ Route::middleware(['auth', 'verified', 'disable.csrf'])->group(function () {
     Route::resource('financial', FinancialController::class);
     Route::post('/financial/{financial}/route', [FinancialController::class, 'route'])->name('financial.route');
     Route::post('/financial/{financial}/receive', [FinancialController::class, 'receive'])->name('financial.receive');
+    Route::patch('/financial/{financial}/update-status', [FinancialController::class, 'updateStatus'])->name('financial.update-status');
 
     // Test route
     Route::patch('/test-update-status', function (Request $request) {
@@ -74,6 +76,21 @@ Route::middleware(['auth', 'verified', 'disable.csrf'])->group(function () {
         // Office Management (Admin only)
         Route::resource('offices', OfficeController::class);
     });
+
+    // Email Notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/test', [NotificationController::class, 'sendTestNotification'])->name('notifications.test');
+    Route::post('/notifications/document', [NotificationController::class, 'sendDocumentNotification'])->name('notifications.document');
+    Route::post('/notifications/financial', [NotificationController::class, 'sendFinancialNotification'])->name('notifications.financial');
+    Route::post('/notifications/task', [NotificationController::class, 'sendTaskNotification'])->name('notifications.task');
+    Route::post('/notifications/welcome', [NotificationController::class, 'sendWelcomeEmail'])->name('notifications.welcome');
+    Route::post('/notifications/admins', [NotificationController::class, 'sendToAdmins'])->name('notifications.admins');
+    Route::post('/notifications/office', [NotificationController::class, 'sendToOffice'])->name('notifications.office');
+
+    // Email Testing
+    Route::get('/test-email', [TestEmailController::class, 'test'])->name('test.email');
+    Route::post('/test-email/send', [TestEmailController::class, 'test'])->name('test.email.send');
+    Route::post('/test-email/send-without-auth', [TestEmailController::class, 'testWithoutAuth'])->name('test.email.send.without.auth');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

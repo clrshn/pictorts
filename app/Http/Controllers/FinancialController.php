@@ -214,6 +214,26 @@ class FinancialController extends Controller
         return redirect()->route('financial.show', $financial)->with('success', 'Financial record updated.');
     }
 
+    public function updateStatus(Request $request, FinancialRecord $financial)
+    {
+        $this->authorize('update', $financial);
+        
+        $request->validate([
+            'status' => 'required|in:ACTIVE,CANCELLED,FINISHED',
+        ]);
+
+        $financial->update([
+            'status' => $request->status,
+            'updated_by' => auth()->id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status updated successfully',
+            'status' => $financial->status
+        ]);
+    }
+
     public function destroy(FinancialRecord $financial)
     {
         $this->authorize('delete', $financial);

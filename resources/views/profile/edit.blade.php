@@ -42,7 +42,7 @@
     <div class="table-card" style="margin-bottom:20px;">
         <div class="table-header" style="display:flex; justify-content:flex-start; align-items:center;">
             <i class="fas fa-user" style="margin-right:8px; color:#8b0000;"></i>
-            <h3 style="margin:0; color:#333;">Profile Information</h3>
+            <h3 style="margin:0; color:#333;">Personal Information</h3>
         </div>
         <div style="padding:20px;">
             <form method="post" action="{{ route('profile.update') }}">

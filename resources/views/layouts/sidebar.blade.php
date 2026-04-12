@@ -3,7 +3,7 @@
 
     <!-- Profile Section -->
     <div class="profile-section" style="text-align: center; padding: 20px;">
-        <div class="profile-avatar" style="margin: 0 auto 20px auto; width: 80px; height: 80px;">
+        <div class="profile-avatar" style="margin: 0 auto 1px auto; width: 50px; height: 50px;">
             @if(auth()->user() && auth()->user()->profile_photo_path)
                 <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
             @else
