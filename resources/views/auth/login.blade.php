@@ -2,9 +2,9 @@
     <!-- Logo -->
     <div class="login-logo">
         <div class="logo-title">
-            <span class="red">PICTO</span><span class="blue">-RTS</span>
+            <span class="red">PICTO</span><span class="blue"> - RTS</span>
         </div>
-        <div class="logo-sub">DOCUMENT & FINANCIAL TRACKING SYSTEM</div>
+        <div class="logo-sub">PICTO - RECORDS AND TRACKING SYSTEM</div>
     </div>
 
     <!-- Session Status -->
@@ -32,8 +32,11 @@
         </div>
 
         <!-- Password -->
-        <div class="login-form-group">
-            <input id="password" type="password" name="password" required autocomplete="current-password" placeholder="Password">
+        <div class="login-form-group" style="position: relative;">
+            <input id="password" type="password" name="password" required autocomplete="current-password" placeholder="Password" style="padding-right: 45px;">
+            <button type="button" onclick="togglePassword()" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #666; cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; z-index: 10;" title="Toggle password visibility">
+                <i id="passwordIcon" class="fas fa-eye" style="font-size: 16px; pointer-events: none;"></i>
+            </button>
         </div>
 
         <!-- Remember Me + Forgot Password -->
@@ -53,17 +56,13 @@
         </button>
     </form>
 
-    <!-- Divider -->
-    <div class="login-divider">or</div>
+  
+    
 
-    <!-- Track Document Button -->
-    <button type="button" class="btn-track" onclick="document.getElementById('trackModal').style.display='flex'">
-        TRACK DOCUMENT <i class="fas fa-search-location"></i>
-    </button>
-
+    
     <!-- Footer -->
     <div class="login-footer">
-        &copy; Copyright {{ date('Y') }}. All right reserved. <a href="#">PICTO Records & Tracking System</a> V1.0
+        &copy; Copyright {{ date('Y') }}. All rights reserved. <a href="#">PICTO - Records and Tracking System</a> V1.0
     </div>
 
     <!-- Track Document Modal -->
@@ -208,6 +207,21 @@
     </div>
 
     <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.getElementById('passwordIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.classList.remove('fa-eye');
+                passwordIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.classList.remove('fa-eye-slash');
+                passwordIcon.classList.add('fa-eye');
+            }
+        }
+
         function showTrackTab(tab) {
             document.getElementById('panelSearch').style.display = tab === 'search' ? 'block' : 'none';
             document.getElementById('panelScan').style.display = tab === 'scan' ? 'block' : 'none';

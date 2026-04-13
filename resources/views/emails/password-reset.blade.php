@@ -1,13 +1,10 @@
-<x-emails.layouts.app>
-    <x-slot name="title">
-        Password Reset Request - PICTORTS
-    </x-slot>
+@component('emails.layouts.app', ['title' => 'Password Reset Request - PICTO - RTS'])
 
     <h2 style="color: #1a1a2e; margin-bottom: 20px;">Password Reset Request</h2>
     
     <p>Hello {{ $notifiable->name }},</p>
     
-    <p>You have requested to reset your password for your PICTORTS account. Click the button below to reset your password:</p>
+    <p>You have requested to reset your password for your PICTO - RTS account. Click the button below to reset your password:</p>
     
     <div style="text-align: center; margin: 30px 0;">
         <a href="{{ $resetUrl }}" class="btn">Reset Password</a>
@@ -19,5 +16,5 @@
         <strong>Security Notice:</strong> Never share this link with anyone. If you didn't request this reset, please contact support immediately.
     </div>
     
-    <p>Best regards,<br>The PICTORTS Team</p>
-</x-emails.layouts.app>
+    <p>Best regards,<br>The PICTO - RTS Team</p>
+@endcomponent

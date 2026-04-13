@@ -33,10 +33,10 @@
             <i class="fas fa-list"></i> All Documents <i class="fas fa-chevron-down" style="float: right; font-size: 10px; margin-top: 2px;"></i>
         </a>
         <div class="nav-sub" id="documentsDropdown">
-            <a href="{{ route('documents.index', ['direction' => 'INCOMING']) }}" class="nav-item">
+            <a href="{{ route('documents.index', ['direction' => 'INCOMING']) }}" class="nav-item {{ request()->routeIs('documents.index') && request('direction') === 'INCOMING' ? 'active' : '' }}">
                 <i class="fas fa-arrow-down"></i> Incoming Documents
             </a>
-            <a href="{{ route('documents.index', ['direction' => 'OUTGOING']) }}" class="nav-item">
+            <a href="{{ route('documents.index', ['direction' => 'OUTGOING']) }}" class="nav-item {{ request()->routeIs('documents.index') && request('direction') === 'OUTGOING' ? 'active' : '' }}">
                 <i class="fas fa-arrow-up"></i> Outgoing Documents
             </a>
         </div>
@@ -48,13 +48,13 @@
             <i class="fas fa-coins"></i> All Financial <i class="fas fa-chevron-down" style="float: right; font-size: 10px; margin-top: 2px;"></i>
         </a>
         <div class="nav-sub" id="financialDropdown">
-            <a href="{{ route('financial.index', ['status' => 'ACTIVE']) }}" class="nav-item">
+            <a href="{{ route('financial.index', ['status' => 'ACTIVE']) }}" class="nav-item {{ request()->routeIs('financial.index') && request('status') === 'ACTIVE' ? 'active' : '' }}">
                 <i class="fas fa-play-circle"></i> Active
             </a>
-            <a href="{{ route('financial.index', ['status' => 'CANCELLED']) }}" class="nav-item">
+            <a href="{{ route('financial.index', ['status' => 'CANCELLED']) }}" class="nav-item {{ request()->routeIs('financial.index') && request('status') === 'CANCELLED' ? 'active' : '' }}">
                 <i class="fas fa-times-circle"></i> Cancelled
             </a>
-            <a href="{{ route('financial.index', ['status' => 'FINISHED']) }}" class="nav-item">
+            <a href="{{ route('financial.index', ['status' => 'FINISHED']) }}" class="nav-item {{ request()->routeIs('financial.index') && request('status') === 'FINISHED' ? 'active' : '' }}">
                 <i class="fas fa-check-circle"></i> Finished
             </a>
         </div>

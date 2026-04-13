@@ -22,3 +22,13 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Local scratch/debug files
+/check_db.php
+/create_test_letter.php
+/test_*.php
+/id()
+/query
+/string('name')
+/timestamps()
+/unique()

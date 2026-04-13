@@ -102,7 +102,7 @@
         </div>
 
         <div style="overflow-x:auto; max-width:100%;">
-            <table style="min-width:900px; width:100%; border-collapse: collapse;">
+            <table class="table table-hover" style="min-width:900px; width:100%; border-collapse: collapse;">
                 <thead>
                     <tr>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
@@ -118,7 +118,7 @@
                 <tbody>
                     @forelse($todos as $index => $todo)
 
-                    <tr id="todoRow-{{ $todo->id }}" class="clickable-row" data-href="{{ route('todos.show', $todo) }}" style="cursor: pointer; {{ ($todo->date_added && $todo->date_added < now() && $todo->status != 'completed') ? 'background:#fff5f5;' : '' }}">
+                    <tr id="todoRow-{{ $todo->id }}" class="clickable-row {{ ($todo->date_added && $todo->date_added < now() && $todo->status != 'completed') ? 'overdue-row' : '' }}" data-href="{{ route('todos.show', $todo) }}" style="cursor: pointer;">
 
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;" onclick="event.stopPropagation();">
                             <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
@@ -456,6 +456,14 @@
     </script>
 
     <style>
+        .table-card table tbody tr.overdue-row {
+            background: #fff5f5;
+        }
+
+        .table-card table tbody tr.overdue-row:hover {
+            background: linear-gradient(90deg, rgba(37,99,235,0.15) 0%, rgba(220,38,38,0.2) 50%, rgba(37,99,235,0.15) 100%);
+        }
+
         .inline-select {
             width: 100%;
             cursor: pointer;

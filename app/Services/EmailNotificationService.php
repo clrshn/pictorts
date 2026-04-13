@@ -117,9 +117,9 @@ class EmailNotificationService
      */
     public function sendWelcomeEmail(User $user): void
     {
-        $subject = "Welcome to PICTORTS";
-        $title = "Welcome to PICTORTS Records & Tracking System";
-        $message = "Welcome {$user->name}! Your account has been created successfully. You can now start using the PICTORTS system.";
+        $subject = "Welcome to PICTO - RTS";
+        $title = "Welcome to PICTO - Records and Tracking System";
+        $message = "Welcome {$user->name}! Your account has been created successfully. You can now start using the PICTO - RTS system.";
         
         $details = [
             "Account Email: {$user->email}",

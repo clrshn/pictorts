@@ -1,7 +1,4 @@
-<x-emails.layouts.app>
-    <x-slot name="title">
-        {{ $subject ?? 'PICTORTS Notification' }}
-    </x-slot>
+@component('emails.layouts.app', ['title' => $subject ?? 'PICTO - RTS Notification'])
 
     <h2 style="color: #1a1a2e; margin-bottom: 20px;">{{ $title ?? 'System Notification' }}</h2>
     
@@ -32,5 +29,5 @@
         <strong>Reference:</strong> {{ $reference ?? 'N/A' }}
     </div>
     
-    <p>Best regards,<br>The PICTORTS Team</p>
-</x-emails.layouts.app>
+    <p>Best regards,<br>The PICTO - RTS Team</p>
+@endcomponent

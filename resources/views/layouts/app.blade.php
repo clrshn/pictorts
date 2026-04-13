@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>PICTO-RTS</title>
+        <title>PICTO - RTS</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -17,7 +17,7 @@
         <script src="https://unpkg.com/@zxing/library@latest"></script>
 
         <style>
-            /* Custom PICTO-RTS Unique Design */
+            /* Custom PICTO - RTS Design */
             
             /* Sidebar - Light Design */
             .sidebar { 
@@ -245,10 +245,17 @@
             }
             .sidebar .nav-sub.show { display: block; }
             .sidebar .nav-sub .nav-item { 
-                padding-left: 60px; 
+                display: block;
+                width: calc(100% - 16px);
+                padding: 12px 24px 12px 60px; 
                 font-size: 13px; 
-                margin: 2px 0;
-                border-radius: 4px;
+                margin: 2px 8px;
+                border-radius: 0 8px 8px 0;
+                box-sizing: border-box;
+            }
+            .sidebar .nav-sub .nav-item:hover,
+            .sidebar .nav-sub .nav-item.active {
+                transform: translateX(4px);
             }
 
             /* Static Header - Modern Design */
@@ -1205,7 +1212,8 @@
                         <img src="{{ asset('images/logo7.png') }}" alt="Header Logo" style="width:100%;height:100%;object-fit:contain;padding:0px;">
                     </div>
                     <div class="header-title">
-                        <h2 style="margin:0; color:#1a1a2e; font-size:24px; font-weight:700;">PICTO RECORDS & TRACKING SYSTEM</h2>
+                        <h2 style="margin:0; color:#1a1a2e; font-size:24px; font-weight:700;">PICTO - Records and Tracking System</h2>
+                        <p style="margin:4px 0 0; color:#64748b; font-size:13px;">Provincial Information and Communications Technology Office</p>
                     </div>
                 </div>
             </div>
@@ -1251,7 +1259,7 @@
 
             <!-- Footer -->
             <div class="footer">
-                &copy; Copyright {{ date('Y') }}. All right reserved. <a href="#">PICTO Records & Tracking System</a>.
+                &copy; Copyright {{ date('Y') }}. All rights reserved. <a href="#">PICTO - Records and Tracking System</a>.
             </div>
         </div>
 

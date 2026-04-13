@@ -57,7 +57,8 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Email <span class="text-danger">*</span></label>
-                                    <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>
+                                    <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="EMAIL (USERNAME)" required>
+                                    <small class="text-muted">Format: EMAIL (USERNAME)</small>
                                     @error('email')
                                         <div class="text-danger small">{{ $message }}</div>
                                     @enderror
@@ -140,4 +141,31 @@
             </div>
         </div>
     </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const nameField = document.querySelector('input[name="name"]');
+    const emailField = document.querySelector('input[name="email"]');
+    
+    if (nameField && emailField) {
+        nameField.addEventListener('input', function() {
+            const name = this.value.trim();
+            if (name) {
+                // Extract username from name (first word or convert to lowercase without spaces)
+                const username = name.split(' ')[0].toLowerCase();
+                const currentEmail = emailField.value.trim();
+                
+                // If email field is empty or doesn't have parentheses, update it
+                if (!currentEmail || !currentEmail.includes('(')) {
+                    emailField.value = `${username} (${username.toUpperCase()})`;
+                } else {
+                    // Update only the username part in parentheses
+                    const emailPart = currentEmail.split('(')[0].trim();
+                    emailField.value = `${emailPart} (${username.toUpperCase()})`;
+                }
+            }
+        });
+    }
+});
+</script>
 </x-app-layout>

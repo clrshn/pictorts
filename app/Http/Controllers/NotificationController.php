@@ -26,7 +26,7 @@ class NotificationController extends Controller
         $this->emailService->sendSystemAlert(
             $user,
             'Test Alert',
-            'This is a test notification from PICTORTS system. If you receive this email, the email functionality is working correctly!',
+            'This is a test notification from the PICTO - RTS system. If you receive this email, the email functionality is working correctly!',
             route('dashboard')
         );
 

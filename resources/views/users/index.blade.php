@@ -77,7 +77,7 @@
                             <thead style="background:#f8f9fa;">
                                 <tr>
                                     <th>Name</th>
-                                    <th>Email</th>
+                                    <th>Email (Username)</th>
                                     <th>Office</th>
                                     <th>Role</th>
                                     <th>Created</th>

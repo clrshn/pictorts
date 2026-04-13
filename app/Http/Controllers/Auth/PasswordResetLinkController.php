@@ -4,11 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Notifications\ResetPasswordNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
+use Throwable;
 use Illuminate\View\View;
 
 class PasswordResetLinkController extends Controller
@@ -41,28 +40,27 @@ class PasswordResetLinkController extends Controller
                 ->withErrors(['email' => 'No account found with this email address.']);
         }
 
-        // Generate password reset token
-        $token = Str::random(60);
-        
-        // Save token to password_resets table
-        \DB::table('password_resets')->insert([
-            'email' => $request->email,
-            'token' => $token,
-            'created_at' => now(),
-        ]);
-
-        // Send password reset notification using our new email system
         try {
-            $user->notify(new ResetPasswordNotification($token));
-            
-            return back()->with('status', 'Password reset link has been sent to your email address.');
-        } catch (\Exception $e) {
-            // Log the error for debugging
-            \Log::error('Password reset email failed: ' . $e->getMessage());
-            
+            $status = Password::sendResetLink($request->only('email'));
+
+            if ($status === Password::RESET_LINK_SENT) {
+                return back()->with('status', __($status));
+            }
+
             return back()
                 ->withInput($request->only('email'))
-                ->withErrors(['email' => 'Failed to send password reset email. Please try again later.']);
+                ->withErrors(['email' => __($status)]);
+        } catch (Throwable $e) {
+            \Log::error('Password reset email failed.', [
+                'email' => $request->email,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors([
+                    'email' => 'Failed to send password reset email. Check your mail settings and try again.',
+                ]);
         }
     }
 }

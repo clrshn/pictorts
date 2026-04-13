@@ -2,15 +2,11 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ResetPasswordNotification extends Notification implements ShouldQueue
+class ResetPasswordNotification extends Notification
 {
-    use Queueable;
-
     public $token;
 
     /**
@@ -39,7 +35,7 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
         $resetUrl = route('password.reset', ['token' => $this->token, 'email' => $notifiable->getEmailForPasswordReset()]);
 
         return (new MailMessage)
-            ->subject('Reset Password Request - PICTORTS')
+            ->subject('Reset Password Request - PICTO - RTS')
             ->view('emails.password-reset', [
                 'notifiable' => $notifiable,
                 'resetUrl' => $resetUrl,

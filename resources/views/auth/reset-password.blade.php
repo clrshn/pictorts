@@ -1,9 +1,9 @@
 <x-guest-layout>
     <div class="login-logo">
         <div class="logo-title">
-            <span class="red">PICTO</span><span class="blue">-RTS</span>
+            <span class="red">PICTO</span><span class="blue"> - RTS</span>
         </div>
-        <div class="logo-sub">DOCUMENT & FINANCIAL TRACKING SYSTEM</div>
+        <div class="logo-sub">PICTO - RECORDS AND TRACKING SYSTEM</div>
     </div>
 
     <div style="text-align: center; margin-bottom: 24px;">

@@ -10,28 +10,30 @@ Update your `.env` file with your email configuration:
 
 ```env
 MAIL_MAILER=smtp
-MAIL_HOST=smtp.gmail.com
+MAIL_HOST=smtp.sendgrid.net
 MAIL_PORT=587
-MAIL_USERNAME=your-email@gmail.com
-MAIL_PASSWORD=your-app-password
+MAIL_USERNAME=apikey
+MAIL_PASSWORD=YOUR_SENDGRID_API_KEY
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS="noreply@pictorts.com"
+MAIL_TIMEOUT=15
+MAIL_FROM_ADDRESS="no-reply@yourdomain.com"
 MAIL_FROM_NAME="${APP_NAME}"
 ```
 
-### 2. Gmail Setup (Recommended)
+### 2. Recommended Setup For Many Users
 
-For Gmail, you need to:
-1. Enable 2-factor authentication on your Gmail account
-2. Generate an App Password:
-   - Go to Google Account settings
-   - Security -> 2-Step Verification -> App passwords
-   - Generate a new app password for your application
-3. Use the app password in the `MAIL_PASSWORD` field
+For a multi-user system, the recipient email is dynamic and comes from each user record.
+
+Example:
+- User A receives notifications at their own email
+- User B receives notifications at their own email
+- the app sends both through one verified sender account/domain
+
+This means you do not configure one sender per user. You configure one proper mail service for the app, and every real user email can receive messages from it.
 
 ### 3. Alternative Email Services
 
-You can also use other email providers:
+Recommended providers for production:
 
 **SendGrid:**
 ```env
@@ -41,6 +43,8 @@ MAIL_PORT=587
 MAIL_USERNAME=apikey
 MAIL_PASSWORD=YOUR_SENDGRID_API_KEY
 MAIL_ENCRYPTION=tls
+MAIL_TIMEOUT=15
+MAIL_FROM_ADDRESS="no-reply@yourdomain.com"
 ```
 
 **Mailgun:**
@@ -51,7 +55,21 @@ MAIL_PORT=587
 MAIL_USERNAME=YOUR_MAILGUN_USERNAME
 MAIL_PASSWORD=YOUR_MAILGUN_PASSWORD
 MAIL_ENCRYPTION=tls
+MAIL_TIMEOUT=15
+MAIL_FROM_ADDRESS="no-reply@yourdomain.com"
 ```
+
+### 4. Provider Notes
+
+**SendGrid**
+- Verify your sender identity or sending domain first
+- Use `apikey` as `MAIL_USERNAME`
+- Use the full SendGrid API key as `MAIL_PASSWORD`
+
+**Mailgun**
+- Use the SMTP credentials created in your Mailgun dashboard
+- Verify your domain and DNS records before sending
+- If your account is in the EU region, use the Mailgun SMTP host for that region
 
 ## Features
 
@@ -147,7 +165,13 @@ Located at `resources/views/emails/notification.blade.php`
 
 ## Queue Configuration (Optional)
 
-For better performance, you can queue emails:
+For local development, send emails immediately so password resets do not depend on a queue worker:
+
+```env
+QUEUE_CONNECTION=sync
+```
+
+For better performance in production, you can queue emails after SMTP is confirmed working:
 
 ### 1. Configure Queue
 
@@ -189,26 +213,29 @@ stdout_logfile=/path/to/your/project/storage/logs/worker.log
 
 - Check `.env` configuration
 - Verify SMTP credentials
+- Verify your sender identity/domain in SendGrid or Mailgun
 - Check firewall settings
 - Review Laravel logs
 
 ### 2. Authentication Issues
 
-- Use app passwords for Gmail
+- For SendGrid, `MAIL_USERNAME` must be `apikey`
+- For SendGrid, `MAIL_PASSWORD` must be the full API key
+- For Mailgun, use the provider SMTP credentials
 - Verify username and password
-- Check 2FA settings
+- Verify the sender identity/domain is approved by the provider
 
 ### 3. Connection Issues
 
 - Verify SMTP host and port
 - Check encryption settings
-- Test with telnet: `telnet smtp.gmail.com 587`
+- Test with telnet: `telnet smtp.sendgrid.net 587`
 
 ## Security Considerations
 
 1. **Never commit email credentials to version control**
 2. **Use environment variables for sensitive data**
-3. **Use app passwords instead of regular passwords**
+3. **Use provider API keys or SMTP credentials instead of personal mailbox passwords**
 4. **Implement rate limiting for email sending**
 5. **Monitor email sending logs for abuse**
 
