@@ -8,16 +8,20 @@ use App\Http\Controllers\TrackController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\TestEmailController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect()->route('dashboard');
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
 });
 
 // Public document tracking (no auth required)
 Route::post('/track/search', [TrackController::class, 'search'])->name('track.search');
 
-Route::middleware(['auth', 'verified', 'disable.csrf'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/track-document', [TrackController::class, 'page'])->name('track.page');
 
@@ -61,12 +65,10 @@ Route::middleware(['auth', 'verified', 'disable.csrf'])->group(function () {
     });
 
     // Todos
-    Route::middleware(['disable.csrf'])->group(function () {
-        Route::resource('todos', \App\Http\Controllers\TodoController::class);
-        Route::patch('/todos/{todo}/update-status', [\App\Http\Controllers\TodoController::class, 'updateStatus'])->name('todos.updateStatus');
-        Route::patch('/todos/{todo}/update-priority', [\App\Http\Controllers\TodoController::class, 'updatePriority'])->name('todos.updatePriority');
-        Route::patch('/todos/{todo}/quick-update', [\App\Http\Controllers\TodoController::class, 'quickUpdate'])->name('todos.quickUpdate');
-    });
+    Route::resource('todos', \App\Http\Controllers\TodoController::class);
+    Route::patch('/todos/{todo}/update-status', [\App\Http\Controllers\TodoController::class, 'updateStatus'])->name('todos.updateStatus');
+    Route::patch('/todos/{todo}/update-priority', [\App\Http\Controllers\TodoController::class, 'updatePriority'])->name('todos.updatePriority');
+    Route::patch('/todos/{todo}/quick-update', [\App\Http\Controllers\TodoController::class, 'quickUpdate'])->name('todos.quickUpdate');
 
     // User Management (Admin only)
     Route::middleware('admin')->group(function () {

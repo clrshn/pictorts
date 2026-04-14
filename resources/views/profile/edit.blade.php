@@ -1,5 +1,4 @@
 
-@section('content')
 <x-app-layout>
     <x-slot name="header">
         <h1>Profile Settings</h1>

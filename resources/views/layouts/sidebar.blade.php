@@ -2,10 +2,10 @@
     <!-- Navigation starts here -->
 
     <!-- Profile Section -->
-    <div class="profile-section" style="text-align: center; padding: 20px;">
-        <div class="profile-avatar" style="margin: 0 auto 1px auto; width: 50px; height: 50px;">
+    <div class="profile-section sidebar-profile-card">
+        <div class="profile-avatar sidebar-profile-avatar">
             @if(auth()->user() && auth()->user()->profile_photo_path)
-                <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Profile" class="sidebar-profile-image">
             @else
                 <div class="profile-avatar-placeholder">
                     <i class="fas fa-user"></i>
@@ -13,8 +13,8 @@
             @endif
         </div>
         <div class="profile-info">
-            <div class="profile-name" style="text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">{{ auth()->user()->name ?? 'JOHN DOE' }}</div>
-            <div class="profile-role" style="text-transform: uppercase; font-size: 12px; opacity: 0.8;">{{ auth()->user()->role ?? 'ADMINISTRATOR' }}</div>
+            <div class="profile-name sidebar-profile-name">{{ auth()->user()->name ?? 'JOHN DOE' }}</div>
+            <div class="profile-role sidebar-profile-role">{{ auth()->user()->role ?? 'ADMINISTRATOR' }}</div>
         </div>
     </div>
 
@@ -30,13 +30,13 @@
     <!-- Documents Dropdown -->
     <div class="nav-dropdown">
         <a href="{{ route('documents.index') }}" class="nav-item {{ request()->routeIs('documents.index') && !request()->has('direction') ? 'active' : '' }}" onclick="toggleDocumentsDropdown()">
-            <i class="fas fa-list"></i> All Documents <i class="fas fa-chevron-down" style="float: right; font-size: 10px; margin-top: 2px;"></i>
+            <i class="fas fa-list"></i> All Documents <i class="fas fa-chevron-down sidebar-nav-chevron"></i>
         </a>
         <div class="nav-sub" id="documentsDropdown">
-            <a href="{{ route('documents.index', ['direction' => 'INCOMING']) }}" class="nav-item {{ request()->routeIs('documents.index') && request('direction') === 'INCOMING' ? 'active' : '' }}">
+            <a href="{{ route('documents.index', ['direction' => 'INCOMING']) }}" class="nav-item nav-item--compact {{ request()->routeIs('documents.index') && request('direction') === 'INCOMING' ? 'active' : '' }}">
                 <i class="fas fa-arrow-down"></i> Incoming Documents
             </a>
-            <a href="{{ route('documents.index', ['direction' => 'OUTGOING']) }}" class="nav-item {{ request()->routeIs('documents.index') && request('direction') === 'OUTGOING' ? 'active' : '' }}">
+            <a href="{{ route('documents.index', ['direction' => 'OUTGOING']) }}" class="nav-item nav-item--compact {{ request()->routeIs('documents.index') && request('direction') === 'OUTGOING' ? 'active' : '' }}">
                 <i class="fas fa-arrow-up"></i> Outgoing Documents
             </a>
         </div>
@@ -45,7 +45,7 @@
     <!-- Financial Dropdown -->
     <div class="nav-dropdown">
         <a href="{{ route('financial.index') }}" class="nav-item {{ request()->routeIs('financial.index') && !request()->has('status') ? 'active' : '' }}" onclick="toggleFinancialDropdown()">
-            <i class="fas fa-coins"></i> All Financial <i class="fas fa-chevron-down" style="float: right; font-size: 10px; margin-top: 2px;"></i>
+            <i class="fas fa-coins"></i> All Financial <i class="fas fa-chevron-down sidebar-nav-chevron"></i>
         </a>
         <div class="nav-sub" id="financialDropdown">
             <a href="{{ route('financial.index', ['status' => 'ACTIVE']) }}" class="nav-item {{ request()->routeIs('financial.index') && request('status') === 'ACTIVE' ? 'active' : '' }}">
@@ -65,12 +65,12 @@
 
     @if(auth()->user() && auth()->user()->isAdmin())
     <!-- User Management (Admin Only) - Absolute Bottom -->
-    <div class="nav-section" style="text-align: center; padding: 10px 0; margin: 0; position: absolute; bottom: 0; left: 0; right: 0;">
-        <div style="display: flex; flex-direction: column; gap: 4px;">
-            <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}" style="display: flex; justify-content: center; width: auto; padding: 12px 20px; white-space: nowrap;">
+    <div class="nav-section sidebar-admin-section">
+        <div class="sidebar-admin-links">
+            <a href="{{ route('users.index') }}" class="nav-item sidebar-admin-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
                 <i class="fas fa-users"></i> User Management
             </a>
-            <a href="{{ route('offices.index') }}" class="nav-item {{ request()->routeIs('offices.*') ? 'active' : '' }}" style="display: flex; justify-content: center; width: auto; padding: 12px 20px; white-space: nowrap;">
+            <a href="{{ route('offices.index') }}" class="nav-item sidebar-admin-link {{ request()->routeIs('offices.*') ? 'active' : '' }}">
                 <i class="fas fa-building"></i> Office Management
             </a>
         </div>
@@ -135,18 +135,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Close dropdowns when clicking outside
-document.addEventListener('click', function(event) {
-    if (!event.target.closest('.nav-dropdown')) {
-        // Close documents dropdown
-        const documentsDropdown = document.getElementById('documentsDropdown');
-        documentsDropdown.classList.remove('show');
-        documentsDropdownOpen = false;
-        
-        // Close financial dropdown
-        const financialDropdown = document.getElementById('financialDropdown');
-        financialDropdown.classList.remove('show');
-        financialDropdownOpen = false;
-    }
-});
 </script>

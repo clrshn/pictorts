@@ -13,15 +13,28 @@ class OfficeController extends Controller
         $this->middleware('admin')->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $offices = Office::ordered()->paginate(15);
+        $offices = Office::with('users')
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = trim($request->search);
+
+                $query->where(function ($q) use ($search) {
+                    $q->where('code', 'like', "%{$search}%")
+                        ->orWhere('name', 'like', "%{$search}%");
+                });
+            })
+            ->ordered()
+            ->paginate(15)
+            ->withQueryString();
+
         return view('offices.index', compact('offices'));
     }
 
     public function create()
     {
-        return view('offices.create');
+        $offices = Office::ordered()->get();
+        return view('offices.create', compact('offices'));
     }
 
     public function store(Request $request)
@@ -42,7 +55,11 @@ class OfficeController extends Controller
 
     public function edit(Office $office)
     {
-        return view('offices.edit', compact('office'));
+        $offices = Office::ordered()
+            ->where('id', '!=', $office->id)
+            ->get();
+
+        return view('offices.edit', compact('office', 'offices'));
     }
 
     public function update(Request $request, Office $office)

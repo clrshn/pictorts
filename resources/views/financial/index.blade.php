@@ -32,25 +32,31 @@
     <div class="filter-box">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
             <h3 style="margin:0;">Search Filter</h3>
-            @if(request()->hasAny(['status', 'type', 'search']))
-                <div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
-                    <span style="color:#666; font-size:15px;">Active Filters:</span>
+            @if(request()->hasAny(['status', 'type', 'search', 'sort_by']))
+                <div class="active-filter-list" style="justify-content:flex-end;">
+                    <span class="active-filter-label">Active Filters:</span>
                     @if(request('status'))
-                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                        <span class="active-filter-pill">
                             {{ request('status') }}
                             <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove status filter">×</a>
                         </span>
                     @endif
                     @if(request('type'))
-                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                        <span class="active-filter-pill">
                             {{ request('type') }}
                             <a href="{{ request()->fullUrlWithQuery(['type' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove type filter">×</a>
                         </span>
                     @endif
                     @if(request('search'))
-                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                        <span class="active-filter-pill">
                             {{ request('search') }}
                             <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove search filter">×</a>
+                        </span>
+                    @endif
+                    @if(request('sort_by'))
+                        <span class="active-filter-pill">
+                            {{ request('sort_by') == 'newest' ? 'NEWEST TO OLDEST' : (request('sort_by') == 'oldest' ? 'OLDEST TO NEWEST' : (request('sort_by') == 'az' ? 'A-Z' : (request('sort_by') == 'za' ? 'Z-A' : (request('sort_by') == 'highest' ? 'HIGHEST TO LOWEST' : (request('sort_by') == 'lowest' ? 'LOWEST TO HIGHEST' : strtoupper(str_replace('_', ' ', request('sort_by')))))))) }}
+                            <a href="{{ request()->fullUrlWithQuery(['sort_by' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove sort filter">×</a>
                         </span>
                     @endif
                 </div>
@@ -80,22 +86,15 @@
                     <label>Type</label>
                     <select name="type" class="form-control">
                         <option value="">All Types</option>
-                        <option value="PR" {{ request('type') === 'PR' ? 'selected' : '' }}>PR</option>
-                        <option value="PCV" {{ request('type') === 'PCV' ? 'selected' : '' }}>PCV</option>
                         <option value="DV" {{ request('type') === 'DV' ? 'selected' : '' }}>DV</option>
-                        <option value="PO" {{ request('type') === 'PO' ? 'selected' : '' }}>PO</option>
                         <option value="INSPEC" {{ request('type') === 'INSPEC' ? 'selected' : '' }}>INSPEC</option>
+                        <option value="LIQUIDATION" {{ request('type') === 'LIQUIDATION' || request('type') === 'LIQUADATION' ? 'selected' : '' }}>LIQUIDATION</option>
                         <option value="OBR" {{ request('type') === 'OBR' ? 'selected' : '' }}>OBR</option>
-                        <option value="IAR" {{ request('type') === 'IAR' ? 'selected' : '' }}>IAR</option>
-                        <option value="IT" {{ request('type') === 'IT' ? 'selected' : '' }}>IT</option>
-                        <option value="AIR" {{ request('type') === 'AIR' ? 'selected' : '' }}>AIR</option>
-                        <option value="PRI" {{ request('type') === 'PRI' ? 'selected' : '' }}>PRI</option>
                         <option value="POST INSPECTION" {{ request('type') === 'POST INSPECTION' ? 'selected' : '' }}>POST INSPECTION</option>
-                        <option value="LIQUADATION" {{ request('type') === 'LIQUADATION' ? 'selected' : '' }}>LIQUADATION</option>
                         <option value="PAYROLL" {{ request('type') === 'PAYROLL' ? 'selected' : '' }}>PAYROLL</option>
-                        <option value="ACCTG" {{ request('type') === 'ACCTG' ? 'selected' : '' }}>ACCTG</option>
-                        <option value="PTO" {{ request('type') === 'PTO' ? 'selected' : '' }}>PTO</option>
                         <option value="OPG" {{ request('type') === 'OPG' ? 'selected' : '' }}>OPG</option>
+                        <option value="PR" {{ request('type') === 'PR' ? 'selected' : '' }}>PR</option>
+                        <option value="PR,PO" {{ request('type') === 'PR,PO' ? 'selected' : '' }}>PR,PO</option>
                     </select>
                 </div>
                 <div class="form-group" style="margin:0; margin-top:12px;">
@@ -198,8 +197,7 @@
                                     'FINISHED' => 'status-finished',
                                     default => ''
                                 } }}"
-                                onchange="updateFinancialStatus(this, {{ $rec->id }}, this.value)"
-                                style="font-size: 11px; padding: 6px 8px; border-radius: 4px; border: 1px solid #ddd; background: white; cursor: pointer; width: 100%;">
+                                onchange="updateFinancialStatus(this, {{ $rec->id }}, this.value)">
                                 
                                 <option value="ACTIVE" {{ $rec->status=='ACTIVE'?'selected':'' }}>ACTIVE</option>
                                 <option value="CANCELLED" {{ $rec->status=='CANCELLED'?'selected':'' }}>CANCELLED</option>
@@ -231,8 +229,8 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="11" style="text-align:center; padding:60px;">
-                            <div style="background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%); border:2px dashed rgba(192,57,43,0.2); border-radius:16px; padding:40px;">
+                        <td colspan="13" style="text-align:center; padding:60px 20px;">
+                            <div style="background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%); border:2px dashed rgba(192,57,43,0.2); border-radius:16px; padding:40px; max-width:720px; margin:0 auto;">
                                 <i class="fas fa-file-invoice-dollar" style="font-size:48px; color:#c0392b; margin-bottom:16px;"></i>
                                 <h3 style="color:#1a1a2e; margin-bottom:8px;">No Financial Records Found</h3>
                                 <p style="color:#64748b; margin-bottom:20px;">No financial records match your current filters.</p>
@@ -363,29 +361,54 @@
         .badge-completed { background: #16a085; color: #fff; }
 
         /* Inline Status Dropdown Styles */
+        .inline-select {
+            width: 148px;
+            max-width: 100%;
+            min-width: 148px;
+            height: 36px;
+            padding: 0 34px 0 12px !important;
+            border-radius: 8px !important;
+            border: 1px solid rgba(148, 163, 184, 0.3) !important;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px !important;
+            line-height: 1.2;
+            letter-spacing: 0.01em;
+            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.05);
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: linear-gradient(45deg, transparent 50%, #64748b 50%), linear-gradient(135deg, #64748b 50%, transparent 50%);
+            background-position: calc(100% - 16px) calc(50% - 3px), calc(100% - 11px) calc(50% - 3px);
+            background-size: 5px 5px, 5px 5px;
+            background-repeat: no-repeat;
+            margin: 0 auto;
+        }
+
         .inline-select.status-active {
-            background: #27ae60 !important;
-            color: #fff !important;
-            border-color: #27ae60 !important;
+            background: #bbf7d0 !important;
+            color: #166534 !important;
+            border-color: #86efac !important;
         }
 
         .inline-select.status-cancelled {
-            background: #e74c3c !important;
-            color: #fff !important;
-            border-color: #e74c3c !important;
+            background: #fecaca !important;
+            color: #991b1b !important;
+            border-color: #fca5a5 !important;
         }
 
         .inline-select.status-finished {
-            background: #3498db !important;
-            color: #fff !important;
-            border-color: #3498db !important;
+            background: #bfdbfe !important;
+            color: #1d4ed8 !important;
+            border-color: #93c5fd !important;
         }
 
         /* When dropdown is OPEN -> force neutral */
         .inline-select:focus {
             background: white !important;
             color: #333 !important;
-            border-color: #ddd !important;
+            border-color: rgba(192, 57, 43, 0.42) !important;
+            box-shadow: 0 0 0 3px rgba(192,57,43,0.1), 0 8px 18px rgba(15,23,42,0.08) !important;
         }
 
         /* FORCE DROPDOWN OPTIONS TO STAY CLEAN */

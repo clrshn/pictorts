@@ -26,9 +26,9 @@
     <div class="table-card" style="margin-bottom:20px;">
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px; display:flex; justify-content:space-between; align-items:center;">
             <span><i class="fas fa-file-alt"></i> Document Track</span>
-            <div style="display:flex; gap:8px;">
-                <a href="{{ route('documents.edit', $document) }}" class="btn-orange" style="padding:4px 12px;"><i class="fas fa-edit"></i> Edit</a>
-                <a href="{{ route('documents.index') }}" class="btn-gray" style="padding:4px 12px;"><i class="fas fa-arrow-left"></i> Back</a>
+            <div class="detail-header-actions">
+                <a href="{{ route('documents.edit', $document) }}" class="btn-orange"><i class="fas fa-edit"></i> Edit</a>
+                <a href="{{ route('documents.index') }}" class="btn-gray"><i class="fas fa-arrow-left"></i> Back</a>
             </div>
         </div>
 

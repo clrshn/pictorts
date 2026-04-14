@@ -11,13 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('todos', function (Blueprint $table) {
-            // Drop the existing enum column
-            $table->dropColumn('priority');
-            
-            // Re-add with all priority options including 'top'
-            $table->enum('priority', ['low', 'medium', 'high', 'top'])->default('medium');
-        });
+        // Fresh installs already create the column with the full enum.
     }
 
     /**
@@ -25,9 +19,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('todos', function (Blueprint $table) {
-            // Revert to original enum without 'top'
-            $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
-        });
+        // No-op to avoid destructive schema changes on existing installations.
     }
 };

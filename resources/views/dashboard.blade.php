@@ -135,7 +135,9 @@
                     <span>Activity Trend</span>
                     <small>Monthly documents and financial records</small>
                 </div>
-                <canvas id="monthlyChart" height="120"></canvas>
+                <div class="dashboard-chart-shell">
+                    <canvas id="monthlyChart" height="120"></canvas>
+                </div>
             </div>
 
             <div class="dashboard-reminder-card">
@@ -523,8 +525,9 @@
 
         .dashboard-detail-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.9fr);
+            grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
             gap: 18px;
+            align-items: start;
         }
 
         .dashboard-analytics-card,
@@ -537,12 +540,20 @@
         }
 
         .dashboard-analytics-card {
-            min-height: 420px;
+            min-height: 340px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-chart-shell {
+            position: relative;
+            width: 100%;
+            height: 240px;
         }
 
         #monthlyChart {
             width: 100% !important;
-            height: 320px !important;
+            height: 240px !important;
         }
 
         .reminder-summary {

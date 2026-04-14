@@ -11,7 +11,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['guest', 'disable.csrf'])->group(function () {
+Route::middleware('guest')->group(function () {
     // Public registration disabled - only admin can create users
     // Route::get('register', [RegisteredUserController::class, 'create'])
     //     ->name('register');
@@ -48,11 +48,10 @@ Route::middleware('auth')->group(function () {
         ->middleware('throttle:6,1')
         ->name('verification.send');
 
-    // Temporarily disabled confirm-password routes
-    // Route::get('confirm-password', ConfirmablePasswordController::class, 'show')
-    //     ->name('password.confirm');
+    Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
+        ->name('password.confirm');
 
-    // Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
+    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 

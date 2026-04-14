@@ -216,7 +216,7 @@ class TodoController extends Controller
     public function quickUpdate(Request $request, Todo $todo)
     {
         $validated = $request->validate([
-            'status' => 'nullable|in:pending,in_progress,completed',
+            'status' => 'nullable|in:pending,on-going,done,cancelled',
             'assigned_to' => 'nullable|string|max:255',
             'priority' => 'nullable|in:low,medium,high,top'
         ]);

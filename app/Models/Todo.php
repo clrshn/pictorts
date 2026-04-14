@@ -66,9 +66,10 @@ class Todo extends Model
     public function getStatusColorAttribute()
     {
         return match($this->status) {
-            'completed' => '#27ae60',
-            'in_progress' => '#e67e22',
+            'done' => '#27ae60',
+            'on-going' => '#e67e22',
             'pending' => '#95a5a6',
+            'cancelled' => '#7f8c8d',
             default => '#95a5a6'
         };
     }
@@ -87,15 +88,16 @@ class Todo extends Model
     public function getStatusBadgeAttribute()
     {
         return match($this->status) {
-            'completed' => 'DONE',
-            'in_progress' => 'ON GOING',
+            'done' => 'DONE',
+            'on-going' => 'ON GOING',
             'pending' => 'PENDING',
+            'cancelled' => 'CANCELLED',
             default => 'PENDING'
         };
     }
 
     public function isOverdue()
     {
-        return $this->due_date && $this->due_date->isPast() && $this->status !== 'completed';
+        return $this->due_date && $this->due_date->isPast() && !in_array($this->status, ['done', 'cancelled'], true);
     }
 }

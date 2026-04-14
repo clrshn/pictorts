@@ -300,10 +300,11 @@ class DocumentController extends Controller
             ]);
         }
 
+        $previousStatus = $document->status;
         $document->update($updateData);
 
         // Add completion entry if status changed to COMPLETED
-        if ($request->status === 'COMPLETED' && $document->status !== 'COMPLETED') {
+        if (($updateData['status'] ?? $previousStatus) === 'COMPLETED' && $previousStatus !== 'COMPLETED') {
             $document->routes()->create([
                 'from_office' => $updateData['current_office'] ?? $document->current_office,
                 'to_office' => $updateData['current_office'] ?? $document->current_office,

@@ -13,13 +13,23 @@
             <h3 style="margin:0;">Search Filter</h3>
 
             @if(request()->hasAny(['status','priority','assigned_to','search','sort_by']))
-                <div style="display:flex; gap:4px; flex-wrap:wrap; align-items:center;">
-                    <span style="color:#666; font-size:15px;">Active Filters:</span>
+                <div class="active-filter-list">
+                    <span class="active-filter-label">Active Filters:</span>
                     @foreach(['status','priority','assigned_to','search','sort_by'] as $filter)
                         @if(request($filter))
-                            <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                            <span class="active-filter-pill">
                                 @if($filter == 'sort_by')
                                     {{ request('sort_by') == 'newest' ? 'NEWEST TO OLDEST' : (request('sort_by') == 'oldest' ? 'OLDEST TO NEWEST' : (request('sort_by') == 'az' ? 'A-Z' : (request('sort_by') == 'za' ? 'Z-A' : request('sort_by')))) }}
+                                @elseif($filter == 'status')
+                                    {{ match(request('status')) {
+                                        'pending' => 'PENDING',
+                                        'on-going' => 'ON-GOING',
+                                        'done' => 'DONE',
+                                        'cancelled' => 'CANCELLED',
+                                        'in_progress' => 'ON-GOING',
+                                        'completed' => 'DONE',
+                                        default => strtoupper(str_replace('_', ' ', request('status')))
+                                    } }}
                                 @else
                                     {{ request($filter) }}
                                 @endif
@@ -51,8 +61,9 @@
                     <select name="status" class="form-control">
                         <option value="">All</option>
                         <option value="pending" {{ request('status')=='pending'?'selected':'' }}>Pending</option>
-                        <option value="in_progress" {{ request('status')=='in_progress'?'selected':'' }}>Ongoing</option>
-                        <option value="completed" {{ request('status')=='completed'?'selected':'' }}>Done</option>
+                        <option value="on-going" {{ request('status')=='on-going' || request('status')=='in_progress'?'selected':'' }}>Ongoing</option>
+                        <option value="done" {{ request('status')=='done' || request('status')=='completed'?'selected':'' }}>Done</option>
+                        <option value="cancelled" {{ request('status')=='cancelled'?'selected':'' }}>Cancelled</option>
                     </select>
                 </div>
 
@@ -98,7 +109,7 @@
 
     <div class="table-card">
         <div class="table-header" style="display:flex; justify-content:flex-end;">
-            <a href="{{ route('todos.create') }}" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-plus"></i> Add Task</a>
+            <a href="{{ route('todos.create') }}" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-plus"></i> Add New Task</a>
         </div>
 
         <div style="overflow-x:auto; max-width:100%;">
@@ -107,12 +118,12 @@
                     <tr>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DATE ADDED</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:230px; border-bottom:2px solid #8b0000;">PRIORITY</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:210px; border-bottom:2px solid #8b0000;">PRIORITY</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ASSIGNED TO</th>
                         <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">TASK</th>
                         <th style="text-align:center; padding:12px 8px; min-width:250px; border-bottom:2px solid #8b0000;">WHAT TO DO</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DEADLINE</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:230px; border-bottom:2px solid #8b0000;">STATUS</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:210px; border-bottom:2px solid #8b0000;">STATUS</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -137,7 +148,7 @@
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $todo->date_added ? $todo->date_added->format('n-j-Y') : ($todo->created_at ? $todo->created_at->format('n-j-Y') : 'No date') }}</td>
 
                         <!-- PRIORITY -->
-                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:230px;" onclick="event.stopPropagation();">
+                        <td style="text-align:center; padding:20px 16px; white-space:nowrap; width:210px;" onclick="event.stopPropagation();">
                             <select 
                                 class="form-control inline-select 
                                 {{ match($todo->priority) {
@@ -147,8 +158,7 @@
                                     'low' => 'badge-low',
                                     default => ''
                                 } }}"
-                                onchange="changePriority(this, {{ $todo->id }}, this.value)"
-                                style="font-size: 11px; padding: 6px 8px; border-radius: 4px; border: 1px solid #ddd; background: white; cursor: pointer; width: 100%;">
+                                onchange="changePriority(this, {{ $todo->id }}, this.value)">
 
                                 <option value="top" {{ $todo->priority=='top'?'selected':'' }}>TOP</option>
                                 <option value="high" {{ $todo->priority=='high'?'selected':'' }}>HIGH</option>
@@ -166,7 +176,7 @@
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;">{{ $todo->date_added?->format('M d, Y') ?? '—' }}</td>
 
                         <!-- STATUS -->
-                        <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:230px;" onclick="event.stopPropagation();">
+                        <td style="text-align:center; padding:20px 16px; white-space:nowrap; width:210px;" onclick="event.stopPropagation();">
                             <select 
                                 class="form-control inline-select 
                                 {{ match($todo->status) {
@@ -456,69 +466,108 @@
     </script>
 
     <style>
+        .filter-box,
+        .table-card {
+            background: #ffffff !important;
+            background-image: none !important;
+        }
+
+        .table-card .table-header {
+            background: #ffffff !important;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
+        }
+
         .table-card table tbody tr.overdue-row {
-            background: #fff5f5;
+            background: linear-gradient(90deg, rgba(254, 242, 242, 0.82) 0%, rgba(255,255,255,0.98) 100%);
         }
 
         .table-card table tbody tr.overdue-row:hover {
-            background: linear-gradient(90deg, rgba(37,99,235,0.15) 0%, rgba(220,38,38,0.2) 50%, rgba(37,99,235,0.15) 100%);
+            background: linear-gradient(90deg, rgba(37,99,235,0.09) 0%, rgba(255,255,255,0.98) 48%, rgba(220,38,38,0.12) 100%);
         }
 
         .inline-select {
-            width: 100%;
+            width: 148px;
+            max-width: 100%;
+            min-width: 148px;
+            height: 36px;
+            padding: 0 34px 0 12px !important;
+            border-radius: 8px !important;
+            border: 1px solid rgba(148, 163, 184, 0.3) !important;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 12px !important;
+            line-height: 1.2;
+            letter-spacing: 0.01em;
             background: white;
             color: #333;
+            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.05);
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: linear-gradient(45deg, transparent 50%, #64748b 50%), linear-gradient(135deg, #64748b 50%, transparent 50%);
+            background-position: calc(100% - 16px) calc(50% - 3px), calc(100% - 11px) calc(50% - 3px);
+            background-size: 5px 5px, 5px 5px;
+            background-repeat: no-repeat;
+            margin: 0 auto;
         }
 
         /* When dropdown is OPEN → force neutral */
         .inline-select:focus {
             background: white !important;
             color: #333 !important;
+            border-color: rgba(192, 57, 43, 0.42) !important;
+            box-shadow: 0 0 0 3px rgba(192,57,43,0.1), 0 8px 18px rgba(15,23,42,0.08) !important;
         }
 
         /* ===== PRIORITY COLORS (ONLY WHEN CLOSED) ===== */
         .inline-select.badge-top {
-            background: #dc2626 !important;
-            color: #fff !important;
+            background: #fca5a5 !important;
+            color: #7f1d1d !important;
+            border-color: #f87171 !important;
         }
 
         .inline-select.badge-high {
-            background: #ef4444 !important;
-            color: #fff !important;
+            background: #fecaca !important;
+            color: #991b1b !important;
+            border-color: #fca5a5 !important;
         }
 
         .inline-select.badge-medium {
-            background: #facc15 !important;
-            color: #000 !important;
+            background: #fde68a !important;
+            color: #854d0e !important;
+            border-color: #fcd34d !important;
         }
 
         .inline-select.badge-low {
-            background: #22c55e !important;
-            color: #fff !important;
+            background: #bbf7d0 !important;
+            color: #166534 !important;
+            border-color: #86efac !important;
         }
 
         /* ===== STATUS COLORS (ONLY WHEN CLOSED) ===== */
         .inline-select.status-pending {
-            background: #ef4444 !important; /* RED */
-            color: #fff !important;
+            background: #fecaca !important;
+            color: #991b1b !important;
+            border-color: #fca5a5 !important;
         }
 
         .inline-select.status-ongoing {
-            background: #eab308 !important; /* YELLOW */
-            color: #000 !important;
+            background: #fde68a !important;
+            color: #854d0e !important;
+            border-color: #fcd34d !important;
         }
 
         .inline-select.status-done {
-            background: #16a34a !important; /* GREEN */
-            color: #fff !important;
+            background: #bbf7d0 !important;
+            color: #166534 !important;
+            border-color: #86efac !important;
         }
 
         .inline-select.status-cancelled {
-            background: #6b7280 !important; /* GRAY */
-            color: #fff !important;
-}
+            background: #e2e8f0 !important;
+            color: #475569 !important;
+            border-color: #cbd5e1 !important;
+        }
         /* FORCE DROPDOWN OPTIONS TO STAY CLEAN */
         .inline-select option {
             background: #ffffff !important;

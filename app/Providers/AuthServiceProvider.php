@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Document;
 use App\Models\FinancialRecord;
+use App\Models\User;
 use App\Policies\DocumentPolicy;
 use App\Policies\FinancialRecordPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -26,9 +27,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \Log::info('AuthServiceProvider booting - registering policies');
         $this->registerPolicies();
-        \Log::info('AuthServiceProvider policies registered');
 
         // Optional: Define gates for additional permissions
         Gate::before(function (User $user, string $ability) {

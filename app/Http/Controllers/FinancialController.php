@@ -184,10 +184,11 @@ class FinancialController extends Controller
             ]);
         }
 
+        $previousStatus = $financial->status;
         $financial->update($updateData);
 
         // Add completion entry if status changed to COMPLETED
-        if ($request->status === 'COMPLETED' && $financial->status !== 'COMPLETED') {
+        if (($updateData['status'] ?? $previousStatus) === 'COMPLETED' && $previousStatus !== 'COMPLETED') {
             $financial->routes()->create([
                 'from_office' => $updateData['current_office'] ?? $financial->current_office,
                 'to_office' => $updateData['current_office'] ?? $financial->current_office,

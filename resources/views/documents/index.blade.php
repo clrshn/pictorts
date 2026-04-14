@@ -14,43 +14,49 @@
     <div class="filter-box">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
             <h3 style="margin:0;">Search Filter</h3>
-            @if(request()->hasAny(['direction', 'status', 'type', 'month', 'year', 'search']))
-                <div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap; justify-content:flex-end; margin-bottom:12px;">
-                    <span style="color:#666; font-size:15px;">Active Filters:</span>
+            @if(request()->hasAny(['direction', 'status', 'type', 'month', 'year', 'search', 'sort_by']))
+                <div class="active-filter-list" style="justify-content:flex-end; margin-bottom:12px;">
+                    <span class="active-filter-label">Active Filters:</span>
                     @if(request('direction'))
-                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                        <span class="active-filter-pill">
                             {{ request('direction') }}
                             <a href="{{ request()->fullUrlWithQuery(['direction' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove direction filter">×</a>
                         </span>
                     @endif
                     @if(request('status'))
-                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                        <span class="active-filter-pill">
                             {{ request('status') }}
                             <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove status filter">×</a>
                         </span>
                     @endif
                     @if(request('type'))
-                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                        <span class="active-filter-pill">
                             {{ request('type') }}
                             <a href="{{ request()->fullUrlWithQuery(['type' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove type filter">×</a>
                         </span>
                     @endif
                     @if(request('month'))
-                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                        <span class="active-filter-pill">
                             {{ request('month') }}
                             <a href="{{ request()->fullUrlWithQuery(['month' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove month filter">×</a>
                         </span>
                     @endif
                     @if(request('year'))
-                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                        <span class="active-filter-pill">
                             {{ request('year') }}
                             <a href="{{ request()->fullUrlWithQuery(['year' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove year filter">×</a>
                         </span>
                     @endif
                     @if(request('search'))
-                        <span class="badge" style="background:#1976d2; color:white; padding:1px 5px; border-radius:2px; display:flex; align-items:center; gap:3px; font-size:12px; white-space:nowrap;">
+                        <span class="active-filter-pill">
                             {{ request('search') }}
                             <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove search filter">×</a>
+                        </span>
+                    @endif
+                    @if(request('sort_by'))
+                        <span class="active-filter-pill">
+                            {{ request('sort_by') == 'newest' ? 'NEWEST TO OLDEST' : (request('sort_by') == 'oldest' ? 'OLDEST TO NEWEST' : (request('sort_by') == 'az' ? 'A-Z' : (request('sort_by') == 'za' ? 'Z-A' : strtoupper(str_replace('_', ' ', request('sort_by')))))) }}
+                            <a href="{{ request()->fullUrlWithQuery(['sort_by' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove sort filter">×</a>
                         </span>
                     @endif
                 </div>
@@ -159,7 +165,7 @@
                                     <a href="{{ route('documents.edit', $doc) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-edit"></i></a>
                                     <form action="{{ route('documents.destroy', $doc) }}" method="POST" style="display:inline;" id="deleteForm-{{ $doc->id }}">
                                         @csrf @method('DELETE')
-                                        <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $doc->id }}, '{{ $doc->dts_number }}')" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn-danger" title="Delete" onclick='confirmDelete({{ $doc->id }}, @json($doc->subject ?? "Untitled Document"), @json($doc->dts_number ?? "No Tracking Code"))' style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </div>
                             </td>
@@ -183,8 +189,8 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" style="text-align:center; padding:60px 20px;">
-                                <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 2px dashed rgba(192,57,43,0.2); border-radius: 16px; padding: 40px;">
+                            <td colspan="8" style="text-align:center; padding:60px 20px;">
+                                <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 2px dashed rgba(192,57,43,0.2); border-radius: 16px; padding: 40px; max-width:720px; margin:0 auto;">
                                     <i class="fas fa-inbox" style="font-size: 48px; color: #c0392b; margin-bottom: 16px;"></i>
                                     <h3 style="color: #1a1a2e; margin-bottom: 8px;">No Documents Found</h3>
                                     <p style="color: #64748b; margin-bottom: 20px;">Start by adding your first document to the system.</p>
@@ -673,12 +679,12 @@
             });
         }
 
-        function confirmDelete(docId, trackingCode) {
-            console.log('confirmDelete called with:', docId, trackingCode); // Debug log
+        function confirmDelete(docId, subject, trackingCode) {
+            console.log('confirmDelete called with:', docId, subject, trackingCode); // Debug log
             
             showConfirmDialog({
                 title: 'Delete Document',
-                message: `Are you sure you want to delete this document?<br><br><strong>Tracking Code:</strong> ${trackingCode}<br><strong>This action cannot be undone!</strong>`,
+                message: `Are you sure you want to delete this document?<br><br><strong>Title:</strong> ${subject}<br><strong>Tracking Code:</strong> ${trackingCode}<br><strong>This action cannot be undone!</strong>`,
                 confirmText: 'Delete',
                 cancelText: 'Cancel',
                 confirmClass: 'notification-btn-confirm',

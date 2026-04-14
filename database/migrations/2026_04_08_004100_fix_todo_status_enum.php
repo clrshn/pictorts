@@ -11,15 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // First update existing data to use hyphenated values
-        DB::statement("UPDATE pictorts.todos SET status = 'on-going' WHERE status = 'ongoing'");
-        
-        // Then modify the column to use hyphenated values
-        Schema::table('pictorts.todos', function (Blueprint $table) {
-            $table->enum('status', ['pending', 'on-going', 'done', 'cancelled'])
-                  ->default('pending')
-                  ->change();
-        });
+        // Fresh installs already create the column with the final enum values.
     }
 
     /**
@@ -27,13 +19,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Revert to non-hyphenated values
-        DB::statement("UPDATE pictorts.todos SET status = 'ongoing' WHERE status = 'on-going'");
-        
-        Schema::table('pictorts.todos', function (Blueprint $table) {
-            $table->enum('status', ['pending', 'ongoing', 'done', 'cancelled'])
-                  ->default('pending')
-                  ->change();
-        });
+        // No-op to avoid destructive schema changes on existing installations.
     }
 };

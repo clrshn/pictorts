@@ -34,44 +34,45 @@
         </script>
     @endif
 
+    @include('components.notifications')
+
+    <div class="filter-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:16px; flex-wrap:wrap;">
+            <h3 style="margin:0;">Search Filter</h3>
+            @if(request('search'))
+                <div class="active-filter-list">
+                    <span class="active-filter-label">Active Filters:</span>
+                    <span class="active-filter-pill">
+                        {{ request('search') }}
+                        <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove search filter">×</a>
+                    </span>
+                </div>
+            @endif
+        </div>
+
+        <form method="GET" action="{{ route('users.index') }}">
+            <div style="display:grid; grid-template-columns: 1fr; gap:8px;">
+                <div class="form-group" style="margin:0">
+                    <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Search by name, email, role, or office...">
+                </div>
+            </div>
+            <div class="form-group" style="display:flex; gap:12px; margin-top:24px; justify-content:flex-end;">
+                <button type="submit" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <a href="{{ route('users.index') }}" class="btn-gray" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
     <div class="table-card">
         <div class="table-header" style="display: flex; justify-content: flex-end; align-items: center;">
-            <a href="{{ route('users.create') }}" class="btn-red"><i class="fas fa-plus"></i> Create User</a>
+            <a href="{{ route('users.create') }}" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-plus"></i> Create User</a>
         </div>
 
         <div style="padding:20px;">
-                    @include('components.notifications')
-                    <!-- Search Users -->
-                    <div style="background:#f8f9fa; padding:16px; border-radius:8px; margin-bottom:20px;">
-                        <form method="GET" action="{{ route('users.index') }}">
-                            <div style="display:grid; grid-template-columns: 1fr auto; gap:12px; align-items:end;">
-                                <div class="form-group" style="margin:0;">
-                                    <label style="font-weight:600; color:#495057; margin-bottom:6px; display:block;">Search Users</label>
-                                    <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Search by name, email, or office...">
-                                </div>
-                                <div style="display:flex; gap:8px;">
-                                    <button type="submit" class="btn-red" style="padding:8px 16px;">
-                                        <i class="fas fa-search"></i> Search
-                                    </button>
-                                    <a href="{{ route('users.index') }}" class="btn-gray" style="padding:8px 16px;">
-                                        <i class="fas fa-times"></i> Reset
-                                    </a>
-                                </div>
-                            </div>
-                        </form>
-                        
-                        @if(request('search'))
-                            <div style="margin-top:12px; padding:8px 12px; background:#e3f2fd; border-left:4px solid #1976d2; border-radius:4px;">
-                                <span style="color:#1976d2; font-size:13px; font-weight:500;">
-                                    <i class="fas fa-filter"></i> Searching for: <strong>{{ request('search') }}</strong>
-                                    <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" style="margin-left:8px; color:#666; text-decoration:none;" title="Remove search">
-                                        <i class="fas fa-times"></i>
-                                    </a>
-                                </span>
-                            </div>
-                        @endif
-                    </div>
-
                     <div class="table-responsive">
                         <table class="table table-hover" style="font-size:13px;">
                             <thead style="background:#f8f9fa;">
@@ -225,6 +226,10 @@
     <div class="notification-container" id="notificationContainer"></div>
 
     <style>
+        .filter-box {
+            margin-bottom: 18px;
+        }
+
         /* Modern Notification System */
         .notification-container {
             position: fixed;

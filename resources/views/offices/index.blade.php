@@ -34,10 +34,41 @@
         </script>
     @endif
 
+    <div class="filter-box office-filter-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:16px; flex-wrap:wrap;">
+            <h3 style="margin:0;">Search Filter</h3>
+            @if(request('search'))
+                <div class="active-filter-list">
+                    <span class="active-filter-label">Active Filters:</span>
+                    <span class="active-filter-pill">
+                        {{ request('search') }}
+                        <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove search filter">×</a>
+                    </span>
+                </div>
+            @endif
+        </div>
+
+        <form method="GET" action="{{ route('offices.index') }}">
+            <div style="display:grid; grid-template-columns: 1fr; gap:8px;">
+                <div class="form-group" style="margin:0">
+                    <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Search by office code or office name...">
+                </div>
+            </div>
+            <div class="form-group" style="display:flex; gap:12px; margin-top:24px; justify-content:flex-end;">
+                <button type="submit" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <a href="{{ route('offices.index') }}" class="btn-gray" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
     <!-- Offices Table -->
     <div class="table-card">
         <div class="table-header" style="display: flex; justify-content: flex-end; align-items: center;">
-            <a href="{{ route('offices.create') }}" class="btn-red"><i class="fas fa-plus"></i> Add New Office</a>
+            <a href="{{ route('offices.create') }}" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-plus"></i> Add New Office</a>
         </div>
 
         <div style="overflow-x:auto; max-width:100%;">
@@ -132,6 +163,10 @@
         .table-card {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
+        }
+
+        .office-filter-box {
+            margin-bottom: 18px;
         }
 
         .table-header h3 {

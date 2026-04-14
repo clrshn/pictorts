@@ -26,22 +26,15 @@
                         <label>Type</label>
                         <select name="type" class="form-control">
                             <option value="">Select Type</option>
-                            <option value="PR" {{ old('type', $financial->type) === 'PR' ? 'selected' : '' }}>PR</option>
-                            <option value="PCV" {{ old('type', $financial->type) === 'PCV' ? 'selected' : '' }}>PCV</option>
                             <option value="DV" {{ old('type', $financial->type) === 'DV' ? 'selected' : '' }}>DV</option>
-                            <option value="PO" {{ old('type', $financial->type) === 'PO' ? 'selected' : '' }}>PO</option>
                             <option value="INSPEC" {{ old('type', $financial->type) === 'INSPEC' ? 'selected' : '' }}>INSPEC</option>
+                            <option value="LIQUIDATION" {{ old('type', $financial->type) === 'LIQUIDATION' || old('type', $financial->type) === 'LIQUADATION' ? 'selected' : '' }}>LIQUIDATION</option>
                             <option value="OBR" {{ old('type', $financial->type) === 'OBR' ? 'selected' : '' }}>OBR</option>
-                            <option value="IAR" {{ old('type', $financial->type) === 'IAR' ? 'selected' : '' }}>IAR</option>
-                            <option value="IT" {{ old('type', $financial->type) === 'IT' ? 'selected' : '' }}>IT</option>
-                            <option value="AIR" {{ old('type', $financial->type) === 'AIR' ? 'selected' : '' }}>AIR</option>
-                            <option value="PRI" {{ old('type', $financial->type) === 'PRI' ? 'selected' : '' }}>PRI</option>
                             <option value="POST INSPECTION" {{ old('type', $financial->type) === 'POST INSPECTION' ? 'selected' : '' }}>POST INSPECTION</option>
-                            <option value="LIQUADATION" {{ old('type', $financial->type) === 'LIQUADATION' ? 'selected' : '' }}>LIQUADATION</option>
                             <option value="PAYROLL" {{ old('type', $financial->type) === 'PAYROLL' ? 'selected' : '' }}>PAYROLL</option>
-                            <option value="ACCTG" {{ old('type', $financial->type) === 'ACCTG' ? 'selected' : '' }}>ACCTG</option>
-                            <option value="PTO" {{ old('type', $financial->type) === 'PTO' ? 'selected' : '' }}>PTO</option>
                             <option value="OPG" {{ old('type', $financial->type) === 'OPG' ? 'selected' : '' }}>OPG</option>
+                            <option value="PR" {{ old('type', $financial->type) === 'PR' ? 'selected' : '' }}>PR</option>
+                            <option value="PR,PO" {{ old('type', $financial->type) === 'PR,PO' ? 'selected' : '' }}>PR,PO</option>
                         </select>
                     </div>
                     <div class="form-group">

@@ -16,9 +16,26 @@ class UserController extends Controller
         $this->middleware('admin')->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('office')->latest()->paginate(15);
+        $users = User::with('office')
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = trim($request->search);
+
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('role', 'like', "%{$search}%")
+                        ->orWhereHas('office', function ($officeQuery) use ($search) {
+                            $officeQuery->where('code', 'like', "%{$search}%")
+                                ->orWhere('name', 'like', "%{$search}%");
+                        });
+                });
+            })
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
         return view('users.index', compact('users'));
     }
 
@@ -38,7 +55,7 @@ class UserController extends Controller
             'role' => ['required', 'in:admin,user'],
         ]);
 
-        $user = User::create([
+        User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -47,7 +64,7 @@ class UserController extends Controller
         ]);
 
         return redirect()->route('users.index')
-            ->with('success', 'User created successfully. Username: ' . $request->email . ' Password: ' . $request->password);
+            ->with('success', 'User created successfully.');
     }
 
     public function edit(User $user)
@@ -101,6 +118,6 @@ class UserController extends Controller
         ]);
 
         return redirect()->route('users.index')
-            ->with('success', 'Password reset successfully. New password: ' . $request->password);
+            ->with('success', 'Password reset successfully.');
     }
 }
