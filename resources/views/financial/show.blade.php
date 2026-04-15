@@ -9,6 +9,8 @@
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px; display:flex; justify-content:space-between; align-items:center;">
             <span><i class="fas fa-coins"></i> Financial Record Details</span>
             <div class="detail-header-actions">
+                <a href="{{ request()->fullUrlWithQuery(['export' => 'print']) }}" target="_blank" class="btn-blue"><i class="fas fa-print"></i> Print / Save PDF</a>
+                <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn-green"><i class="fas fa-file-excel"></i> Export Excel</a>
                 <a href="{{ route('financial.edit', $financial) }}" class="btn-orange"><i class="fas fa-edit"></i> Edit</a>
                 <a href="{{ route('financial.index') }}" class="btn-gray"><i class="fas fa-arrow-left"></i> Back</a>
             </div>
@@ -39,7 +41,7 @@
                 <div style="border-left:3px solid #8e44ad; padding-left:12px;">
                     <div style="margin-bottom:8px;"><strong>Current Office:</strong> {{ $financial->currentOffice->code ?? '—' }}</div>
                     <div style="margin-bottom:8px;"><strong>Current Holder:</strong> {{ $financial->holder->name ?? '—' }}</div>
-                    <div style="margin-bottom:8px;"><strong>Status:</strong> <span class="badge {{ $badgeClass }}">{{ $financial->status }}</span></div>
+                    <div style="margin-bottom:8px;"><strong>Status:</strong> <span class="badge {{ $badgeClass }}">{{ $financial->status === 'FINISHED' ? 'DONE' : $financial->status }}</span></div>
                     <div><strong>Progress:</strong> 
                         @if($financial->progress)
                             <span style="font-size: 12px; color: #64748b; font-weight: 500;">{{ $financial->progress }}</span>
@@ -171,8 +173,8 @@
                                             <i class="fas fa-plus-circle" style="margin-right:6px; color:#27ae60;"></i> Financial Record Created at {{ $route->fromOffice->code ?? '?' }}
                                             <span class="badge badge-completed" style="margin-left:8px;">CREATED</span>
                                         @elseif(str_contains($route->remarks, 'COMPLETED'))
-                                            <i class="fas fa-check-circle" style="margin-right:6px; color:#27ae60;"></i> Financial Record Completed at {{ $route->fromOffice->code ?? '?' }}
-                                            <span class="badge badge-completed" style="margin-left:8px;">COMPLETED</span>
+                                            <i class="fas fa-check-circle" style="margin-right:6px; color:#27ae60;"></i> Financial Record Done at {{ $route->fromOffice->code ?? '?' }}
+                                            <span class="badge badge-completed" style="margin-left:8px;">DONE</span>
                                         @else
                                             <i class="fas fa-info-circle" style="margin-right:6px; color:#3498db;"></i> {{ $route->fromOffice->code ?? '?' }}
                                             <span class="badge badge-completed" style="margin-left:8px;">UPDATED</span>
@@ -187,7 +189,7 @@
                                         @if(str_contains($route->remarks, 'created'))
                                             Created by: {{ $route->releasedByUser->name ?? '—' }} — {{ $route->datetime_released?->format('M d, Y h:i A') }}
                                         @elseif(str_contains($route->remarks, 'COMPLETED'))
-                                            Completed by: {{ $route->releasedByUser->name ?? '—' }} — {{ $route->datetime_released?->format('M d, Y h:i A') }}
+                                            Done by: {{ $route->releasedByUser->name ?? '—' }} — {{ $route->datetime_released?->format('M d, Y h:i A') }}
                                         @else
                                             Updated by: {{ $route->releasedByUser->name ?? '—' }} — {{ $route->datetime_released?->format('M d, Y h:i A') }}
                                         @endif

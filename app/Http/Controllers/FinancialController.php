@@ -6,6 +6,7 @@ use App\Models\FinancialRecord;
 use App\Models\FinancialAttachment;
 use App\Models\Office;
 use App\Models\User;
+use App\Support\TableExport;
 use Illuminate\Http\Request;
 
 class FinancialController extends Controller
@@ -43,23 +44,90 @@ class FinancialController extends Controller
         // Sort by various options
         if ($request->filled('sort_by')) {
             if ($request->sort_by === 'newest') {
-                $records = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
+                $query->orderBy('created_at', 'desc');
             } elseif ($request->sort_by === 'oldest') {
-                $records = $query->orderBy('created_at', 'asc')->paginate(15)->withQueryString();
+                $query->orderBy('created_at', 'asc');
             } elseif ($request->sort_by === 'az') {
-                $records = $query->orderBy('description', 'asc')->paginate(15)->withQueryString();
+                $query->orderBy('description', 'asc');
             } elseif ($request->sort_by === 'za') {
-                $records = $query->orderBy('description', 'desc')->paginate(15)->withQueryString();
+                $query->orderBy('description', 'desc');
             } elseif ($request->sort_by === 'highest') {
-                $records = $query->orderBy('pr_amount', 'desc')->paginate(15)->withQueryString();
+                $query->orderBy('pr_amount', 'desc');
             } elseif ($request->sort_by === 'lowest') {
-                $records = $query->orderBy('pr_amount', 'asc')->paginate(15)->withQueryString();
+                $query->orderBy('pr_amount', 'asc');
             } else {
-                $records = $query->latest()->paginate(15)->withQueryString();
+                $query->latest();
             }
         } else {
-            $records = $query->latest()->paginate(15)->withQueryString();
+            $query->latest();
         }
+
+        if ($request->get('export') === 'csv') {
+            $rows = $query->get()->map(function ($record) {
+                return [
+                    $record->status,
+                    $record->type ?? '—',
+                    $record->description ?? '—',
+                    $record->supplier ?? '—',
+                    $record->pr_amount ?? 0,
+                    $record->pr_number ?? '—',
+                    $record->po_amount ?? 0,
+                    $record->po_number ?? '—',
+                    $record->obr_number ?? '—',
+                    $record->voucher_number ?? '—',
+                    $record->originOffice?->code ?? '—',
+                    $record->progress ?? '—',
+                    $record->remarks ?? '—',
+                ];
+            })->all();
+
+            return TableExport::csv('financial-report.csv', ['Status', 'Type', 'Description', 'Supplier', 'PR Amount', 'PR #', 'PO Amount', 'PO #', 'OBR #', 'Voucher #', 'Office Origin', 'Progress', 'Remarks'], $rows);
+        }
+
+        if ($request->get('export') === 'print') {
+            $availableColumns = [
+                'status' => 'Status',
+                'type' => 'Type',
+                'description' => 'Description',
+                'supplier' => 'Supplier',
+                'pr_amount' => 'PR Amount',
+                'pr_number' => 'PR #',
+                'po_amount' => 'PO Amount',
+                'po_number' => 'PO #',
+                'obr_number' => 'OBR #',
+                'voucher_number' => 'Voucher #',
+                'office_origin' => 'Office Origin',
+                'progress' => 'Progress',
+            ];
+
+            $rows = $query->get()->map(function ($record) {
+                return [
+                    'status' => $record->status,
+                    'type' => $record->type ?? '—',
+                    'description' => $record->description ?? '—',
+                    'supplier' => $record->supplier ?? '—',
+                    'pr_amount' => number_format((float) ($record->pr_amount ?? 0), 2),
+                    'pr_number' => $record->pr_number ?? '—',
+                    'po_amount' => number_format((float) ($record->po_amount ?? 0), 2),
+                    'po_number' => $record->po_number ?? '—',
+                    'obr_number' => $record->obr_number ?? '—',
+                    'voucher_number' => $record->voucher_number ?? '—',
+                    'office_origin' => $record->originOffice?->code ?? '—',
+                    'progress' => $record->progress ?? '—',
+                ];
+            })->all();
+
+            $visibleKeys = TableExport::normalizeVisibleColumns($request->get('visible_columns'), $availableColumns);
+            [$headers, $printRows] = TableExport::projectRows($availableColumns, $rows, $visibleKeys);
+
+            return TableExport::printTable('Financial Monitoring', $headers, $printRows, [
+                'Search' => $request->search ?: 'All records',
+                'Status Filter' => $request->status ?: 'All',
+                'Type Filter' => $request->type ?: 'All',
+            ]);
+        }
+
+        $records = $query->paginate(15)->withQueryString();
         $offices = Office::ordered()->get();
 
         return view('financial.index', compact('records', 'offices'));
@@ -132,6 +200,55 @@ class FinancialController extends Controller
         $financial->load(['originOffice', 'currentOffice', 'holder', 'routes.fromOffice', 'routes.toOffice', 'routes.releasedByUser', 'routes.receivedByUser', 'attachments']);
         $offices = Office::ordered()->get();
         $users = User::all();
+
+        if (request()->get('export') === 'csv') {
+            return TableExport::csv('financial-record-' . $financial->id . '.csv', ['Type', 'Description', 'Supplier', 'Office', 'Current Office', 'Current Holder', 'Status', 'Progress', 'PR Number', 'PR Amount', 'PO Number', 'PO Amount', 'OBR Number', 'Voucher Number', 'Remarks'], [[
+                $financial->type ?? '—',
+                $financial->description ?? '—',
+                $financial->supplier ?? '—',
+                trim(($financial->originOffice->code ?? '—') . ' - ' . ($financial->originOffice->name ?? '')),
+                $financial->currentOffice->code ?? '—',
+                $financial->holder->name ?? '—',
+                $financial->status,
+                $financial->progress ?? '—',
+                $financial->pr_number ?? '—',
+                $financial->pr_amount ?? 0,
+                $financial->po_number ?? '—',
+                $financial->po_amount ?? 0,
+                $financial->obr_number ?? '—',
+                $financial->voucher_number ?? '—',
+                $financial->remarks ?? '—',
+            ]]);
+        }
+
+        if (request()->get('export') === 'print') {
+            return TableExport::printRecord('Financial Record Details', [
+                [
+                    'title' => 'Record Information',
+                    'fields' => [
+                        'Type' => $financial->type ?? '—',
+                        'Description' => $financial->description ?? '—',
+                        'Supplier' => $financial->supplier ?? '—',
+                        'Office Origin' => trim(($financial->originOffice->code ?? '—') . ' - ' . ($financial->originOffice->name ?? '')),
+                        'Current Office' => $financial->currentOffice->code ?? '—',
+                        'Current Holder' => $financial->holder->name ?? '—',
+                        'Status' => $financial->status,
+                        'Progress' => $financial->progress ?? '—',
+                        'PR Number' => $financial->pr_number ?? '—',
+                        'PR Amount' => $financial->pr_amount ? number_format((float) $financial->pr_amount, 2) : '—',
+                        'PO Number' => $financial->po_number ?? '—',
+                        'PO Amount' => $financial->po_amount ? number_format((float) $financial->po_amount, 2) : '—',
+                        'OBR Number' => $financial->obr_number ?? '—',
+                        'Voucher Number' => $financial->voucher_number ?? '—',
+                        'Remarks' => $financial->remarks ?? '—',
+                    ],
+                ],
+            ], [
+                'Generated' => now()->format('F d, Y h:i A'),
+                'Record ID' => $financial->id,
+            ]);
+        }
+
         return view('financial.show', compact('financial', 'offices', 'users'));
     }
 

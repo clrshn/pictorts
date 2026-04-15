@@ -412,6 +412,50 @@
                 margin-right: 8px;
                 font-size: 13px;
             }
+            .sidebar .nav-sub .nav-item--nested {
+                margin-left: 22px;
+                width: calc(100% - 34px);
+                padding-left: 52px;
+                font-size: 12.5px;
+                color: #64748b;
+                background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(248,250,252,0.88) 100%);
+            }
+            .sidebar .nav-sub .nav-item--nested:hover {
+                background: linear-gradient(90deg, rgba(37,99,235,0.12) 0%, rgba(248,250,252,0.96) 46%, rgba(220,38,38,0.16) 100%);
+                color: #c0392b;
+                box-shadow: 0 8px 18px rgba(15,23,42,0.08);
+            }
+            .sidebar .nav-sub .nav-item--nested.active {
+                background: linear-gradient(90deg, rgba(37,99,235,0.14) 0%, rgba(248,250,252,0.98) 42%, rgba(220,38,38,0.18) 100%);
+                color: #c0392b;
+                box-shadow: 0 10px 20px rgba(15,23,42,0.08);
+            }
+            .sidebar .nav-sub .nav-item--nested::after {
+                content: '';
+                position: absolute;
+                left: 24px;
+                top: 50%;
+                width: 12px;
+                height: 1px;
+                background: rgba(100,116,139,0.45);
+                transform: translateY(-50%);
+            }
+            .sidebar .nav-sub .nav-item--nested:hover::after,
+            .sidebar .nav-sub .nav-item--nested.active::after {
+                background: rgba(192,57,43,0.6);
+            }
+            .sidebar .nav-sub .nav-item--nested .nav-item-nested-arrow {
+                font-size: 11px !important;
+                width: 14px !important;
+                margin-right: 6px !important;
+                transform: rotate(90deg);
+                opacity: 0.75;
+            }
+            .sidebar .nav-sub .nav-item--nested:hover .nav-item-nested-arrow,
+            .sidebar .nav-sub .nav-item--nested.active .nav-item-nested-arrow {
+                opacity: 1;
+                color: #c0392b;
+            }
             .sidebar .sidebar-admin-section {
                 text-align: center;
                 padding: 10px 0;

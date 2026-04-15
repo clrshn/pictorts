@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
-        <h1>Add New Document</h1>
-        <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / <a href="{{ route('documents.index') }}">Documents</a> / Add New</div>
+        <h1>{{ !empty($isTravelOrder) ? 'Add Travel Order' : 'Add New Document' }}</h1>
+        <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / <a href="{{ route('documents.index', !empty($isTravelOrder) ? ['type' => 'TO'] : []) }}">{{ !empty($isTravelOrder) ? 'Travel Orders' : 'Documents' }}</a> / Add New</div>
     </x-slot>
 
     @if($errors->any())
@@ -16,7 +16,7 @@
 
     <div class="table-card">
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">
-            <i class="fas fa-file-alt"></i> DOCUMENT ENCODING FORM
+            <i class="fas fa-file-alt"></i> {{ !empty($isTravelOrder) ? 'TRAVEL ORDER ENCODING FORM' : 'DOCUMENT ENCODING FORM' }}
         </div>
 
         <div style="padding:24px;">
@@ -36,10 +36,11 @@
                         <select name="document_type" class="form-control" required>
                             <option value="">Select Type</option>
                             <option value="MEMO" {{ old('document_type') === 'MEMO' ? 'selected' : '' }}>MEMO</option>
-                            <option value="EO" {{ old('document_type') === 'EO' ? 'selected' : '' }}>EO – Executive Order</option>
-                            <option value="SO" {{ old('document_type') === 'SO' ? 'selected' : '' }}>SO – Special Order</option>
+                            <option value="EO" {{ old('document_type') === 'EO' ? 'selected' : '' }}>EO - Executive Order</option>
+                            <option value="SO" {{ old('document_type') === 'SO' ? 'selected' : '' }}>SO - Special Order</option>
                             <option value="LETTER" {{ old('document_type') === 'LETTER' ? 'selected' : '' }}>LETTER</option>
-                            <option value="SP" {{ old('document_type') === 'SP' ? 'selected' : '' }}>SP – Special Permit</option>
+                            <option value="SP" {{ old('document_type') === 'SP' ? 'selected' : '' }}>SP - Special Permit</option>
+                            <option value="TO" {{ old('document_type', !empty($isTravelOrder) ? 'TO' : null) === 'TO' ? 'selected' : '' }}>TO - Travel Order</option>
                             <option value="OTHERS" {{ old('document_type') === 'OTHERS' ? 'selected' : '' }}>OTHERS</option>
                         </select>
                     </div>
@@ -51,6 +52,15 @@
                             <option value="OUTGOING" {{ old('direction') === 'OUTGOING' ? 'selected' : '' }}>OUTGOING</option>
                         </select>
                     </div>
+                    <div class="form-group" id="delivery-scope-group" style="display:none;">
+                        <label>Outgoing Type <span style="color:#c0392b">*</span></label>
+                        <select name="delivery_scope" id="delivery_scope" class="form-control">
+                            <option value="">Select Type</option>
+                            <option value="EXTERNAL" {{ old('delivery_scope') === 'EXTERNAL' ? 'selected' : '' }}>External</option>
+                            <option value="INTERNAL" {{ old('delivery_scope') === 'INTERNAL' ? 'selected' : '' }}>Internal</option>
+                        </select>
+                        <small style="color:#999;">External means sent to another office. Internal means sent within your office or unit structure.</small>
+                    </div>
                 </div>
 
                 <!-- Row 2 -->
@@ -60,7 +70,7 @@
                         <select name="originating_office" id="originating_office" class="form-control" required>
                             <option value="">Select Office</option>
                             @foreach($offices as $office)
-                                <option value="{{ $office->id }}" {{ old('originating_office') == $office->id ? 'selected' : '' }}>{{ $office->code }} – {{ $office->name }}</option>
+                                <option value="{{ $office->id }}" {{ old('originating_office') == $office->id ? 'selected' : '' }}>{{ $office->code }} - {{ $office->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -69,17 +79,45 @@
                         <select name="to_office" class="form-control">
                             <option value="">Select Office</option>
                             @foreach($offices as $office)
-                                <option value="{{ $office->id }}" {{ old('to_office') == $office->id ? 'selected' : '' }}>{{ $office->code }} – {{ $office->name }}</option>
+                                <option value="{{ $office->id }}" {{ old('to_office') == $office->id ? 'selected' : '' }}>{{ $office->code }} - {{ $office->name }}</option>
                             @endforeach
                         </select>
                     </div>
                 </div>
 
-                <!-- Subject -->
-                <div class="form-group">
-                    <label>Subject / Title <span style="color:#c0392b">*</span></label>
-                    <input type="text" name="subject" class="form-control" value="{{ old('subject') }}" required>
+                <div id="travel-order-fields" style="{{ !empty($isTravelOrder) ? '' : 'display:none;' }}">
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+                        <div class="form-group">
+                            <label>Travel Order Type <span style="color:#c0392b">*</span></label>
+                            <select name="travel_order_type" id="travel_order_type" class="form-control">
+                                <option value="">Select Type</option>
+                                <option value="WITHIN_LA_UNION" {{ old('travel_order_type') === 'WITHIN_LA_UNION' ? 'selected' : '' }}>Travel Order (within LU)</option>
+                                <option value="OUTSIDE_LA_UNION" {{ old('travel_order_type') === 'OUTSIDE_LA_UNION' ? 'selected' : '' }}>Travel Order (outside LU)</option>
+                                <option value="SPECIAL_ORDER" {{ old('travel_order_type') === 'SPECIAL_ORDER' ? 'selected' : '' }}>Special Order</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Date/s of Travel</label>
+                            <input type="text" name="travel_dates" class="form-control" value="{{ old('travel_dates') }}" placeholder="e.g., January 6 to 7, 2025">
+                        </div>
+                        <div class="form-group">
+                            <label>Destination/s</label>
+                            <input type="text" name="destinations" class="form-control" value="{{ old('destinations') }}" placeholder="Enter destination or destinations">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Name/s of Traveler/s</label>
+                        <textarea name="travelers" class="form-control" rows="4" placeholder="Enter one or more names">{{ old('travelers') }}</textarea>
+                    </div>
                 </div>
+
+                <!-- Subject -->
+                <div class="form-group" id="document-subject-group" style="{{ !empty($isTravelOrder) ? 'display:none;' : '' }}">
+                    <label>Subject / Title <span style="color:#c0392b">*</span></label>
+                    <input type="text" name="subject" id="document-subject-input" class="form-control" value="{{ old('subject') }}" {{ !empty($isTravelOrder) ? '' : 'required' }}>
+                </div>
+                <input type="hidden" name="subject" id="travel-order-subject" value="{{ old('subject', 'Travel Order') }}" {{ !empty($isTravelOrder) ? '' : 'disabled' }}>
 
                 <!-- Number (Optional) -->
                 <div class="form-group">
@@ -133,7 +171,7 @@
 
                 <!-- Particulars (Optional) -->
                 <div class="form-group">
-                    <label>Particulars <small style="color:#999;">(Optional)</small></label>
+                    <label id="particulars-label">Particulars <small style="color:#999;">(Optional)</small></label>
                     <textarea name="particulars" class="form-control" rows="3" placeholder="Enter specific details or particulars about this document...">{{ old('particulars') }}</textarea>
                 </div>
 
@@ -184,8 +222,8 @@
 
                 <!-- Buttons -->
                 <div style="display:flex; gap:10px; margin-top:8px;">
-                    <button type="submit" class="btn-red"><i class="fas fa-save"></i> Save Document</button>
-                    <a href="{{ route('documents.index') }}" class="btn-gray"><i class="fas fa-times"></i> Cancel</a>
+                    <button type="submit" class="btn-red"><i class="fas fa-save"></i> {{ !empty($isTravelOrder) ? 'Save Travel Order' : 'Save Document' }}</button>
+                    <a href="{{ route('documents.index', !empty($isTravelOrder) ? ['type' => 'TO'] : []) }}" class="btn-gray"><i class="fas fa-times"></i> Cancel</a>
                 </div>
             </form>
         </div>
@@ -200,6 +238,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const requiredSpan = document.getElementById('originating-office-required');
     const documentTypeSelect = document.querySelector('select[name="document_type"]');
     const letterFields = document.getElementById('letter-fields');
+    const deliveryScopeGroup = document.getElementById('delivery-scope-group');
+    const deliveryScopeSelect = document.getElementById('delivery_scope');
+    const travelOrderFields = document.getElementById('travel-order-fields');
+    const travelOrderTypeSelect = document.getElementById('travel_order_type');
+    const subjectGroup = document.getElementById('document-subject-group');
+    const subjectInput = document.getElementById('document-subject-input');
+    const hiddenTravelSubject = document.getElementById('travel-order-subject');
+    const particularsLabel = document.getElementById('particulars-label');
     
     function toggleOriginatingOffice() {
         if (directionSelect.value === 'OUTGOING') {
@@ -207,13 +253,54 @@ document.addEventListener('DOMContentLoaded', function() {
             if (requiredSpan) {
                 requiredSpan.style.display = 'none';
             }
-            originatingOfficeSelect.value = '';
         } else {
             originatingOfficeSelect.setAttribute('required', 'required');
             if (requiredSpan) {
                 requiredSpan.style.display = 'inline';
             }
         }
+    }
+
+    function toggleDeliveryScope() {
+        if (directionSelect.value === 'OUTGOING') {
+            deliveryScopeGroup.style.display = 'block';
+            deliveryScopeSelect.setAttribute('required', 'required');
+        } else {
+            deliveryScopeGroup.style.display = 'none';
+            deliveryScopeSelect.removeAttribute('required');
+            deliveryScopeSelect.value = '';
+        }
+    }
+
+    function toggleTravelOrderFields() {
+        const isTravelOrder = documentTypeSelect.value === 'TO';
+
+        travelOrderFields.style.display = isTravelOrder ? 'block' : 'none';
+        subjectGroup.style.display = isTravelOrder ? 'none' : 'block';
+
+        if (isTravelOrder) {
+            directionSelect.value = 'OUTGOING';
+            directionSelect.style.pointerEvents = 'none';
+            directionSelect.style.opacity = '0.7';
+            deliveryScopeGroup.style.display = 'block';
+            deliveryScopeSelect.value = 'INTERNAL';
+            deliveryScopeSelect.setAttribute('required', 'required');
+            subjectInput.removeAttribute('required');
+            hiddenTravelSubject.disabled = false;
+            hiddenTravelSubject.value = 'Travel Order';
+            travelOrderTypeSelect.setAttribute('required', 'required');
+            particularsLabel.innerHTML = 'Particulars / Purpose <span style="color:#c0392b">*</span>';
+        } else {
+            subjectInput.setAttribute('required', 'required');
+            hiddenTravelSubject.disabled = true;
+            directionSelect.style.pointerEvents = '';
+            directionSelect.style.opacity = '';
+            travelOrderTypeSelect.removeAttribute('required');
+            particularsLabel.innerHTML = 'Particulars <small style="color:#999;">(Optional)</small>';
+        }
+
+        toggleOriginatingOffice();
+        toggleDeliveryScope();
     }
     
     function toggleLetterFields() {
@@ -225,8 +312,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     directionSelect.addEventListener('change', toggleOriginatingOffice);
+    directionSelect.addEventListener('change', toggleDeliveryScope);
+    documentTypeSelect.addEventListener('change', toggleTravelOrderFields);
     documentTypeSelect.addEventListener('change', toggleLetterFields);
     toggleOriginatingOffice(); // Initialize on page load
+    toggleDeliveryScope(); // Initialize on page load
+    toggleTravelOrderFields(); // Initialize on page load
     toggleLetterFields(); // Initialize on page load
 });
 </script>

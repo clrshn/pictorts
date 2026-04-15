@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Todo;
+use App\Support\TableExport;
 use Illuminate\Http\Request;
 
 class TodoController extends Controller
@@ -43,37 +44,83 @@ class TodoController extends Controller
         // Sort by due date and priority
         if ($request->filled('sort_by')) {
             if ($request->sort_by === 'newest') {
-                $todos = $query->orderBy('date_added', 'desc')
-                              ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
-                              ->orderBy('due_date', 'asc')
-                              ->paginate(15);
+                $query->orderBy('date_added', 'desc')
+                    ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
+                    ->orderBy('due_date', 'asc');
             } elseif ($request->sort_by === 'oldest') {
-                $todos = $query->orderBy('date_added', 'asc')
-                              ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
-                              ->orderBy('due_date', 'asc')
-                              ->paginate(15);
+                $query->orderBy('date_added', 'asc')
+                    ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
+                    ->orderBy('due_date', 'asc');
             } elseif ($request->sort_by === 'az') {
-                $todos = $query->orderBy('title', 'asc')
-                              ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
-                              ->orderBy('due_date', 'asc')
-                              ->paginate(15);
+                $query->orderBy('title', 'asc')
+                    ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
+                    ->orderBy('due_date', 'asc');
             } elseif ($request->sort_by === 'za') {
-                $todos = $query->orderBy('title', 'desc')
-                              ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
-                              ->orderBy('due_date', 'asc')
-                              ->paginate(15);
+                $query->orderBy('title', 'desc')
+                    ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
+                    ->orderBy('due_date', 'asc');
             } else {
-                $todos = $query->orderBy('due_date', 'asc')
-                              ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
-                              ->orderBy('date_added', 'desc')
-                              ->paginate(15);
+                $query->orderBy('due_date', 'asc')
+                    ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
+                    ->orderBy('date_added', 'desc');
             }
         } else {
-            $todos = $query->orderBy('due_date', 'asc')
-                          ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
-                          ->orderBy('date_added', 'desc')
-                          ->paginate(15);
+            $query->orderBy('due_date', 'asc')
+                ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
+                ->orderBy('date_added', 'desc');
         }
+
+        if ($request->get('export') === 'csv') {
+            $rows = $query->get()->map(function ($todo) {
+                return [
+                    $todo->date_added?->format('Y-m-d') ?? '—',
+                    strtoupper($todo->priority),
+                    $todo->assigned_to ?? 'Unassigned',
+                    $todo->title,
+                    $todo->description ?? '—',
+                    $todo->due_date?->format('Y-m-d') ?? '—',
+                    strtoupper($todo->status),
+                    $todo->remarks ?? '—',
+                ];
+            })->all();
+
+            return TableExport::csv('todo-report.csv', ['Date Added', 'Priority', 'Assigned To', 'Task', 'What To Do', 'Deadline', 'Status', 'Remarks'], $rows);
+        }
+
+        if ($request->get('export') === 'print') {
+            $availableColumns = [
+                'date_added' => 'Date Added',
+                'priority' => 'Priority',
+                'assigned_to' => 'Assigned To',
+                'task' => 'Task',
+                'what_to_do' => 'What To Do',
+                'deadline' => 'Deadline',
+                'status' => 'Status',
+                'remarks' => 'Remarks',
+            ];
+
+            $rows = $query->get()->map(function ($todo) {
+                return [
+                    'date_added' => $todo->date_added?->format('M d, Y') ?? '—',
+                    'priority' => strtoupper($todo->priority),
+                    'assigned_to' => $todo->assigned_to ?? 'Unassigned',
+                    'task' => $todo->title,
+                    'what_to_do' => $todo->description ?? '—',
+                    'deadline' => $todo->due_date?->format('M d, Y') ?? '—',
+                    'status' => strtoupper($todo->status),
+                    'remarks' => $todo->remarks ?? '—',
+                ];
+            })->all();
+
+            $visibleKeys = TableExport::normalizeVisibleColumns($request->get('visible_columns'), $availableColumns);
+            [$headers, $printRows] = TableExport::projectRows($availableColumns, $rows, $visibleKeys);
+
+            return TableExport::printTable('Task Monitoring', $headers, $printRows, [
+                'Search' => $request->search ?: 'All tasks',
+            ]);
+        }
+
+        $todos = $query->paginate(15);
 
         return view('todos.index', compact('todos'));
     }
@@ -120,6 +167,38 @@ class TodoController extends Controller
      */
     public function show(Todo $todo)
     {
+        if (request()->get('export') === 'csv') {
+            return TableExport::csv('todo-' . $todo->id . '.csv', ['Title', 'Priority', 'Status', 'Date Added', 'Assigned To', 'Description', 'Remarks'], [[
+                $todo->title,
+                strtoupper($todo->priority),
+                strtoupper($todo->status),
+                $todo->date_added?->format('Y-m-d') ?? '—',
+                $todo->assigned_to ?? 'Unassigned',
+                $todo->description ?? '—',
+                $todo->remarks ?? '—',
+            ]]);
+        }
+
+        if (request()->get('export') === 'print') {
+            return TableExport::printRecord('Todo Details', [
+                [
+                    'title' => 'Task Information',
+                    'fields' => [
+                        'Title' => $todo->title,
+                        'Priority' => strtoupper($todo->priority),
+                        'Status' => strtoupper($todo->status),
+                        'Date Added' => $todo->date_added?->format('F d, Y') ?? '—',
+                        'Assigned To' => $todo->assigned_to ?? 'Unassigned',
+                        'Description' => $todo->description ?? '—',
+                        'Remarks' => $todo->remarks ?? '—',
+                    ],
+                ],
+            ], [
+                'Generated' => now()->format('F d, Y h:i A'),
+                'Todo ID' => $todo->id,
+            ]);
+        }
+
         return view('todos.show', compact('todo'));
     }
 

@@ -128,14 +128,41 @@
 
     <!-- Financial Table -->
     <div class="table-card">
-        <div class="table-header" style="display:flex; justify-content:flex-end;">
+        <div class="table-header" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; overflow:visible; position:relative; z-index:5;">
+            @include('components.table-tools', [
+                'tableId' => 'financialTable',
+                'storageKey' => 'financial-columns',
+                'columns' => [
+                    'row_select' => 'Select',
+                    'action' => 'Action',
+                    'status' => 'Status',
+                    'type' => 'Type',
+                    'description' => 'Description',
+                    'supplier' => 'Supplier',
+                    'pr_amount' => 'PR Amount',
+                    'pr_number' => 'PR #',
+                    'po_amount' => 'PO Amount',
+                    'po_number' => 'PO #',
+                    'obr_number' => 'OBR #',
+                    'voucher_number' => 'Voucher #',
+                    'office_origin' => 'Office Origin',
+                    'progress' => 'Progress',
+                ],
+                'lockedColumns' => ['row_select'],
+                'reportTitle' => 'Financial Monitoring',
+                'csvUrl' => request()->fullUrlWithQuery(['export' => 'csv']),
+                'printUrl' => request()->fullUrlWithQuery(['export' => 'print']),
+            ])
             <a href="{{ route('financial.create') }}" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-plus"></i> Add New Record</a>
         </div>
 
         <div style="overflow-x:auto; max-width:100%;">
-            <table style="min-width:1200px; width:100%; border-collapse: collapse;">
+            <table id="financialTable" style="min-width:1200px; width:100%; border-collapse: collapse;">
                 <thead>
                     <tr>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:52px; border-bottom:2px solid #8b0000;">
+                            <input type="checkbox" class="table-select-all" onclick="event.stopPropagation();">
+                        </th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
                         <th style="text-align:center; padding:12px 50px; white-space:nowrap; width:180px; border-bottom:2px solid #8b0000; position: relative;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;" onclick="toggleStatusDropdown()">
@@ -175,6 +202,9 @@
                 <tbody>
                     @forelse($records as $index => $rec)
                     <tr class="clickable-row" data-href="{{ route('financial.show', $rec) }}" style="cursor: pointer;">
+                        <td style="text-align:center; padding:20px 8px; white-space:nowrap; width:52px;" onclick="event.stopPropagation();">
+                            <input type="checkbox" class="table-row-select">
+                        </td>
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;" onclick="event.stopPropagation();">
                             <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
                                 <a href="{{ route('financial.edit', $rec) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
@@ -229,7 +259,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="13" style="text-align:center; padding:60px 20px;">
+                        <td colspan="14" style="text-align:center; padding:60px 20px;">
                             <div style="background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%); border:2px dashed rgba(192,57,43,0.2); border-radius:16px; padding:40px; max-width:720px; margin:0 auto;">
                                 <i class="fas fa-file-invoice-dollar" style="font-size:48px; color:#c0392b; margin-bottom:16px;"></i>
                                 <h3 style="color:#1a1a2e; margin-bottom:8px;">No Financial Records Found</h3>

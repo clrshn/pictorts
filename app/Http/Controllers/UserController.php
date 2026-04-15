@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Office;
+use App\Support\TableExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -18,7 +19,7 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $users = User::with('office')
+        $query = User::with('office')
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = trim($request->search);
 
@@ -32,9 +33,50 @@ class UserController extends Controller
                         });
                 });
             })
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
+            ->latest();
+
+        if ($request->get('export') === 'csv') {
+            $rows = $query->get()->map(function ($user) {
+                return [
+                    $user->name,
+                    $user->email,
+                    $user->office?->code ?? '—',
+                    strtoupper($user->role),
+                    $user->created_at->format('Y-m-d'),
+                ];
+            })->all();
+
+            return TableExport::csv('users-report.csv', ['Name', 'Email', 'Office', 'Role', 'Created'], $rows);
+        }
+
+        if ($request->get('export') === 'print') {
+            $availableColumns = [
+                'name' => 'Name',
+                'email' => 'Email',
+                'office' => 'Office',
+                'role' => 'Role',
+                'created' => 'Created',
+            ];
+
+            $rows = $query->get()->map(function ($user) {
+                return [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'office' => $user->office?->code ?? '—',
+                    'role' => strtoupper($user->role),
+                    'created' => $user->created_at->format('M d, Y'),
+                ];
+            })->all();
+
+            $visibleKeys = TableExport::normalizeVisibleColumns($request->get('visible_columns'), $availableColumns);
+            [$headers, $printRows] = TableExport::projectRows($availableColumns, $rows, $visibleKeys);
+
+            return TableExport::printTable('User Management', $headers, $printRows, [
+                'Search' => $request->search ?: 'All users',
+            ]);
+        }
+
+        $users = $query->paginate(15)->withQueryString();
 
         return view('users.index', compact('users'));
     }

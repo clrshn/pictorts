@@ -6,23 +6,49 @@ use App\Models\Document;
 use App\Models\DocumentFile;
 use App\Models\Office;
 use App\Models\User;
+use App\Support\TableExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DocumentController extends Controller
 {
+    private const TRAVEL_ORDER_TYPES = [
+        'WITHIN_LA_UNION',
+        'OUTSIDE_LA_UNION',
+        'SPECIAL_ORDER',
+    ];
+
+    private function isTravelOrderRequest(Request $request): bool
+    {
+        return $request->type === 'TO';
+    }
+
     public function index(Request $request)
     {
         $query = Document::with(['originatingOffice', 'destinationOffice', 'currentOffice', 'holder']);
+        $isTravelOrderPage = $this->isTravelOrderRequest($request);
 
         // Filter by document type tab
         if ($request->filled('type') && $request->type !== 'ALL') {
             $query->where('document_type', $request->type);
         }
 
+        if ($isTravelOrderPage) {
+            $query->where('direction', 'OUTGOING')
+                ->where('delivery_scope', 'INTERNAL');
+        }
+
+        if ($request->filled('travel_order_type')) {
+            $query->where('travel_order_type', $request->travel_order_type);
+        }
+
         // Filter by direction
         if ($request->filled('direction')) {
             $query->where('direction', $request->direction);
+        }
+
+        if ($request->filled('delivery_scope')) {
+            $query->where('delivery_scope', $request->delivery_scope);
         }
 
         // Filter by status
@@ -56,6 +82,9 @@ class DocumentController extends Controller
                   ->orWhere('picto_number', 'like', "%{$search}%")
                   ->orWhere('doc_number', 'like', "%{$search}%")
                   ->orWhere('subject', 'like', "%{$search}%")
+                  ->orWhere('travel_dates', 'like', "%{$search}%")
+                  ->orWhere('travelers', 'like', "%{$search}%")
+                  ->orWhere('destinations', 'like', "%{$search}%")
                   ->orWhere('endorsed_to', 'like', "%{$search}%")
                   ->orWhere('remarks', 'like', "%{$search}%")
                   ->orWhereHas('originatingOffice', function ($oq) use ($search) {
@@ -68,29 +97,146 @@ class DocumentController extends Controller
         // Sort by date
         if ($request->filled('sort_by')) {
             if ($request->sort_by === 'newest') {
-                $documents = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
+                $query->orderBy('created_at', 'desc');
             } elseif ($request->sort_by === 'oldest') {
-                $documents = $query->orderBy('created_at', 'asc')->paginate(15)->withQueryString();
+                $query->orderBy('created_at', 'asc');
             } elseif ($request->sort_by === 'az') {
-                $documents = $query->orderBy('subject', 'asc')->paginate(15)->withQueryString();
+                $query->orderBy('subject', 'asc');
             } elseif ($request->sort_by === 'za') {
-                $documents = $query->orderBy('subject', 'desc')->paginate(15)->withQueryString();
+                $query->orderBy('subject', 'desc');
             } else {
-                $documents = $query->orderBy('doc_number', 'asc')->paginate(15)->withQueryString();
+                $query->orderBy('doc_number', 'asc');
             }
         } else {
-            $documents = $query->orderBy('doc_number', 'asc')->paginate(15)->withQueryString();
+            $query->orderBy('doc_number', 'asc');
         }
+
+        if ($request->get('export') === 'csv') {
+            if ($isTravelOrderPage) {
+                $rows = $query->get()->map(function ($doc) {
+                    return [
+                        $doc->dts_number,
+                        match ($doc->travel_order_type) {
+                            'WITHIN_LA_UNION' => 'Within La Union',
+                            'OUTSIDE_LA_UNION' => 'Outside La Union',
+                            'SPECIAL_ORDER' => 'Special Order',
+                            default => '—',
+                        },
+                        $doc->travel_dates ?? '—',
+                        preg_replace("/\r\n|\r|\n/", ' | ', $doc->travelers ?? '—'),
+                        $doc->destinations ?? '—',
+                        $doc->particulars ?? $doc->subject ?? '—',
+                        $doc->status,
+                        $doc->remarks ?? '—',
+                    ];
+                })->all();
+
+                return TableExport::csv('travel-orders-report.csv', ['DTS Number', 'Travel Order Type', 'Date/s of Travel', 'Name/s', 'Destination/s', 'Particulars / Purpose', 'Status', 'Remarks'], $rows);
+            }
+
+            $rows = $query->get()->map(function ($doc) {
+                return [
+                    $doc->dts_number,
+                    $doc->doc_number ?? '—',
+                    $doc->memorandum_number ?? '—',
+                    $doc->subject ?? '—',
+                    $doc->originatingOffice->code ?? '—',
+                    $doc->direction === 'OUTGOING' ? ($doc->delivery_scope ? ucfirst(strtolower($doc->delivery_scope)) : 'Unspecified') : '—',
+                    $doc->status,
+                    $doc->date_received ? $doc->date_received->format('F d, Y') : ($doc->created_at ? $doc->created_at->format('F d, Y') : '—'),
+                    $doc->remarks ?? '—',
+                ];
+            })->all();
+
+            return TableExport::csv('documents-report.csv', ['Tracking Code', 'PICTO No', 'Number', 'Subject', 'Originating Office', 'Outgoing Type', 'Status', 'Date Received', 'Remarks'], $rows);
+        }
+
+        if ($request->get('export') === 'print') {
+            if ($isTravelOrderPage) {
+                $availableColumns = [
+                    'dts_number' => 'DTS Number',
+                    'travel_order_type' => 'Travel Order Type',
+                    'travel_dates' => 'Date/s of Travel',
+                    'travelers' => 'Name/s',
+                    'destinations' => 'Destination/s',
+                    'particulars' => 'Particulars / Purpose',
+                    'status' => 'Status',
+                ];
+
+                $rows = $query->get()->map(function ($doc) {
+                    return [
+                        'dts_number' => $doc->dts_number,
+                        'travel_order_type' => match ($doc->travel_order_type) {
+                            'WITHIN_LA_UNION' => 'Within La Union',
+                            'OUTSIDE_LA_UNION' => 'Outside La Union',
+                            'SPECIAL_ORDER' => 'Special Order',
+                            default => '—',
+                        },
+                        'travel_dates' => $doc->travel_dates ?? '—',
+                        'travelers' => preg_replace("/\r\n|\r|\n/", ', ', $doc->travelers ?? '—'),
+                        'destinations' => $doc->destinations ?? '—',
+                        'particulars' => $doc->particulars ?? $doc->subject ?? '—',
+                        'status' => $doc->status,
+                    ];
+                })->all();
+
+                $visibleKeys = TableExport::normalizeVisibleColumns($request->get('visible_columns'), $availableColumns);
+                [$headers, $printRows] = TableExport::projectRows($availableColumns, $rows, $visibleKeys);
+
+                return TableExport::printTable('Travel Orders', $headers, $printRows, [
+                    'Search' => $request->search ?: 'All records',
+                    'Travel Order Type' => $request->travel_order_type ? str_replace('_', ' ', $request->travel_order_type) : 'All',
+                    'Status Filter' => $request->status ?: 'All',
+                ]);
+            }
+
+            $availableColumns = [
+                'tracking_code' => 'Tracking Code',
+                'picto_no' => 'PICTO No',
+                'number' => 'Number',
+                'subject' => 'Subject',
+                'originating_office' => 'Originating Office',
+                'outgoing_type' => 'Outgoing Type',
+                'status' => 'Status',
+                'date_received' => 'Date Received',
+            ];
+
+            $rows = $query->get()->map(function ($doc) {
+                return [
+                    'tracking_code' => $doc->dts_number,
+                    'picto_no' => $doc->doc_number ?? '—',
+                    'number' => $doc->memorandum_number ?? '—',
+                    'subject' => $doc->subject ?? '—',
+                    'originating_office' => $doc->originatingOffice->code ?? '—',
+                    'outgoing_type' => $doc->direction === 'OUTGOING' ? ($doc->delivery_scope ? ucfirst(strtolower($doc->delivery_scope)) : 'Unspecified') : '—',
+                    'status' => $doc->status,
+                    'date_received' => $doc->date_received ? $doc->date_received->format('F d, Y') : ($doc->created_at ? $doc->created_at->format('F d, Y') : '—'),
+                ];
+            })->all();
+
+            $visibleKeys = TableExport::normalizeVisibleColumns($request->get('visible_columns'), $availableColumns);
+            [$headers, $printRows] = TableExport::projectRows($availableColumns, $rows, $visibleKeys);
+
+            return TableExport::printTable('Documents', $headers, $printRows, [
+                'Search' => $request->search ?: 'All records',
+                'Direction' => $request->direction ?: 'All',
+                'Document Type' => $request->type ?: 'All',
+                'Status Filter' => $request->status ?: 'All',
+            ]);
+        }
+
+        $documents = $query->paginate(15)->withQueryString();
         $offices = Office::ordered()->get();
 
-        return view('documents.index', compact('documents', 'offices'));
+        return view('documents.index', compact('documents', 'offices', 'isTravelOrderPage'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $offices = Office::ordered()->get();
         $users = User::all();
-        return view('documents.create', compact('offices', 'users'));
+        $isTravelOrder = $request->query('document_type') === 'TO';
+        return view('documents.create', compact('offices', 'users', 'isTravelOrder'));
     }
 
     private function generateTrackingCode(string $type, int $originOfficeId, $date = null): string
@@ -142,13 +288,23 @@ class DocumentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'document_type' => 'required|in:MEMO,EO,SO,LETTER,SP,OTHERS',
+            'document_type' => 'required|in:MEMO,EO,SO,LETTER,SP,TO,OTHERS',
             'direction' => 'required|in:INCOMING,OUTGOING',
+            'delivery_scope' => 'nullable|in:EXTERNAL,INTERNAL|required_if:direction,OUTGOING',
             'originating_office' => 'required|exists:offices,id',
             'date_received' => 'required|date',
             'subject' => 'required|string',
             'files.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
+            'travel_order_type' => 'nullable|in:' . implode(',', self::TRAVEL_ORDER_TYPES),
+            'travel_dates' => 'nullable|string|max:255',
+            'travelers' => 'nullable|string',
+            'destinations' => 'nullable|string',
         ]);
+
+        $isTravelOrder = $request->document_type === 'TO';
+        $subject = $isTravelOrder
+            ? trim((string) ($request->particulars ?: $request->subject ?: 'Travel Order'))
+            : $request->subject;
 
         $trackingCode = $this->generateTrackingCode($request->document_type, $request->originating_office, $request->date_received);
         $transactionNumber = $this->generateTransactionNumber($request->document_type, $request->originating_office, $request->date_received);
@@ -160,12 +316,17 @@ class DocumentController extends Controller
             'memorandum_number' => $request->memorandum_number,
             'period' => $request->period,
             'document_type' => $request->document_type,
-            'direction' => $request->direction,
+            'direction' => $isTravelOrder ? 'OUTGOING' : $request->direction,
+            'delivery_scope' => $isTravelOrder ? 'INTERNAL' : ($request->direction === 'OUTGOING' ? $request->delivery_scope : null),
+            'travel_order_type' => $isTravelOrder ? $request->travel_order_type : null,
+            'travel_dates' => $isTravelOrder ? $request->travel_dates : null,
+            'travelers' => $isTravelOrder ? $request->travelers : null,
+            'destinations' => $isTravelOrder ? $request->destinations : null,
             'originating_office' => $request->originating_office,
             'to_office' => $request->to_office,
             'current_office' => $request->originating_office,
             'current_holder' => auth()->id(),
-            'subject' => $request->subject,
+            'subject' => $subject,
             'particulars' => $request->particulars,
             'action_required' => $request->action_required,
             'endorsed_to' => $request->endorsed_to,
@@ -208,7 +369,9 @@ class DocumentController extends Controller
             'remarks' => 'Document created and initially recorded',
         ]);
 
-        return redirect()->route('documents.index')->with('success', 'Document recorded successfully — Tracking Code: ' . $trackingCode . ', Transaction Number: ' . $transactionNumber);
+        return redirect()
+            ->route('documents.index', $isTravelOrder ? ['type' => 'TO'] : [])
+            ->with('success', 'Document recorded successfully - Tracking Code: ' . $trackingCode . ', Transaction Number: ' . $transactionNumber);
     }
 
     public function show(Document $document)
@@ -217,7 +380,75 @@ class DocumentController extends Controller
         $document->load(['originatingOffice', 'destinationOffice', 'currentOffice', 'holder', 'encoder', 'routes.fromOffice', 'routes.toOffice', 'routes.releasedByUser', 'routes.receivedByUser', 'files']);
         $offices = Office::ordered()->get();
         $users = User::all();
-        return view('documents.show', compact('document', 'offices', 'users'));
+        $isTravelOrder = $document->document_type === 'TO';
+
+        if (request()->get('export') === 'csv') {
+            return TableExport::csv('document-' . $document->id . '.csv', ['Tracking Code', 'PICTO No', 'Number', 'Document Type', 'Direction', 'Outgoing Type', 'Subject', 'Particulars', 'Originating Office', 'Date Received', 'Action Required', 'Endorsed To', 'Current Office', 'Current Holder', 'Status', 'Remarks'], [[
+                $document->dts_number,
+                $document->doc_number ?? '—',
+                $document->memorandum_number ?? '—',
+                $document->document_type,
+                $document->direction,
+                $document->direction === 'OUTGOING' ? ($document->delivery_scope ? ucfirst(strtolower($document->delivery_scope)) : 'Unspecified') : '—',
+                $document->subject ?? '—',
+                $document->particulars ?? '—',
+                $document->originatingOffice->name ?? '—',
+                $document->date_received ? $document->date_received->format('F d, Y') : '—',
+                $document->action_required ?? '—',
+                $document->endorsed_to ?? '—',
+                $document->currentOffice->code ?? '—',
+                $document->holder->name ?? '—',
+                $document->status,
+                $document->remarks ?? '—',
+            ]]);
+        }
+
+        if (request()->get('export') === 'print') {
+            $sections = [
+                [
+                    'title' => 'Document Information',
+                    'fields' => [
+                        'Tracking Code' => $document->dts_number,
+                        'PICTO No' => $document->doc_number ?? '—',
+                        'Number' => $document->memorandum_number ?? '—',
+                        'Document Type' => $document->document_type,
+                        'Direction' => $document->direction,
+                        'Outgoing Type' => $document->direction === 'OUTGOING' ? ($document->delivery_scope ? ucfirst(strtolower($document->delivery_scope)) : 'Unspecified') : '—',
+                        'Subject' => $document->subject ?? '—',
+                        'Particulars' => $document->particulars ?? '—',
+                        'Originating Office' => $document->originatingOffice->name ?? '—',
+                        'Date Received' => $document->date_received ? $document->date_received->format('F d, Y') : '—',
+                        'Action Required' => $document->action_required ?? '—',
+                        'Endorsed To' => $document->endorsed_to ?? '—',
+                        'Current Office' => $document->currentOffice->code ?? '—',
+                        'Current Holder' => $document->holder->name ?? '—',
+                        'Status' => $document->status,
+                        'Encoded By' => $document->encoder->name ?? '—',
+                        'Received Online' => $document->received_via_online ? 'Yes' : 'No',
+                        'Remarks' => $document->remarks ?? '—',
+                    ],
+                ],
+            ];
+
+            if ($isTravelOrder) {
+                $sections[] = [
+                    'title' => 'Travel Order Details',
+                    'fields' => [
+                        'Travel Order Type' => $document->travel_order_type ? str_replace('_', ' ', $document->travel_order_type) : '—',
+                        'Date/s of Travel' => $document->travel_dates ?? '—',
+                        'Destination/s' => $document->destinations ?? '—',
+                        'Name/s' => preg_replace("/\r\n|\r|\n/", ', ', $document->travelers ?? '—'),
+                    ],
+                ];
+            }
+
+            return TableExport::printRecord($isTravelOrder ? 'Travel Order Details' : 'Document Details', $sections, [
+                'Generated' => now()->format('F d, Y h:i A'),
+                'Record ID' => $document->id,
+            ]);
+        }
+
+        return view('documents.show', compact('document', 'offices', 'users', 'isTravelOrder'));
     }
 
     public function edit(Document $document)
@@ -226,20 +457,31 @@ class DocumentController extends Controller
         
         $offices = Office::ordered()->get();
         $users = User::all();
-        return view('documents.edit', compact('document', 'offices', 'users'));
+        $isTravelOrder = $document->document_type === 'TO';
+        return view('documents.edit', compact('document', 'offices', 'users', 'isTravelOrder'));
     }
 
     public function update(Request $request, Document $document)
     {
         $this->authorize('update', $document);
         $request->validate([
-            'document_type' => 'required|in:MEMO,EO,SO,LETTER,SP,OTHERS',
+            'document_type' => 'required|in:MEMO,EO,SO,LETTER,SP,TO,OTHERS',
             'direction' => 'required|in:INCOMING,OUTGOING',
+            'delivery_scope' => 'nullable|in:EXTERNAL,INTERNAL|required_if:direction,OUTGOING',
             'originating_office' => 'required|exists:offices,id',
             'date_received' => 'required|date',
             'subject' => 'required|string',
             'files.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
+            'travel_order_type' => 'nullable|in:' . implode(',', self::TRAVEL_ORDER_TYPES),
+            'travel_dates' => 'nullable|string|max:255',
+            'travelers' => 'nullable|string',
+            'destinations' => 'nullable|string',
         ]);
+
+        $isTravelOrder = $request->document_type === 'TO';
+        $subject = $isTravelOrder
+            ? trim((string) ($request->particulars ?: $request->subject ?: 'Travel Order'))
+            : $request->subject;
 
         // Check if date changed and regenerate tracking code and transaction number if needed
         $oldDate = $document->date_received ? $document->date_received->format('Y-m-d') : null;
@@ -247,12 +489,17 @@ class DocumentController extends Controller
         
         $updateData = [
             'document_type' => $request->document_type,
-            'direction' => $request->direction,
+            'direction' => $isTravelOrder ? 'OUTGOING' : $request->direction,
+            'delivery_scope' => $isTravelOrder ? 'INTERNAL' : ($request->direction === 'OUTGOING' ? $request->delivery_scope : null),
+            'travel_order_type' => $isTravelOrder ? $request->travel_order_type : null,
+            'travel_dates' => $isTravelOrder ? $request->travel_dates : null,
+            'travelers' => $isTravelOrder ? $request->travelers : null,
+            'destinations' => $isTravelOrder ? $request->destinations : null,
             'originating_office' => $request->originating_office,
             'to_office' => $request->to_office,
             'current_office' => $request->originating_office,
             'current_holder' => auth()->id(),
-            'subject' => $request->subject,
+            'subject' => $subject,
             'memorandum_number' => $request->memorandum_number,
             'period' => $request->period,
             'particulars' => $request->particulars,
@@ -303,8 +550,8 @@ class DocumentController extends Controller
         $previousStatus = $document->status;
         $document->update($updateData);
 
-        // Add completion entry if status changed to COMPLETED
-        if (($updateData['status'] ?? $previousStatus) === 'COMPLETED' && $previousStatus !== 'COMPLETED') {
+        // Add completion entry if status changed to DONE
+        if (($updateData['status'] ?? $previousStatus) === 'DONE' && $previousStatus !== 'DONE') {
             $document->routes()->create([
                 'from_office' => $updateData['current_office'] ?? $document->current_office,
                 'to_office' => $updateData['current_office'] ?? $document->current_office,
@@ -312,7 +559,7 @@ class DocumentController extends Controller
                 'datetime_released' => now(),
                 'datetime_received' => now(),
                 'received_by' => auth()->id(),
-                'remarks' => 'Document marked as COMPLETED',
+                'remarks' => 'Document marked as DONE',
             ]);
         }
 
@@ -341,8 +588,9 @@ class DocumentController extends Controller
     public function destroy(Document $document)
     {
         $this->authorize('delete', $document);
+        $isTravelOrder = $document->document_type === 'TO';
         $document->delete();
-        return redirect()->route('documents.index')->with('success', 'Document deleted.');
+        return redirect()->route('documents.index', $isTravelOrder ? ['type' => 'TO'] : [])->with('success', 'Document deleted.');
     }
 
     public function route(Request $request, Document $document)

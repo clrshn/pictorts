@@ -59,7 +59,7 @@
                     <div>
                         <div class="overview-card-label">All Documents</div>
                         <div class="overview-card-value">{{ $totalDocuments }}</div>
-                        <div class="overview-card-meta">{{ $docOngoing }} ongoing, {{ $docCompleted }} completed</div>
+                        <div class="overview-card-meta">{{ $docOngoing }} ongoing, {{ $docCompleted }} done</div>
                     </div>
                     <div class="overview-card-icon"><i class="fas fa-folder-open"></i></div>
                 </a>
@@ -122,7 +122,7 @@
                     <div>
                         <div class="overview-card-label">Finished</div>
                         <div class="overview-card-value">{{ $financialFinished }}</div>
-                        <div class="overview-card-meta">Completed transactions</div>
+                        <div class="overview-card-meta">Done transactions</div>
                     </div>
                     <div class="overview-card-icon"><i class="fas fa-flag-checkered"></i></div>
                 </a>

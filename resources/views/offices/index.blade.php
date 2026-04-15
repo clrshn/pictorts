@@ -67,7 +67,7 @@
 
     <!-- Offices Table -->
     <div class="table-card">
-        <div class="table-header" style="display: flex; justify-content: flex-end; align-items: center;">
+        <div class="table-header" style="display:flex; justify-content:flex-end; align-items:center; gap:12px; flex-wrap:wrap; overflow:visible; position:relative; z-index:5;">
             <a href="{{ route('offices.create') }}" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-plus"></i> Add New Office</a>
         </div>
 

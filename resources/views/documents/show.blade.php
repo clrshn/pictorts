@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
-        <h1>Document Track</h1>
-        <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / <a href="{{ route('documents.index') }}">Documents</a> / {{ $document->dts_number }}</div>
+        <h1>{{ !empty($isTravelOrder) ? 'Travel Order Track' : 'Document Track' }}</h1>
+        <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / <a href="{{ route('documents.index', !empty($isTravelOrder) ? ['type' => 'TO'] : []) }}">{{ !empty($isTravelOrder) ? 'Travel Orders' : 'Documents' }}</a> / {{ $document->dts_number }}</div>
     </x-slot>
 
     @if(session('success'))
@@ -25,10 +25,12 @@
     <!-- Document Details Card -->
     <div class="table-card" style="margin-bottom:20px;">
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px; display:flex; justify-content:space-between; align-items:center;">
-            <span><i class="fas fa-file-alt"></i> Document Track</span>
+            <span><i class="fas fa-file-alt"></i> {{ !empty($isTravelOrder) ? 'Travel Order Track' : 'Document Track' }}</span>
             <div class="detail-header-actions">
+                <a href="{{ request()->fullUrlWithQuery(['export' => 'print']) }}" target="_blank" class="btn-blue"><i class="fas fa-print"></i> Print / Save PDF</a>
+                <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn-green"><i class="fas fa-file-excel"></i> Export Excel</a>
                 <a href="{{ route('documents.edit', $document) }}" class="btn-orange"><i class="fas fa-edit"></i> Edit</a>
-                <a href="{{ route('documents.index') }}" class="btn-gray"><i class="fas fa-arrow-left"></i> Back</a>
+                <a href="{{ route('documents.index', !empty($isTravelOrder) ? ['type' => 'TO'] : []) }}" class="btn-gray"><i class="fas fa-arrow-left"></i> Back</a>
             </div>
         </div>
 
@@ -44,6 +46,15 @@
                     <div><strong>Particulars:</strong> {{ $document->particulars ?? '—' }}</div>
                 </div>
                 
+                @if(!empty($isTravelOrder))
+                <div style="grid-column:span 2; border-left:3px solid #2563eb; padding-left:12px; margin-bottom:12px;">
+                    <div><strong>Travel Order Type:</strong> {{ str_replace('_', ' ', $document->travel_order_type ?? '—') }}</div>
+                    <div><strong>Date/s of Travel:</strong> {{ $document->travel_dates ?? '—' }}</div>
+                    <div><strong>Destination/s:</strong> {{ $document->destinations ?? '—' }}</div>
+                    <div><strong>Name/s:</strong> <span style="white-space: pre-line;">{{ $document->travelers ?? '—' }}</span></div>
+                </div>
+                @endif
+
                 <!-- Document Identification -->
                 <div style="border-left:3px solid #c0392b; padding-left:12px;">
                     <div style="margin-bottom:8px;"><strong>Tracking Code:</strong> <span style="font-family:monospace; color:#c0392b;">{{ $document->dts_number }}</span></div>
@@ -54,6 +65,7 @@
                 <!-- Document Details -->
                 <div style="border-left:3px solid #3498db; padding-left:12px;">
                     <div style="margin-bottom:8px;"><strong>Direction:</strong> {{ $document->direction }}</div>
+                    <div style="margin-bottom:8px;"><strong>Outgoing Type:</strong> {{ $document->direction === 'OUTGOING' ? ($document->delivery_scope ? ucfirst(strtolower($document->delivery_scope)) : 'Unspecified') : '—' }}</div>
                     <div style="margin-bottom:8px;"><strong>Originating Office:</strong> {{ $document->originatingOffice->name ?? '—' }}</div>
                     <div style="margin-bottom:8px;"><strong>Date Received:</strong> {{ $document->date_received ? $document->date_received->format('F d, Y') : ($document->created_at ? $document->created_at->format('F d, Y') : '—') }}</div>
                 </div>
@@ -68,7 +80,14 @@
                 <div style="border-left:3px solid #8e44ad; padding-left:12px;">
                     <div style="margin-bottom:8px;"><strong>Current Location:</strong> {{ $document->currentOffice->code ?? '—' }}</div>
                     <div style="margin-bottom:8px;"><strong>Current Holder:</strong> {{ $document->holder->name ?? '—' }}</div>
-                    <div><strong>Status:</strong> <span class="badge badge-{{ strtolower($document->status) }}">{{ $document->status }}</span></div>
+                    <div><strong>Status:</strong>
+                        <span class="badge {{ match($document->status) {
+                            'ONGOING' => 'badge-ongoing',
+                            'DELIVERED' => 'badge-delivered',
+                            'DONE' => 'badge-completed',
+                            default => ''
+                        } }}">{{ $document->status }}</span>
+                    </div>
                 </div>
                 
                 <!-- Additional Information -->
@@ -94,7 +113,7 @@
                     $badgeClass = match($document->status) {
                         'ONGOING' => 'badge-ongoing',
                         'DELIVERED' => 'badge-delivered',
-                        'COMPLETED' => 'badge-completed',
+                        'DONE' => 'badge-completed',
                         default => ''
                     };
                 @endphp
@@ -138,7 +157,7 @@
     </div>
 
     <!-- Forward / Route Document -->
-    @if($document->status !== 'COMPLETED')
+    @if($document->status !== 'DONE')
     <div class="table-card" style="margin-bottom:20px;">
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">
             <i class="fas fa-share"></i> Forward / Route Document
@@ -172,17 +191,39 @@
         </div>
     </div>
 
-    <!-- Mark as Completed -->
+    <!-- Mark as Done -->
     <div style="margin-bottom:20px;">
-        <form method="POST" action="{{ route('documents.update', $document) }}">
+        <form method="POST" action="{{ route('documents.update', $document) }}" id="markDoneForm">
             @csrf
             @method('PUT')
             <input type="hidden" name="document_type" value="{{ $document->document_type }}">
             <input type="hidden" name="direction" value="{{ $document->direction }}">
+            <input type="hidden" name="delivery_scope" value="{{ $document->delivery_scope }}">
+            <input type="hidden" name="travel_order_type" value="{{ $document->travel_order_type }}">
+            <input type="hidden" name="travel_dates" value="{{ $document->travel_dates }}">
+            <input type="hidden" name="travelers" value="{{ $document->travelers }}">
+            <input type="hidden" name="destinations" value="{{ $document->destinations }}">
             <input type="hidden" name="originating_office" value="{{ $document->originating_office }}">
+            <input type="hidden" name="to_office" value="{{ $document->to_office }}">
             <input type="hidden" name="subject" value="{{ $document->subject }}">
-            <input type="hidden" name="status" value="COMPLETED">
-            <button type="submit" class="btn-green" onclick="event.preventDefault(); confirmMarkCompleted();"><i class="fas fa-check-square"></i> Mark as Completed</button>
+            <input type="hidden" name="date_received" value="{{ $document->date_received?->format('Y-m-d') }}">
+            <input type="hidden" name="memorandum_number" value="{{ $document->memorandum_number }}">
+            <input type="hidden" name="period" value="{{ $document->period }}">
+            <input type="hidden" name="particulars" value="{{ $document->particulars }}">
+            <input type="hidden" name="action_required" value="{{ $document->action_required }}">
+            <input type="hidden" name="endorsed_to" value="{{ $document->endorsed_to }}">
+            <input type="hidden" name="remarks" value="{{ $document->remarks }}">
+            <input type="hidden" name="shared_drive_link" value="{{ $document->shared_drive_link }}">
+            <input type="hidden" name="received_via_online" value="{{ $document->received_via_online ? 1 : 0 }}">
+            <input type="hidden" name="opg_reference_no" value="{{ $document->opg_reference_no }}">
+            <input type="hidden" name="opa_reference_no" value="{{ $document->opa_reference_no }}">
+            <input type="hidden" name="governors_instruction" value="{{ $document->governors_instruction }}">
+            <input type="hidden" name="administrators_instruction" value="{{ $document->administrators_instruction }}">
+            <input type="hidden" name="returned" value="{{ $document->returned }}">
+            <input type="hidden" name="opg_action_slip" value="{{ $document->opg_action_slip }}">
+            <input type="hidden" name="dts_no" value="{{ $document->dts_no }}">
+            <input type="hidden" name="status" value="DONE">
+            <button type="submit" class="btn-green" onclick="event.preventDefault(); confirmMarkCompleted();"><i class="fas fa-check-square"></i> Mark as Done</button>
         </form>
     </div>
     @endif
@@ -201,7 +242,7 @@
                             <div style="position:absolute; left:-24px; top:2px; width:20px; height:20px; border-radius:50%; background:{{ $route->datetime_received ? '#27ae60' : '#e67e22' }}; display:flex; align-items:center; justify-content:center;">
                                 <i class="fas {{ 
                                     $route->from_office == $route->to_office 
-                                        ? (str_contains($route->remarks, 'created') ? 'fa-plus' : (str_contains($route->remarks, 'COMPLETED') ? 'fa-check' : 'fa-info')) 
+                                        ? (str_contains($route->remarks, 'created') ? 'fa-plus' : ((str_contains($route->remarks, 'DONE') || str_contains($route->remarks, 'COMPLETED')) ? 'fa-check' : 'fa-info')) 
                                         : ($route->datetime_received ? 'fa-check' : 'fa-clock') 
                                 }}" style="color:#fff; font-size:10px;"></i>
                             </div>
@@ -211,9 +252,9 @@
                                         @if(str_contains($route->remarks, 'created'))
                                             <i class="fas fa-plus-circle" style="margin-right:6px; color:#27ae60;"></i> Document Created at {{ $route->fromOffice->code ?? '?' }}
                                             <span class="badge badge-completed" style="margin-left:8px;">CREATED</span>
-                                        @elseif(str_contains($route->remarks, 'COMPLETED'))
-                                            <i class="fas fa-check-circle" style="margin-right:6px; color:#27ae60;"></i> Document Completed at {{ $route->fromOffice->code ?? '?' }}
-                                            <span class="badge badge-completed" style="margin-left:8px;">COMPLETED</span>
+                                        @elseif(str_contains($route->remarks, 'DONE') || str_contains($route->remarks, 'COMPLETED'))
+                                            <i class="fas fa-check-circle" style="margin-right:6px; color:#27ae60;"></i> Document Done at {{ $route->fromOffice->code ?? '?' }}
+                                            <span class="badge badge-completed" style="margin-left:8px;">DONE</span>
                                         @else
                                             <i class="fas fa-info-circle" style="margin-right:6px; color:#3498db;"></i> {{ $route->fromOffice->code ?? '?' }}
                                             <span class="badge badge-completed" style="margin-left:8px;">UPDATED</span>
@@ -227,8 +268,8 @@
                                     @if($route->from_office == $route->to_office)
                                         @if(str_contains($route->remarks, 'created'))
                                             Created by: {{ $route->releasedByUser->name ?? '—' }} — {{ $route->datetime_released?->format('M d, Y h:i A') }}
-                                        @elseif(str_contains($route->remarks, 'COMPLETED'))
-                                            Completed by: {{ $route->releasedByUser->name ?? '—' }} — {{ $route->datetime_released?->format('M d, Y h:i A') }}
+                                        @elseif(str_contains($route->remarks, 'DONE') || str_contains($route->remarks, 'COMPLETED'))
+                                            Done by: {{ $route->releasedByUser->name ?? '—' }} — {{ $route->datetime_released?->format('M d, Y h:i A') }}
                                         @else
                                             Updated by: {{ $route->releasedByUser->name ?? '—' }} — {{ $route->datetime_released?->format('M d, Y h:i A') }}
                                         @endif
@@ -280,7 +321,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Modern confirmation for Mark as Completed
+// Modern confirmation for Mark as Done
 function confirmMarkCompleted() {
     // Create a simple modern confirmation dialog
     const confirmDialog = document.createElement('div');
@@ -303,16 +344,16 @@ function confirmMarkCompleted() {
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
             <div style="font-weight: 600; font-size: 14px; color: #2c3e50; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-exclamation-triangle" style="color: #f39c12;"></i>
-                Mark as Completed
+                Mark as Done
             </div>
             <button onclick="this.closest('.confirm-dialog').remove()" style="background: none; border: none; color: #7f8c8d; font-size: 18px; cursor: pointer; padding: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">&times;</button>
         </div>
         <div style="color: #555; font-size: 13px; line-height: 1.4; margin-bottom: 12px;">
-            Are you sure you want to mark this document as COMPLETED?<br><br><strong>This action will update the document status and cannot be undone!</strong>
+            Are you sure you want to mark this document as DONE?<br><br><strong>This action will update the document status and cannot be undone!</strong>
         </div>
         <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end;">
             <button onclick="this.closest('.confirm-dialog').remove()" style="padding: 6px 12px; border: none; border-radius: 4px; font-size: 12px; font-weight: 500; cursor: pointer; background: #ecf0f1; color: #555;">Cancel</button>
-            <button onclick="confirmComplete()" style="padding: 6px 12px; border: none; border-radius: 4px; font-size: 12px; font-weight: 500; cursor: pointer; background: #e74c3c; color: white;">Mark as Completed</button>
+            <button onclick="confirmComplete()" style="padding: 6px 12px; border: none; border-radius: 4px; font-size: 12px; font-weight: 500; cursor: pointer; background: #e74c3c; color: white;">Mark as Done</button>
         </div>
     `;
     
@@ -340,7 +381,10 @@ function confirmMarkCompleted() {
     window.confirmComplete = function() {
         confirmDialog.remove();
         backdrop.remove();
-        document.querySelector('form[action*="update"]').submit();
+        const markDoneForm = document.getElementById('markDoneForm');
+        if (markDoneForm) {
+            markDoneForm.submit();
+        }
     };
 }
 </script>

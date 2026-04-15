@@ -108,14 +108,36 @@
     </div>
 
     <div class="table-card">
-        <div class="table-header" style="display:flex; justify-content:flex-end;">
+        <div class="table-header" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; overflow:visible; position:relative; z-index:5;">
+            @include('components.table-tools', [
+                'tableId' => 'todosTable',
+                'storageKey' => 'todos-columns',
+                'columns' => [
+                    'row_select' => 'Select',
+                    'action' => 'Action',
+                    'date_added' => 'Date Added',
+                    'priority' => 'Priority',
+                    'assigned_to' => 'Assigned To',
+                    'task' => 'Task',
+                    'what_to_do' => 'What To Do',
+                    'deadline' => 'Deadline',
+                    'status' => 'Status',
+                ],
+                'lockedColumns' => ['row_select'],
+                'reportTitle' => 'Task Monitoring',
+                'csvUrl' => request()->fullUrlWithQuery(['export' => 'csv']),
+                'printUrl' => request()->fullUrlWithQuery(['export' => 'print']),
+            ])
             <a href="{{ route('todos.create') }}" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-plus"></i> Add New Task</a>
         </div>
 
         <div style="overflow-x:auto; max-width:100%;">
-            <table class="table table-hover" style="min-width:900px; width:100%; border-collapse: collapse;">
+            <table id="todosTable" class="table table-hover" style="min-width:900px; width:100%; border-collapse: collapse;">
                 <thead>
                     <tr>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:52px; border-bottom:2px solid #8b0000;">
+                            <input type="checkbox" class="table-select-all" onclick="event.stopPropagation();">
+                        </th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DATE ADDED</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:210px; border-bottom:2px solid #8b0000;">PRIORITY</th>
@@ -130,6 +152,9 @@
                     @forelse($todos as $index => $todo)
 
                     <tr id="todoRow-{{ $todo->id }}" class="clickable-row {{ ($todo->date_added && $todo->date_added < now() && $todo->status != 'completed') ? 'overdue-row' : '' }}" data-href="{{ route('todos.show', $todo) }}" style="cursor: pointer;">
+                        <td style="text-align:center; padding:20px 8px; white-space:nowrap; width:52px;" onclick="event.stopPropagation();">
+                            <input type="checkbox" class="table-row-select">
+                        </td>
 
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;" onclick="event.stopPropagation();">
                             <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
@@ -199,7 +224,7 @@
 
                     @empty
                     <tr>
-                        <td colspan="9" style="text-align:center; padding:60px;">
+                        <td colspan="10" style="text-align:center; padding:60px;">
                             <div style="background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%); border:2px dashed rgba(192,57,43,0.2); border-radius:16px; padding:40px;">
                                 <i class="fas fa-tasks" style="font-size:48px; color:#c0392b; margin-bottom:16px;"></i>
                                 <h3 style="margin-bottom:8px; color:#1a1a2e;">No Tasks Found</h3>

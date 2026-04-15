@@ -42,7 +42,7 @@ class DashboardController extends Controller
 
         $docOngoing = Document::where('status', 'ONGOING')->count();
         $docDelivered = Document::where('status', 'DELIVERED')->count();
-        $docCompleted = Document::where('status', 'COMPLETED')->count();
+        $docCompleted = Document::where('status', 'DONE')->count();
 
         // Monthly document counts for the current year
         $monthlyDocs = Document::selectRaw('MONTH(created_at) as month, COUNT(*) as total')

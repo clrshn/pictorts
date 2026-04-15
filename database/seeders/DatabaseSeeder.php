@@ -46,6 +46,10 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        $this->call([
+            InternalDocumentsSeeder::class,
+        ]);
+
         $this->command->info('Database seeded successfully!');
         $this->command->info('Admin login: admin@pictorts.com / admin123');
         $this->command->info('User login: user@pictorts.com / user123');

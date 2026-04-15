@@ -8,6 +8,8 @@
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px; display:flex; justify-content:space-between; align-items:center;">
             <span><i class="fas fa-tasks"></i> Todo Details</span>
             <div class="detail-header-actions">
+                <a href="{{ request()->fullUrlWithQuery(['export' => 'print']) }}" target="_blank" class="btn-blue"><i class="fas fa-print"></i> Print / Save PDF</a>
+                <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn-green"><i class="fas fa-file-excel"></i> Export Excel</a>
                 <a href="{{ route('todos.edit', $todo) }}" class="btn-orange"><i class="fas fa-edit"></i> Edit</a>
                 <a href="{{ route('todos.index') }}" class="btn-gray"><i class="fas fa-arrow-left"></i> Back</a>
             </div>

@@ -313,7 +313,7 @@
                     }
 
                     // End node
-                    if (d.status === 'COMPLETED') {
+                    if (d.status === 'DONE' || d.status === 'COMPLETED') {
                         timelineHtml += '<div style="position:relative; border-left:2px solid #ddd; margin-left:-14px; padding-left:22px;">';
                         timelineHtml += '<div style="position:absolute; left:-9px; top:2px; width:16px; height:16px; border-radius:50%; background:#c0392b; border:2px solid #fff;"></div>';
                         timelineHtml += '<div style="font-size:12px; font-weight:700; color:#c0392b;">End</div>';

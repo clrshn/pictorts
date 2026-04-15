@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Office;
+use App\Support\TableExport;
 use Illuminate\Http\Request;
 
 class OfficeController extends Controller
@@ -15,7 +16,7 @@ class OfficeController extends Controller
 
     public function index(Request $request)
     {
-        $offices = Office::with('users')
+        $query = Office::with('users')
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = trim($request->search);
 
@@ -24,9 +25,44 @@ class OfficeController extends Controller
                         ->orWhere('name', 'like', "%{$search}%");
                 });
             })
-            ->ordered()
-            ->paginate(15)
-            ->withQueryString();
+            ->ordered();
+
+        if ($request->get('export') === 'csv') {
+            $rows = $query->get()->map(function ($office) {
+                return [
+                    $office->code,
+                    $office->name,
+                    $office->users->count(),
+                ];
+            })->all();
+
+            return TableExport::csv('offices-report.csv', ['Office Code', 'Office Name', 'Users'], $rows);
+        }
+
+        if ($request->get('export') === 'print') {
+            $availableColumns = [
+                'office_code' => 'Office Code',
+                'office_name' => 'Office Name',
+                'users' => 'Users',
+            ];
+
+            $rows = $query->get()->map(function ($office) {
+                return [
+                    'office_code' => $office->code,
+                    'office_name' => $office->name,
+                    'users' => $office->users->count(),
+                ];
+            })->all();
+
+            $visibleKeys = TableExport::normalizeVisibleColumns($request->get('visible_columns'), $availableColumns);
+            [$headers, $printRows] = TableExport::projectRows($availableColumns, $rows, $visibleKeys);
+
+            return TableExport::printTable('Office Management', $headers, $printRows, [
+                'Search' => $request->search ?: 'All offices',
+            ]);
+        }
+
+        $offices = $query->paginate(15)->withQueryString();
 
         return view('offices.index', compact('offices'));
     }
