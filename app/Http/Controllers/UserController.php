@@ -34,8 +34,9 @@ class UserController extends Controller
                 });
             })
             ->latest();
+        $exportMode = $request->get('export');
 
-        if ($request->get('export') === 'csv') {
+        if ($exportMode === 'csv') {
             $rows = $query->get()->map(function ($user) {
                 return [
                     $user->name,
@@ -49,7 +50,7 @@ class UserController extends Controller
             return TableExport::csv('users-report.csv', ['Name', 'Email', 'Office', 'Role', 'Created'], $rows);
         }
 
-        if ($request->get('export') === 'print') {
+        if (in_array($exportMode, ['print', 'pdf'], true)) {
             $availableColumns = [
                 'name' => 'Name',
                 'email' => 'Email',
@@ -71,7 +72,9 @@ class UserController extends Controller
             $visibleKeys = TableExport::normalizeVisibleColumns($request->get('visible_columns'), $availableColumns);
             [$headers, $printRows] = TableExport::projectRows($availableColumns, $rows, $visibleKeys);
 
-            return TableExport::printTable('User Management', $headers, $printRows, [
+            $responseMethod = $exportMode === 'pdf' ? 'pdfTable' : 'printTable';
+
+            return TableExport::{$responseMethod}('User Management', $headers, $printRows, [
                 'Search' => $request->search ?: 'All users',
             ]);
         }

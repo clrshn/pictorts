@@ -14,6 +14,7 @@ class TodoController extends Controller
     public function index(Request $request)
     {
         $query = Todo::query();
+        $exportMode = $request->get('export');
 
         // Filter by status
         if ($request->filled('status') && $request->status !== 'ALL') {
@@ -70,7 +71,7 @@ class TodoController extends Controller
                 ->orderBy('date_added', 'desc');
         }
 
-        if ($request->get('export') === 'csv') {
+        if ($exportMode === 'csv') {
             $rows = $query->get()->map(function ($todo) {
                 return [
                     $todo->date_added?->format('Y-m-d') ?? '—',
@@ -87,7 +88,7 @@ class TodoController extends Controller
             return TableExport::csv('todo-report.csv', ['Date Added', 'Priority', 'Assigned To', 'Task', 'What To Do', 'Deadline', 'Status', 'Remarks'], $rows);
         }
 
-        if ($request->get('export') === 'print') {
+        if (in_array($exportMode, ['print', 'pdf'], true)) {
             $availableColumns = [
                 'date_added' => 'Date Added',
                 'priority' => 'Priority',
@@ -115,7 +116,9 @@ class TodoController extends Controller
             $visibleKeys = TableExport::normalizeVisibleColumns($request->get('visible_columns'), $availableColumns);
             [$headers, $printRows] = TableExport::projectRows($availableColumns, $rows, $visibleKeys);
 
-            return TableExport::printTable('Task Monitoring', $headers, $printRows, [
+            $responseMethod = $exportMode === 'pdf' ? 'pdfTable' : 'printTable';
+
+            return TableExport::{$responseMethod}('Task Monitoring', $headers, $printRows, [
                 'Search' => $request->search ?: 'All tasks',
             ]);
         }
@@ -167,7 +170,9 @@ class TodoController extends Controller
      */
     public function show(Todo $todo)
     {
-        if (request()->get('export') === 'csv') {
+        $exportMode = request()->get('export');
+
+        if ($exportMode === 'csv') {
             return TableExport::csv('todo-' . $todo->id . '.csv', ['Title', 'Priority', 'Status', 'Date Added', 'Assigned To', 'Description', 'Remarks'], [[
                 $todo->title,
                 strtoupper($todo->priority),
@@ -179,8 +184,10 @@ class TodoController extends Controller
             ]]);
         }
 
-        if (request()->get('export') === 'print') {
-            return TableExport::printRecord('Todo Details', [
+        if (in_array($exportMode, ['print', 'pdf'], true)) {
+            $responseMethod = $exportMode === 'pdf' ? 'pdfRecord' : 'printRecord';
+
+            return TableExport::{$responseMethod}('Todo Details', [
                 [
                     'title' => 'Task Information',
                     'fields' => [

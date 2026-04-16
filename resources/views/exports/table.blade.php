@@ -3,334 +3,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> </title>
+    <title>{{ $previewTitle }}</title>
     <style>
         @page {
-            size: {{ request('paper_size', 'A4') }} {{ request('orientation', 'portrait') }};
-            margin: 14mm 12mm 16mm;
+            size: {{ $paperSize }} {{ $orientation }};
+            margin: 0.5in 1.5in;
         }
 
-        :root {
-            --ink: #1e293b;
-            --muted: #64748b;
-            --line: #cbd5e1;
-            --soft: #f8fafc;
-            --accent: #1d4ed8;
-            --accent-dark: #1e40af;
-            --footer-red: #d9485f;
-        }
-
-        * {
-            box-sizing: border-box;
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            color: #1f2937;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11px;
         }
 
         body {
-            font-family: "Times New Roman", Georgia, serif;
-            margin: 0;
-            color: var(--ink);
-            background: #ffffff;
+            position: relative;
         }
 
-        .page {
-            width: 100%;
-            max-width: 1060px;
+        .report-page {
+            padding: 0.08in 0 0.95in;
+        }
+
+        .header-table {
+            width: 86%;
             margin: 0 auto;
-            padding: 0 4px;
+            border-collapse: collapse;
+            table-layout: fixed;
         }
 
-        .export-actions {
-            margin-bottom: 18px;
-            display: flex;
-            gap: 10px;
+        .header-table td {
+            vertical-align: middle;
         }
 
-        .export-actions button {
-            border: none;
-            border-radius: 8px;
-            padding: 10px 14px;
-            background: #8b0000;
-            color: #fff;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        .logo-cell {
+            width: 98px;
         }
 
-        .export-actions button.secondary {
-            background: #475569;
+        .logo-cell.left {
+            text-align: left;
         }
 
-        .report-shell {
-            border-top: 4px solid rgba(29, 78, 216, 0.12);
-            padding-top: 6px;
+        .logo-cell.right {
+            text-align: right;
         }
 
-        .report-header {
-            display: grid;
-            grid-template-columns: 92px 1fr 92px;
-            align-items: center;
-            gap: 14px;
-            padding: 6px 0 12px;
-            border-bottom: 1px solid #dbe4f0;
+        .logo-left {
+            width: 74px;
+            height: auto;
+            display: block;
         }
 
-        .report-header .logo-wrap {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .logo-right {
+            width: 76px;
+            height: auto;
+            display: inline-block;
         }
 
-        .report-header .logo-wrap img {
-            width: 62px;
-            height: 62px;
-            object-fit: contain;
-        }
-
-        .report-heading {
+        .gov-heading {
             text-align: center;
+            font-family: "Times New Roman", Times, serif;
+            color: #1f2d4a;
+            line-height: 1.02;
         }
 
-        .report-heading .line {
+        .gov-heading p {
             margin: 0;
-            line-height: 1.15;
         }
 
-        .report-heading .line.top {
-            font-size: 18px;
+        .gov-heading .line-1 {
+            font-size: 11px;
             font-weight: 700;
         }
 
-        .report-heading .line.middle {
-            margin-top: 2px;
+        .gov-heading .line-2 {
             font-size: 15px;
             font-weight: 700;
-            letter-spacing: 0.05em;
             text-transform: uppercase;
-            color: var(--accent-dark);
+            letter-spacing: 0.01em;
         }
 
-        .report-heading .line.bottom {
-            margin-top: 2px;
-            font-size: 14px;
+        .gov-heading .line-3 {
+            font-size: 15px;
             font-weight: 700;
-            color: var(--accent-dark);
-            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            letter-spacing: 0.01em;
+            color: #294c96;
+        }
+
+        .gov-heading .line-4 {
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.01em;
+            color: #294c96;
+        }
+
+        .title-block {
+            margin: 24px 0 34px;
+            text-align: center;
+            font-family: "Times New Roman", Times, serif;
+            color: #17233c;
         }
 
         .system-title {
-            margin: 14px 0 2px;
-            text-align: center;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--ink);
+            margin: 0;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
 
         .report-title {
-            margin: 0 0 16px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: var(--accent-dark);
-        }
-
-        .meta-card {
-            margin: 0 0 18px;
-            padding: 12px 16px;
-            border-left: 4px solid var(--accent);
-            background: linear-gradient(180deg, #f8fbff 0%, #f1f5f9 100%);
-            border-radius: 8px;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            color: #334155;
-            font-size: 13px;
-        }
-
-        .meta-card div {
-            margin-bottom: 4px;
-        }
-
-        .meta-card div:last-child {
-            margin-bottom: 0;
-        }
-
-        .section-title {
-            margin: 0 0 12px;
-            font-size: 18px;
+            margin: 6px 0 0;
+            font-size: 12px;
             font-weight: 700;
-            color: #1f2937;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #dbe4f0;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
 
-        table {
+        .table-frame {
+            border: 1px solid #97a1ae;
+        }
+
+        .content-block {
+            width: 86%;
+            margin: 0 auto;
+        }
+
+        .data-table {
             width: 100%;
             border-collapse: collapse;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 12px;
+            table-layout: fixed;
         }
 
-        thead th {
-            padding: 10px 8px;
-            border: 1px solid #d8e1ec;
-            background: #f8fafc;
-            color: #475569;
-            text-align: left;
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-        }
-
-        tbody td {
-            padding: 10px 9px;
-            border: 1px solid #e2e8f0;
-            vertical-align: top;
-            color: #334155;
-        }
-
-        tbody tr:nth-child(even) {
-            background: #fbfdff;
-        }
-
-        .report-footer {
-            margin-top: 18px;
-            padding-top: 14px;
-            border-top: 1px solid #dbe4f0;
+        .data-table th {
+            padding: 8px 6px;
+            border: 1px solid #97a1ae;
+            background: #df7275;
+            color: #ffffff;
             text-align: center;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            color: #64748b;
-        }
-
-        .report-footer .system {
-            font-size: 13px;
-            font-weight: 700;
-            color: #334155;
-        }
-
-        .report-footer .details {
-            margin-top: 4px;
-            font-size: 12px;
-        }
-
-        .report-footer .province {
-            margin-top: 6px;
-            font-size: 12px;
-            color: #94a3b8;
-        }
-
-        .footer-bar {
-            margin-top: 18px;
-            border-top: 4px solid var(--footer-red);
-            border-bottom: 4px solid var(--footer-red);
-            padding: 5px 0 4px;
-            text-align: center;
-            font-family: "Times New Roman", Georgia, serif;
-        }
-
-        .footer-bar .tagline {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--accent-dark);
-            letter-spacing: 0.02em;
-        }
-
-        .footer-bar .contact {
-            margin-top: 3px;
             font-size: 10px;
-            color: #475569;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            line-height: 1.15;
         }
 
-        @media print {
-            body {
-                margin: 0;
-            }
+        .data-table td {
+            padding: 8px 6px;
+            border: 1px solid #adb7c4;
+            vertical-align: top;
+            color: #2f3b4d;
+            font-size: 10.5px;
+            line-height: 1.24;
+            word-break: break-word;
+        }
 
-            .export-actions {
-                display: none;
-            }
+        .data-table tbody tr:nth-child(odd) td {
+            background: #fbe7e5;
+        }
+
+        .data-table tbody tr:nth-child(even) td {
+            background: #fff8f7;
+        }
+
+        .no-data {
+            padding: 24px 14px;
+            text-align: center;
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        .footer-block {
+            position: fixed;
+            left: 0.35in;
+            right: 0.35in;
+            bottom: 0.32in;
+            text-align: center;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        .footer-line {
+            height: 4px;
+            background: #df5c70;
+        }
+
+        .footer-tagline {
+            margin: 6px 0 4px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #294c96;
+        }
+
+        .footer-contact {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9px;
+            color: #475569;
+            line-height: 1.25;
         }
     </style>
 </head>
 <body>
-    <div class="page">
-        <div class="export-actions">
-            <button onclick="window.print()">Print / Save PDF</button>
-            <button class="secondary" onclick="window.close()">Close</button>
+    <div class="report-page">
+        <table class="header-table">
+            <tr>
+                <td class="logo-cell left">
+                    @if(!empty($leftLogo))
+                        <img src="{{ $leftLogo }}" alt="PGLU Logo" class="logo-left">
+                    @endif
+                </td>
+                <td>
+                    <div class="gov-heading">
+                        <p class="line-1">Republic of the Philippines</p>
+                        <p class="line-2">Province of La Union</p>
+                        <p class="line-3">Provincial Information and</p>
+                        <p class="line-4">Communications Technology Office</p>
+                    </div>
+                </td>
+                <td class="logo-cell right">
+                    @if(!empty($rightLogo))
+                        <img src="{{ $rightLogo }}" alt="Bagong Pilipinas Logo" class="logo-right">
+                    @endif
+                </td>
+            </tr>
+        </table>
+
+        <div class="title-block">
+            <p class="system-title">PICTO - Records and Tracking System</p>
+            <p class="report-title">{{ $reportTitle }}</p>
         </div>
 
-        <div class="report-shell">
-            <div class="report-header">
-                <div class="logo-wrap">
-                    <img src="{{ asset('images/pglu-logo.png') }}" alt="PGLU Logo">
-                </div>
-
-                <div class="report-heading">
-                    <p class="line top">Republic of the Philippines</p>
-                    <p class="line top">Province of La Union</p>
-                    <p class="line middle">Provincial Information and Communications Technology Office</p>
-                </div>
-
-                <div class="logo-wrap">
-                    <img src="{{ asset('images/bagong pilipinas logo.jfif') }}" alt="Bagong Pilipinas Logo">
-                </div>
-            </div>
-
-            <div class="system-title">PICTO - Records and Tracking System</div>
-            <div class="report-title">{{ request('report_title', $title) }}</div>
-
-            <div class="meta-card">
-                <div><strong>Printed On:</strong> {{ now()->format('F d, Y h:i A') }}</div>
-                @if(!empty($meta))
-                    @foreach($meta as $label => $value)
-                        <div><strong>{{ $label }}:</strong> {{ $value }}</div>
-                    @endforeach
-                @endif
-            </div>
-
-            <table>
-                <thead>
-                    <tr>
-                        @foreach($headers as $header)
-                            <th>{{ $header }}</th>
-                        @endforeach
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($rows as $row)
+        <div class="content-block">
+            <div class="table-frame">
+                <table class="data-table">
+                    <thead>
                         <tr>
-                            @foreach($row as $cell)
-                                <td>{!! nl2br(e((string) $cell)) !!}</td>
+                            @foreach($headers as $header)
+                                <th>{{ $header }}</th>
                             @endforeach
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="{{ count($headers) }}" style="text-align:center;">No records found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-
-            <div class="report-footer">
-                <div class="system">PICTO - Records and Tracking System</div>
-                <div class="details">{{ request('report_title', $title) }} - Generated on {{ now()->format('F d, Y h:i A') }}</div>
-                <div class="province">Province of La Union - Provincial Information and Communications Technology Office</div>
-            </div>
-
-            <div class="footer-bar">
-                <div class="tagline">LA UNION: Agkaysa!</div>
-                <div class="contact">(072) 888-4453, (072) 888-3608, (072) 242-5959 local 1060 to 1065 | webmaster@launion.gov.ph | www.launion.gov.ph</div>
+                    </thead>
+                    <tbody>
+                        @forelse($rows as $row)
+                            <tr>
+                                @foreach($row as $cell)
+                                    <td>{!! nl2br(e((string) $cell)) !!}</td>
+                                @endforeach
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="{{ count($headers) }}" class="no-data">No records found.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <script>
-        window.addEventListener('load', function () {
-            setTimeout(function () {
-                window.print();
-            }, 250);
-        });
-    </script>
+    <div class="footer-block">
+        <div class="footer-line"></div>
+        <div class="footer-tagline">LA UNION: Agkaysa!</div>
+        <div class="footer-contact">(072) 888-4453, (072) 888-3608, (072) 242-5959 local 1060 to 1065 | webmaster@launion.gov.ph | www.launion.gov.ph</div>
+        <div class="footer-line" style="margin-top: 6px;"></div>
+    </div>
 </body>
 </html>

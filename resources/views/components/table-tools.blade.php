@@ -32,9 +32,6 @@
         <i class="fas fa-print"></i> Report Options
     </button>
 
-    <a href="{{ $csvUrl }}" class="btn-green" style="min-width:130px; height:36px; display:inline-flex; align-items:center; justify-content:center;">
-        <i class="fas fa-file-excel"></i> Export Excel
-    </a>
 </div>
 
 <div id="{{ $toolbarId }}_report_modal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.45); z-index:9998; align-items:center; justify-content:center; padding:20px;">

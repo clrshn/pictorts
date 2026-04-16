@@ -27,6 +27,7 @@ class DocumentController extends Controller
     {
         $query = Document::with(['originatingOffice', 'destinationOffice', 'currentOffice', 'holder']);
         $isTravelOrderPage = $this->isTravelOrderRequest($request);
+        $exportMode = $request->get('export');
 
         // Filter by document type tab
         if ($request->filled('type') && $request->type !== 'ALL') {
@@ -111,7 +112,7 @@ class DocumentController extends Controller
             $query->orderBy('doc_number', 'asc');
         }
 
-        if ($request->get('export') === 'csv') {
+        if ($exportMode === 'csv') {
             if ($isTravelOrderPage) {
                 $rows = $query->get()->map(function ($doc) {
                     return [
@@ -151,7 +152,7 @@ class DocumentController extends Controller
             return TableExport::csv('documents-report.csv', ['Tracking Code', 'PICTO No', 'Number', 'Subject', 'Originating Office', 'Outgoing Type', 'Status', 'Date Received', 'Remarks'], $rows);
         }
 
-        if ($request->get('export') === 'print') {
+        if (in_array($exportMode, ['print', 'pdf'], true)) {
             if ($isTravelOrderPage) {
                 $availableColumns = [
                     'dts_number' => 'DTS Number',
@@ -183,7 +184,9 @@ class DocumentController extends Controller
                 $visibleKeys = TableExport::normalizeVisibleColumns($request->get('visible_columns'), $availableColumns);
                 [$headers, $printRows] = TableExport::projectRows($availableColumns, $rows, $visibleKeys);
 
-                return TableExport::printTable('Travel Orders', $headers, $printRows, [
+                $responseMethod = $exportMode === 'pdf' ? 'pdfTable' : 'printTable';
+
+                return TableExport::{$responseMethod}('Travel Orders', $headers, $printRows, [
                     'Search' => $request->search ?: 'All records',
                     'Travel Order Type' => $request->travel_order_type ? str_replace('_', ' ', $request->travel_order_type) : 'All',
                     'Status Filter' => $request->status ?: 'All',
@@ -217,7 +220,9 @@ class DocumentController extends Controller
             $visibleKeys = TableExport::normalizeVisibleColumns($request->get('visible_columns'), $availableColumns);
             [$headers, $printRows] = TableExport::projectRows($availableColumns, $rows, $visibleKeys);
 
-            return TableExport::printTable('Documents', $headers, $printRows, [
+            $responseMethod = $exportMode === 'pdf' ? 'pdfTable' : 'printTable';
+
+            return TableExport::{$responseMethod}('Documents', $headers, $printRows, [
                 'Search' => $request->search ?: 'All records',
                 'Direction' => $request->direction ?: 'All',
                 'Document Type' => $request->type ?: 'All',
@@ -381,8 +386,9 @@ class DocumentController extends Controller
         $offices = Office::ordered()->get();
         $users = User::all();
         $isTravelOrder = $document->document_type === 'TO';
+        $exportMode = request()->get('export');
 
-        if (request()->get('export') === 'csv') {
+        if ($exportMode === 'csv') {
             return TableExport::csv('document-' . $document->id . '.csv', ['Tracking Code', 'PICTO No', 'Number', 'Document Type', 'Direction', 'Outgoing Type', 'Subject', 'Particulars', 'Originating Office', 'Date Received', 'Action Required', 'Endorsed To', 'Current Office', 'Current Holder', 'Status', 'Remarks'], [[
                 $document->dts_number,
                 $document->doc_number ?? '—',
@@ -403,7 +409,7 @@ class DocumentController extends Controller
             ]]);
         }
 
-        if (request()->get('export') === 'print') {
+        if (in_array($exportMode, ['print', 'pdf'], true)) {
             $sections = [
                 [
                     'title' => 'Document Information',
@@ -442,7 +448,9 @@ class DocumentController extends Controller
                 ];
             }
 
-            return TableExport::printRecord($isTravelOrder ? 'Travel Order Details' : 'Document Details', $sections, [
+            $responseMethod = $exportMode === 'pdf' ? 'pdfRecord' : 'printRecord';
+
+            return TableExport::{$responseMethod}($isTravelOrder ? 'Travel Order Details' : 'Document Details', $sections, [
                 'Generated' => now()->format('F d, Y h:i A'),
                 'Record ID' => $document->id,
             ]);

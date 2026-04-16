@@ -14,6 +14,7 @@ class FinancialController extends Controller
     public function index(Request $request)
     {
         $query = FinancialRecord::with(['originOffice', 'currentOffice', 'holder']);
+        $exportMode = $request->get('export');
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -62,7 +63,7 @@ class FinancialController extends Controller
             $query->latest();
         }
 
-        if ($request->get('export') === 'csv') {
+        if ($exportMode === 'csv') {
             $rows = $query->get()->map(function ($record) {
                 return [
                     $record->status,
@@ -84,7 +85,7 @@ class FinancialController extends Controller
             return TableExport::csv('financial-report.csv', ['Status', 'Type', 'Description', 'Supplier', 'PR Amount', 'PR #', 'PO Amount', 'PO #', 'OBR #', 'Voucher #', 'Office Origin', 'Progress', 'Remarks'], $rows);
         }
 
-        if ($request->get('export') === 'print') {
+        if (in_array($exportMode, ['print', 'pdf'], true)) {
             $availableColumns = [
                 'status' => 'Status',
                 'type' => 'Type',
@@ -120,11 +121,15 @@ class FinancialController extends Controller
             $visibleKeys = TableExport::normalizeVisibleColumns($request->get('visible_columns'), $availableColumns);
             [$headers, $printRows] = TableExport::projectRows($availableColumns, $rows, $visibleKeys);
 
-            return TableExport::printTable('Financial Monitoring', $headers, $printRows, [
+            $meta = [
                 'Search' => $request->search ?: 'All records',
                 'Status Filter' => $request->status ?: 'All',
                 'Type Filter' => $request->type ?: 'All',
-            ]);
+            ];
+
+            return $exportMode === 'pdf'
+                ? TableExport::pdfTable('Financial Monitoring', $headers, $printRows, $meta)
+                : TableExport::printTable('Financial Monitoring', $headers, $printRows, $meta);
         }
 
         $records = $query->paginate(15)->withQueryString();
@@ -200,8 +205,9 @@ class FinancialController extends Controller
         $financial->load(['originOffice', 'currentOffice', 'holder', 'routes.fromOffice', 'routes.toOffice', 'routes.releasedByUser', 'routes.receivedByUser', 'attachments']);
         $offices = Office::ordered()->get();
         $users = User::all();
+        $exportMode = request()->get('export');
 
-        if (request()->get('export') === 'csv') {
+        if ($exportMode === 'csv') {
             return TableExport::csv('financial-record-' . $financial->id . '.csv', ['Type', 'Description', 'Supplier', 'Office', 'Current Office', 'Current Holder', 'Status', 'Progress', 'PR Number', 'PR Amount', 'PO Number', 'PO Amount', 'OBR Number', 'Voucher Number', 'Remarks'], [[
                 $financial->type ?? '—',
                 $financial->description ?? '—',
@@ -221,8 +227,10 @@ class FinancialController extends Controller
             ]]);
         }
 
-        if (request()->get('export') === 'print') {
-            return TableExport::printRecord('Financial Record Details', [
+        if (in_array($exportMode, ['print', 'pdf'], true)) {
+            $responseMethod = $exportMode === 'pdf' ? 'pdfRecord' : 'printRecord';
+
+            return TableExport::{$responseMethod}('Financial Record Details', [
                 [
                     'title' => 'Record Information',
                     'fields' => [

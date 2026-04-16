@@ -26,8 +26,9 @@ class OfficeController extends Controller
                 });
             })
             ->ordered();
+        $exportMode = $request->get('export');
 
-        if ($request->get('export') === 'csv') {
+        if ($exportMode === 'csv') {
             $rows = $query->get()->map(function ($office) {
                 return [
                     $office->code,
@@ -39,7 +40,7 @@ class OfficeController extends Controller
             return TableExport::csv('offices-report.csv', ['Office Code', 'Office Name', 'Users'], $rows);
         }
 
-        if ($request->get('export') === 'print') {
+        if (in_array($exportMode, ['print', 'pdf'], true)) {
             $availableColumns = [
                 'office_code' => 'Office Code',
                 'office_name' => 'Office Name',
@@ -57,7 +58,9 @@ class OfficeController extends Controller
             $visibleKeys = TableExport::normalizeVisibleColumns($request->get('visible_columns'), $availableColumns);
             [$headers, $printRows] = TableExport::projectRows($availableColumns, $rows, $visibleKeys);
 
-            return TableExport::printTable('Office Management', $headers, $printRows, [
+            $responseMethod = $exportMode === 'pdf' ? 'pdfTable' : 'printTable';
+
+            return TableExport::{$responseMethod}('Office Management', $headers, $printRows, [
                 'Search' => $request->search ?: 'All offices',
             ]);
         }
