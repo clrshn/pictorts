@@ -6,6 +6,8 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>PICTO - RTS</title>
+        <link rel="icon" type="image/svg+xml" href="{{ asset('images/picto-rts-favicon.svg') }}">
+        <link rel="shortcut icon" href="{{ asset('images/picto-rts-favicon.svg') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -631,6 +633,54 @@
                 display: flex; 
                 align-items: center; 
                 gap: 12px; 
+            }
+            .top-bar .user-area .notification-dropdown {
+                position: relative;
+            }
+            .top-bar .user-area .notification-btn {
+                width: 44px;
+                height: 44px;
+                border-radius: 14px;
+                border: 1px solid rgba(148,163,184,0.28);
+                background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(241,245,249,0.95) 100%);
+                color: #334155;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                position: relative;
+                box-shadow: 0 10px 22px rgba(15,23,42,0.08);
+                transition: transform 0.22s ease, box-shadow 0.22s ease, color 0.22s ease;
+            }
+            .top-bar .user-area .notification-btn:hover,
+            .top-bar .user-area .notification-btn.active {
+                transform: translateY(-2px);
+                color: #c0392b;
+                box-shadow: 0 14px 28px rgba(15,23,42,0.12);
+            }
+            .top-bar .user-area .notification-btn i {
+                font-size: 16px;
+            }
+            .notification-badge {
+                position: absolute;
+                top: -6px;
+                right: -5px;
+                min-width: 20px;
+                height: 20px;
+                padding: 0 6px;
+                border-radius: 999px;
+                background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+                color: #ffffff;
+                font-size: 11px;
+                font-weight: 700;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                border: 2px solid #ffffff;
+                box-shadow: 0 8px 16px rgba(153,27,27,0.24);
+            }
+            .notification-badge.show {
+                display: inline-flex;
             }
             .top-bar .user-area .user-btn { 
                 background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%); 
@@ -1400,6 +1450,150 @@
                 margin-right: 8px;
                 font-size: 12px;
             }
+            .notification-dropdown-menu {
+                display: none;
+                position: fixed;
+                right: 305px;
+                top: 160px;
+                width: 360px;
+                max-width: calc(100vw - 32px);
+                background: linear-gradient(180deg, rgba(255,255,255,0.99) 0%, rgba(248,250,252,0.98) 100%);
+                border: 1px solid rgba(226,232,240,0.95);
+                border-radius: 18px;
+                box-shadow: 0 24px 50px rgba(15,23,42,0.18);
+                overflow: hidden;
+                z-index: 999999998;
+            }
+            .notification-dropdown-menu.show {
+                display: block;
+            }
+            .notification-panel-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                padding: 16px 18px 12px;
+                border-bottom: 1px solid rgba(226,232,240,0.9);
+                background: linear-gradient(90deg, rgba(37,99,235,0.06) 0%, rgba(255,255,255,0.98) 48%, rgba(220,38,38,0.08) 100%);
+            }
+            .notification-panel-title {
+                font-size: 15px;
+                font-weight: 700;
+                color: #0f172a;
+            }
+            .notification-panel-subtitle {
+                margin-top: 2px;
+                font-size: 12px;
+                color: #64748b;
+            }
+            .notification-panel-action {
+                border: none;
+                background: none;
+                color: #2563eb;
+                font-size: 12px;
+                font-weight: 700;
+                cursor: pointer;
+                padding: 0;
+            }
+            .notification-panel-action:hover {
+                color: #1d4ed8;
+            }
+            .notification-panel-body {
+                max-height: 420px;
+                overflow-y: auto;
+                padding: 8px;
+            }
+            .notification-feed-empty {
+                padding: 22px 18px;
+                text-align: center;
+                color: #64748b;
+                font-size: 13px;
+            }
+            .notification-feed-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 12px 12px;
+                margin: 6px 0;
+                border-radius: 16px;
+                text-decoration: none;
+                color: inherit;
+                border: 1px solid rgba(226,232,240,0.86);
+                background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.92) 100%);
+                transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            }
+            .notification-feed-item:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 12px 24px rgba(15,23,42,0.08);
+                border-color: rgba(148,163,184,0.38);
+            }
+            .notification-feed-item.is-unread {
+                background: linear-gradient(90deg, rgba(37,99,235,0.08) 0%, rgba(255,255,255,0.98) 48%, rgba(220,38,38,0.08) 100%);
+                border-color: rgba(147,197,253,0.5);
+            }
+            .notification-feed-icon {
+                width: 38px;
+                height: 38px;
+                border-radius: 12px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                background: linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(220,38,38,0.12) 100%);
+                color: #1e3a8a;
+            }
+            .notification-feed-item[data-type="success"] .notification-feed-icon {
+                background: linear-gradient(135deg, rgba(34,197,94,0.16) 0%, rgba(21,128,61,0.12) 100%);
+                color: #166534;
+            }
+            .notification-feed-item[data-type="danger"] .notification-feed-icon {
+                background: linear-gradient(135deg, rgba(248,113,113,0.18) 0%, rgba(153,27,27,0.12) 100%);
+                color: #991b1b;
+            }
+            .notification-feed-item[data-type="warning"] .notification-feed-icon {
+                background: linear-gradient(135deg, rgba(251,191,36,0.18) 0%, rgba(217,119,6,0.14) 100%);
+                color: #92400e;
+            }
+            .notification-feed-content {
+                min-width: 0;
+                flex: 1;
+            }
+            .notification-feed-meta {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                margin-bottom: 5px;
+            }
+            .notification-feed-title {
+                font-size: 13px;
+                font-weight: 700;
+                color: #0f172a;
+                line-height: 1.35;
+            }
+            .notification-feed-time {
+                font-size: 11px;
+                color: #64748b;
+                white-space: nowrap;
+            }
+            .notification-feed-message {
+                font-size: 12.5px;
+                color: #475569;
+                line-height: 1.5;
+            }
+            .notification-feed-pill {
+                display: inline-flex;
+                align-items: center;
+                margin-top: 7px;
+                padding: 4px 8px;
+                border-radius: 999px;
+                background: rgba(148,163,184,0.14);
+                color: #475569;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+            }
 
             /* Sidebar Dropdowns */
             .nav-dropdown { margin-bottom: 4px; }
@@ -1516,6 +1710,18 @@
                 transform: translateY(-1px); 
                 box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             }
+            .table-header-filter-link {
+                display: block;
+                padding: 9px 12px;
+                text-decoration: none;
+                color: #334155;
+                font-size: 13px;
+                transition: background-color 0.18s ease, color 0.18s ease;
+            }
+            .table-header-filter-link:hover {
+                background: linear-gradient(90deg, rgba(37,99,235,0.09) 0%, rgba(255,255,255,0.96) 45%, rgba(220,38,38,0.11) 100%);
+                color: #0f172a;
+            }
 
             /* Responsive */
             @media (max-width: 768px) {
@@ -1530,8 +1736,8 @@
         <div class="static-header">
             <div class="header-content">
                 <div class="header-logo">
-                    <div style="width:80px;height:80px;border-radius:35px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 12px rgba(192,57,43,0.2);border:2px solid rgba(192,57,43,0.1);">
-                        <img src="{{ asset('images/logo7.png') }}" alt="Header Logo" style="width:100%;height:100%;object-fit:contain;padding:0px;">
+                    <div style="width:80px;height:80px;border-radius:28px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 10px 24px rgba(15,23,42,0.12);border:1px solid rgba(22,59,140,0.08);background:linear-gradient(145deg,#ffffff 0%,#f7faff 100%);">
+                        <img src="{{ asset('images/picto-rts-mark.svg') }}" alt="PICTO RTS Logo" style="width:100%;height:100%;object-fit:contain;padding:0;">
                     </div>
                     <div class="header-title">
                         <h2 style="margin:0; color:#1a1a2e; font-size:24px; font-weight:700;">PICTO - Records and Tracking System</h2>
@@ -1552,6 +1758,12 @@
                     <span class="close-btn" onclick="toggleSidebar()">&times;</span>
                 </div>
                 <div class="user-area">
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <button class="notification-btn" id="notificationDropdownBtn" type="button" onclick="toggleNotificationDropdown()">
+                            <i class="fa-solid fa-bell"></i>
+                            <span class="notification-badge" id="notificationBadge">0</span>
+                        </button>
+                    </div>
                     <div class="user-dropdown" id="userDropdown">
                         <button class="user-btn" id="userDropdownBtn" type="button" onclick="toggleUserDropdown()">
                             <span style="flex: 1; text-align: center;">{{ Auth::user()->name ?? 'User' }} - {{ Auth::user()->office->code ?? 'PICTO' }}</span>
@@ -1591,6 +1803,24 @@
             <button type="button" onclick="document.getElementById('logoutModal').style.display='flex'; document.getElementById('userDropdownMenu').classList.remove('show');"><i class="fas fa-sign-out-alt" style="margin-right:6px;"></i> Log Out</button>
         </div>
 
+        <div class="notification-dropdown-menu" id="notificationDropdownMenu">
+            <div class="notification-panel-header">
+                <div>
+                    <div class="notification-panel-title">Notifications</div>
+                    <div class="notification-panel-subtitle">Updates, forwards, and reminders</div>
+                </div>
+                <button type="button" class="notification-panel-action" onclick="markAllNotificationsRead()">Mark all read</button>
+            </div>
+            <div class="notification-panel-body" id="notificationFeed">
+                <div class="notification-feed-empty">Loading notifications...</div>
+            </div>
+            <div style="padding: 10px 14px 14px; border-top: 1px solid rgba(226,232,240,0.9); background: rgba(248,250,252,0.92);">
+                <a href="{{ route('notifications.index') }}" style="display:flex; align-items:center; justify-content:center; gap:8px; text-decoration:none; color:#2563eb; font-size:13px; font-weight:700;">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> View All Notifications
+                </a>
+            </div>
+        </div>
+
         <!-- Notification Container -->
         <div class="notification-container" id="notificationContainer"></div>
 
@@ -1616,6 +1846,11 @@
             </div>
         </div>
         <script>
+            const notificationState = {
+                hasLoadedOnce: false,
+                seenIds: new Set(),
+            };
+
             // Ensure sidebar is visible on page load
             document.addEventListener('DOMContentLoaded', function() {
                 const sidebar = document.querySelector('.sidebar');
@@ -1636,25 +1871,189 @@
             function toggleUserDropdown() {
                 const menu = document.getElementById('userDropdownMenu');
                 const arrow = document.getElementById('dropdownArrow');
-                
-                console.log('Toggle dropdown clicked'); // Debug
+                const notificationMenu = document.getElementById('notificationDropdownMenu');
+                const notificationBtn = document.getElementById('notificationDropdownBtn');
                 
                 menu.classList.toggle('show');
+                notificationMenu.classList.remove('show');
+                notificationBtn.classList.remove('active');
                 
-                // Force display override
                 if (menu.classList.contains('show')) {
                     menu.style.display = 'block';
                     menu.style.visibility = 'visible';
                     menu.style.opacity = '1';
                     arrow.style.transform = 'rotate(180deg)';
-                    console.log('Dropdown opened'); // Debug
                 } else {
                     menu.style.display = 'none';
                     menu.style.visibility = 'hidden';
                     menu.style.opacity = '0';
                     arrow.style.transform = 'rotate(0deg)';
-                    console.log('Dropdown closed'); // Debug
                 }
+            }
+
+            function toggleNotificationDropdown() {
+                const menu = document.getElementById('notificationDropdownMenu');
+                const btn = document.getElementById('notificationDropdownBtn');
+                const userMenu = document.getElementById('userDropdownMenu');
+                const userArrow = document.getElementById('dropdownArrow');
+
+                const isShowing = menu.classList.toggle('show');
+                btn.classList.toggle('active', isShowing);
+
+                userMenu.classList.remove('show');
+                userMenu.style.display = 'none';
+                userMenu.style.visibility = 'hidden';
+                userMenu.style.opacity = '0';
+                userArrow.style.transform = 'rotate(0deg)';
+
+                if (isShowing) {
+                    loadNotificationFeed();
+                }
+            }
+
+            async function loadNotificationFeed() {
+                const feed = document.getElementById('notificationFeed');
+
+                try {
+                    const response = await fetch('{{ route('notifications.feed') }}', {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to load notifications.');
+                    }
+
+                    const data = await response.json();
+                    processIncomingNotifications(data.items || []);
+                    renderNotificationFeed(data.items || []);
+                    updateNotificationBadge(data.unread_count || 0);
+                } catch (error) {
+                    feed.innerHTML = '<div class="notification-feed-empty">Unable to load notifications right now.</div>';
+                }
+            }
+
+            function processIncomingNotifications(items) {
+                const incomingIds = new Set();
+                const freshItems = [];
+
+                items.forEach((item) => {
+                    if (!item || !item.id) {
+                        return;
+                    }
+
+                    incomingIds.add(item.id);
+
+                    if (notificationState.hasLoadedOnce && !notificationState.seenIds.has(item.id) && !item.read_at) {
+                        freshItems.push(item);
+                    }
+                });
+
+                notificationState.seenIds = incomingIds;
+
+                if (notificationState.hasLoadedOnce && freshItems.length) {
+                    const latestItem = freshItems[0];
+                    window.showNotification({
+                        type: latestItem.type || 'info',
+                        title: latestItem.title || 'New notification',
+                        message: latestItem.message || '',
+                        icon: latestItem.icon || 'fa-solid fa-bell',
+                        duration: 4500
+                    });
+                }
+
+                notificationState.hasLoadedOnce = true;
+            }
+
+            function renderNotificationFeed(items) {
+                const feed = document.getElementById('notificationFeed');
+
+                if (!items.length) {
+                    feed.innerHTML = '<div class="notification-feed-empty">No new notifications yet.</div>';
+                    return;
+                }
+
+                feed.innerHTML = items.map((item) => {
+                    const unreadClass = item.read_at ? '' : ' is-unread';
+                    const url = item.url || '#';
+                    const pill = item.category ? `<span class="notification-feed-pill">${escapeHtml(item.category)}</span>` : '';
+                    const syntheticAttr = item.synthetic ? 'true' : 'false';
+
+                    return `
+                        <a href="${url}" class="notification-feed-item${unreadClass}" data-id="${escapeHtml(item.id)}" data-synthetic="${syntheticAttr}" data-type="${escapeHtml(item.type || 'info')}" onclick="handleNotificationItemClick(event, this)">
+                            <span class="notification-feed-icon"><i class="${escapeHtml(item.icon || 'fa-solid fa-bell')}"></i></span>
+                            <span class="notification-feed-content">
+                                <span class="notification-feed-meta">
+                                    <span class="notification-feed-title">${escapeHtml(item.title || 'Notification')}</span>
+                                    <span class="notification-feed-time">${escapeHtml(item.time_label || '')}</span>
+                                </span>
+                                <span class="notification-feed-message">${escapeHtml(item.message || '')}</span>
+                                ${pill}
+                            </span>
+                        </a>
+                    `;
+                }).join('');
+            }
+
+            async function handleNotificationItemClick(event, element) {
+                const id = element.dataset.id;
+                const synthetic = element.dataset.synthetic === 'true';
+
+                if (!synthetic && id) {
+                    try {
+                        await fetch(`{{ url('/notifications') }}/${id}/read`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                    } catch (error) {
+                    }
+                }
+
+                document.getElementById('notificationDropdownMenu').classList.remove('show');
+                document.getElementById('notificationDropdownBtn').classList.remove('active');
+            }
+
+            async function markAllNotificationsRead() {
+                try {
+                    await fetch('{{ route('notifications.read-all') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    loadNotificationFeed();
+                } catch (error) {
+                    window.showNotification({
+                        type: 'danger',
+                        title: 'Notification Error',
+                        message: 'Unable to mark notifications as read right now.',
+                        duration: 3000
+                    });
+                }
+            }
+
+            function updateNotificationBadge(count) {
+                const badge = document.getElementById('notificationBadge');
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.classList.toggle('show', count > 0);
+            }
+
+            function escapeHtml(value) {
+                return String(value ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
             }
 
             // Close dropdown when clicking outside
@@ -1662,6 +2061,9 @@
                 var dropdown = document.getElementById('userDropdown');
                 var menu = document.getElementById('userDropdownMenu');
                 var arrow = document.getElementById('dropdownArrow');
+                var notificationDropdown = document.getElementById('notificationDropdown');
+                var notificationMenu = document.getElementById('notificationDropdownMenu');
+                var notificationBtn = document.getElementById('notificationDropdownBtn');
                 
                 if (dropdown && menu && !dropdown.contains(e.target)) {
                     menu.classList.remove('show');
@@ -1669,6 +2071,11 @@
                     menu.style.visibility = 'hidden';
                     menu.style.opacity = '0';
                     arrow.style.transform = 'rotate(0deg)';
+                }
+
+                if (notificationDropdown && notificationMenu && !notificationDropdown.contains(e.target) && !notificationMenu.contains(e.target)) {
+                    notificationMenu.classList.remove('show');
+                    notificationBtn.classList.remove('active');
                 }
             });
 
@@ -1865,7 +2272,8 @@
             }
 
             document.addEventListener('DOMContentLoaded', function() {
-                // toast notifications are disabled; keep top flash alert blocks.
+                loadNotificationFeed();
+                setInterval(loadNotificationFeed, 60000);
             });
         </script>
     </body>

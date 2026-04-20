@@ -55,7 +55,17 @@
                     @endif
                     @if(request('sort_by'))
                         <span class="active-filter-pill">
-                            {{ request('sort_by') == 'newest' ? 'NEWEST TO OLDEST' : (request('sort_by') == 'oldest' ? 'OLDEST TO NEWEST' : (request('sort_by') == 'az' ? 'A-Z' : (request('sort_by') == 'za' ? 'Z-A' : (request('sort_by') == 'highest' ? 'HIGHEST TO LOWEST' : (request('sort_by') == 'lowest' ? 'LOWEST TO HIGHEST' : strtoupper(str_replace('_', ' ', request('sort_by')))))))) }}
+                            {{ match(request('sort_by')) {
+                                'newest' => 'NEWEST TO OLDEST',
+                                'oldest' => 'OLDEST TO NEWEST',
+                                'az', 'description_az' => 'DESCRIPTION: A-Z',
+                                'za', 'description_za' => 'DESCRIPTION: Z-A',
+                                'highest', 'pr_highest' => 'PR AMOUNT: HIGHEST TO LOWEST',
+                                'lowest', 'pr_lowest' => 'PR AMOUNT: LOWEST TO HIGHEST',
+                                'po_highest' => 'PO AMOUNT: HIGHEST TO LOWEST',
+                                'po_lowest' => 'PO AMOUNT: LOWEST TO HIGHEST',
+                                default => strtoupper(str_replace('_', ' ', request('sort_by')))
+                            } }}
                             <a href="{{ request()->fullUrlWithQuery(['sort_by' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none; cursor:pointer;" title="Remove sort filter">×</a>
                         </span>
                     @endif
@@ -70,9 +80,6 @@
             @if(request('status'))
                 <input type="hidden" name="status" value="{{ request('status') }}">
             @endif
-            @if(request('search'))
-                <input type="hidden" name="search" value="{{ request('search') }}">
-            @endif
             @if(request('sort_by'))
                 <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
             @endif
@@ -81,44 +88,6 @@
                     <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Enter keywords...">
                 </div>
             </div>
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:12px;">
-                <div class="form-group" style="margin:0; margin-top:12px;">
-                    <label>Type</label>
-                    <select name="type" class="form-control">
-                        <option value="">All Types</option>
-                        <option value="DV" {{ request('type') === 'DV' ? 'selected' : '' }}>DV</option>
-                        <option value="INSPEC" {{ request('type') === 'INSPEC' ? 'selected' : '' }}>INSPEC</option>
-                        <option value="LIQUIDATION" {{ request('type') === 'LIQUIDATION' || request('type') === 'LIQUADATION' ? 'selected' : '' }}>LIQUIDATION</option>
-                        <option value="OBR" {{ request('type') === 'OBR' ? 'selected' : '' }}>OBR</option>
-                        <option value="POST INSPECTION" {{ request('type') === 'POST INSPECTION' ? 'selected' : '' }}>POST INSPECTION</option>
-                        <option value="PAYROLL" {{ request('type') === 'PAYROLL' ? 'selected' : '' }}>PAYROLL</option>
-                        <option value="OPG" {{ request('type') === 'OPG' ? 'selected' : '' }}>OPG</option>
-                        <option value="PR" {{ request('type') === 'PR' ? 'selected' : '' }}>PR</option>
-                        <option value="PR,PO" {{ request('type') === 'PR,PO' ? 'selected' : '' }}>PR,PO</option>
-                    </select>
-                </div>
-                <div class="form-group" style="margin:0; margin-top:12px;">
-                    <label>Status</label>
-                    <select name="status" class="form-control">
-                        <option value="">All</option>
-                        <option value="ACTIVE" {{ request('status') === 'ACTIVE' ? 'selected' : '' }}>Active</option>
-                        <option value="CANCELLED" {{ request('status') === 'CANCELLED' ? 'selected' : '' }}>Cancelled</option>
-                        <option value="FINISHED" {{ request('status') === 'FINISHED' ? 'selected' : '' }}>Finished</option>
-                    </select>
-                </div>
-                <div class="form-group" style="margin:0; margin-top:12px;">
-                    <label>Sort By</label>
-                    <select name="sort_by" class="form-control">
-                        <option value="">Default</option>
-                        <option value="newest" {{ request('sort_by')=='newest'?'selected':'' }}>Newest to Oldest</option>
-                        <option value="oldest" {{ request('sort_by')=='oldest'?'selected':'' }}>Oldest to Newest</option>
-                        <option value="az" {{ request('sort_by')=='az'?'selected':'' }}>A-Z (Description)</option>
-                        <option value="za" {{ request('sort_by')=='za'?'selected':'' }}>Z-A (Description)</option>
-                        <option value="highest" {{ request('sort_by')=='highest'?'selected':'' }}>Highest to Lowest (PR Amount)</option>
-                        <option value="lowest" {{ request('sort_by')=='lowest'?'selected':'' }}>Lowest to Highest (PR Amount)</option>
-                    </select>
-                </div>
-                </div>
             <div class="form-group" style="display:flex; gap:12px; margin-top:24px; justify-content:flex-end;">
                 <button type="submit" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center; vertical-align: top;"><i class="fas fa-search"></i> Filter</button>
                 <a href="{{ route('financial.index') }}" class="btn-gray" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center; vertical-align: top;">Reset</a>
@@ -165,33 +134,69 @@
                         </th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
                         <th style="text-align:center; padding:12px 50px; white-space:nowrap; width:180px; border-bottom:2px solid #8b0000; position: relative;">
-    <div style="display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;" onclick="toggleStatusDropdown()">
-        <span>STATUS</span>
-        <i class="fas fa-chevron-down" id="statusDropdownIcon" style="font-size: 10px; transition: transform 0.3s ease;"></i>
-    </div>
-    
-    <!-- Status Dropdown Menu -->
-    <div id="statusDropdown" style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); background: white; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 1000; min-width: 120px; display: none;">
-        <a href="{{ request()->fullUrlWithQuery(['status' => 'ACTIVE']) }}" class="dropdown-item" style="display: block; padding: 8px 12px; text-decoration: none; color: #333; font-size: 13px; border-bottom: 1px solid #eee; transition: background 0.2s ease;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
-            <i class="fas fa-play-circle" style="color: #27ae60; margin-right: 6px;"></i> Active
-        </a>
-        <a href="{{ request()->fullUrlWithQuery(['status' => 'CANCELLED']) }}" class="dropdown-item" style="display: block; padding: 8px 12px; text-decoration: none; color: #333; font-size: 13px; border-bottom: 1px solid #eee; transition: background 0.2s ease;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
-            <i class="fas fa-times-circle" style="color: #e74c3c; margin-right: 6px;"></i> Cancelled
-        </a>
-        <a href="{{ request()->fullUrlWithQuery(['status' => 'FINISHED']) }}" class="dropdown-item" style="display: block; padding: 8px 12px; text-decoration: none; color: #333; font-size: 13px; border-bottom: 1px solid #eee; transition: background 0.2s ease;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
-            <i class="fas fa-check-circle" style="color: #3498db; margin-right: 6px;"></i> Finished
-        </a>
-        <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="dropdown-item" style="display: block; padding: 8px 12px; text-decoration: none; color: #333; font-size: 13px; transition: background 0.2s ease;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
-            <i class="fas fa-list" style="color: #6b7280; margin-right: 6px;"></i> All Status
-        </a>
-    </div>
-</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">TYPE</th>
-                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">DESCRIPTION</th>
+                            <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleHeaderDropdown('statusDropdown', 'statusDropdownIcon', event)">
+                                <span>STATUS</span>
+                                <i class="fas fa-chevron-down" id="statusDropdownIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
+                            </div>
+                            <div id="statusDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:140px; display:none; overflow:hidden;">
+                                <a href="{{ request()->fullUrlWithQuery(['status' => 'ACTIVE']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Active</a>
+                                <a href="{{ request()->fullUrlWithQuery(['status' => 'CANCELLED']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Cancelled</a>
+                                <a href="{{ request()->fullUrlWithQuery(['status' => 'FINISHED']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Finished</a>
+                                <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="table-header-filter-link">All Status</a>
+                            </div>
+                        </th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000; position:relative;">
+                            <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleHeaderDropdown('typeDropdown', 'typeDropdownIcon', event)">
+                                <span>TYPE</span>
+                                <i class="fas fa-chevron-down" id="typeDropdownIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
+                            </div>
+                            <div id="typeDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:170px; display:none; overflow:hidden;">
+                                <a href="{{ request()->fullUrlWithQuery(['type' => 'DV']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">DV</a>
+                                <a href="{{ request()->fullUrlWithQuery(['type' => 'INSPEC']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">INSPEC</a>
+                                <a href="{{ request()->fullUrlWithQuery(['type' => 'LIQUIDATION']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">LIQUIDATION</a>
+                                <a href="{{ request()->fullUrlWithQuery(['type' => 'OBR']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">OBR</a>
+                                <a href="{{ request()->fullUrlWithQuery(['type' => 'POST INSPECTION']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">POST INSPECTION</a>
+                                <a href="{{ request()->fullUrlWithQuery(['type' => 'PAYROLL']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">PAYROLL</a>
+                                <a href="{{ request()->fullUrlWithQuery(['type' => 'OPG']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">OPG</a>
+                                <a href="{{ request()->fullUrlWithQuery(['type' => 'PR']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">PR</a>
+                                <a href="{{ request()->fullUrlWithQuery(['type' => 'PR,PO']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">PR,PO</a>
+                                <a href="{{ request()->fullUrlWithQuery(['type' => null]) }}" class="table-header-filter-link">All Type</a>
+                            </div>
+                        </th>
+                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000; position:relative;">
+                            <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleHeaderDropdown('descriptionSortDropdown', 'descriptionSortDropdownIcon', event)">
+                                <span>DESCRIPTION</span>
+                                <i class="fas fa-chevron-down" id="descriptionSortDropdownIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
+                            </div>
+                            <div id="descriptionSortDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:180px; display:none; overflow:hidden;">
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'newest']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Newest to Oldest</a>
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'oldest']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Oldest to Newest</a>
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'az']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">A-Z</a>
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'za']) }}" class="table-header-filter-link">Z-A</a>
+                            </div>
+                        </th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">SUPPLIER</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">PR AMOUNT</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000; position:relative;">
+                            <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleHeaderDropdown('prAmountSortDropdown', 'prAmountSortDropdownIcon', event)">
+                                <span>PR AMOUNT</span>
+                                <i class="fas fa-chevron-down" id="prAmountSortDropdownIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
+                            </div>
+                            <div id="prAmountSortDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:190px; display:none; overflow:hidden;">
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'pr_highest']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Highest to Lowest</a>
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'pr_lowest']) }}" class="table-header-filter-link">Lowest to Highest</a>
+                            </div>
+                        </th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PR #</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">PO AMOUNT</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000; position:relative;">
+                            <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleHeaderDropdown('poAmountSortDropdown', 'poAmountSortDropdownIcon', event)">
+                                <span>PO AMOUNT</span>
+                                <i class="fas fa-chevron-down" id="poAmountSortDropdownIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
+                            </div>
+                            <div id="poAmountSortDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:190px; display:none; overflow:hidden;">
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'po_highest']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Highest to Lowest</a>
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'po_lowest']) }}" class="table-header-filter-link">Lowest to Highest</a>
+                            </div>
+                        </th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">PO #</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:100px; border-bottom:2px solid #8b0000;">OBR #</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">VOUCHER #</th>
@@ -842,34 +847,31 @@
             });
         }
 
-        // Status dropdown toggle function
-        function toggleStatusDropdown() {
-            const dropdown = document.getElementById('statusDropdown');
-            const icon = document.getElementById('statusDropdownIcon');
-            
-            if (dropdown.style.display === 'none' || dropdown.style.display === '') {
-                dropdown.style.display = 'block';
-                icon.style.transform = 'rotate(180deg)';
-                
-                // Close dropdown when clicking outside
-                document.addEventListener('click', closeStatusDropdown);
-            } else {
-                dropdown.style.display = 'none';
+        function closeAllHeaderDropdowns() {
+            document.querySelectorAll('[id$="Dropdown"]').forEach(dropdown => {
+                if (dropdown.closest('th')) {
+                    dropdown.style.display = 'none';
+                }
+            });
+            document.querySelectorAll('[id$="DropdownIcon"]').forEach(icon => {
                 icon.style.transform = 'rotate(0deg)';
-                document.removeEventListener('click', closeStatusDropdown);
-            }
+            });
         }
 
-        function closeStatusDropdown(event) {
-            const dropdown = document.getElementById('statusDropdown');
-            const icon = document.getElementById('statusDropdownIcon');
-            const statusHeader = event.target.closest('th');
-            
-            // Close if clicking outside the status header
-            if (!statusHeader || !statusHeader.querySelector('#statusDropdown')) {
-                dropdown.style.display = 'none';
-                icon.style.transform = 'rotate(0deg)';
-                document.removeEventListener('click', closeStatusDropdown);
+        function toggleHeaderDropdown(dropdownId, iconId, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+
+            const dropdown = document.getElementById(dropdownId);
+            const icon = document.getElementById(iconId);
+            const isOpen = dropdown.style.display === 'block';
+
+            closeAllHeaderDropdowns();
+
+            if (!isOpen) {
+                dropdown.style.display = 'block';
+                icon.style.transform = 'rotate(180deg)';
             }
         }
 
@@ -982,6 +984,10 @@
             
             // Uncomment to test automatically:
             // setTimeout(testNotification, 1000);
+
+            document.addEventListener('click', function() {
+                closeAllHeaderDropdowns();
+            });
         });
 
         // Clickable rows functionality
@@ -997,57 +1003,5 @@
             });
         });
 
-        function toggleSort(column) {
-            const urlParams = new URLSearchParams(window.location.search);
-            
-            // Remove all column sort parameters
-            urlParams.delete('description_sort');
-            urlParams.delete('pr_amount_sort');
-            urlParams.delete('pr_number_sort');
-            
-            // Get current sort state for this column
-            const currentSort = urlParams.get(column + '_sort') || '';
-            
-            // Toggle between desc, asc, and none
-            let newSort = 'desc';
-            if (currentSort === 'desc') {
-                newSort = 'asc';
-            } else if (currentSort === 'asc') {
-                newSort = ''; // Remove sort to go back to default
-            }
-            
-            // Set new sort for this column
-            if (newSort) {
-                urlParams.set(column + '_sort', newSort);
-            } else {
-                urlParams.delete(column + '_sort');
-            }
-            
-            // Reload page with new sort
-            window.location.href = window.location.pathname + '?' + urlParams.toString();
-        }
-
-        // Highlight active sort arrows
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            
-            ['description', 'pr_amount', 'pr_number'].forEach(column => {
-                const sortValue = urlParams.get(column + '_sort');
-                const icon = document.getElementById(column + '-sort');
-                
-                if (icon) {
-                    if (sortValue === 'asc') {
-                        icon.className = 'fas fa-chevron-up';
-                        icon.style.color = '#8b0000';
-                    } else if (sortValue === 'desc') {
-                        icon.className = 'fas fa-chevron-down';
-                        icon.style.color = '#8b0000';
-                    } else {
-                        icon.className = 'fas fa-chevron-down';
-                        icon.style.color = '#ccc';
-                    }
-                }
-            });
-        });
     </script>
 </x-app-layout>

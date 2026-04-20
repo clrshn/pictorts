@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Todo;
+use App\Services\InAppNotificationService;
 use App\Support\TableExport;
 use Illuminate\Http\Request;
 
@@ -159,7 +160,8 @@ class TodoController extends Controller
         }
         unset($validated['date_added']);
 
-        Todo::create($validated);
+        $todo = Todo::create($validated);
+        app(InAppNotificationService::class)->notifyTodoCreated($todo->fresh('user'), auth()->user());
 
         return redirect()->route('todos.index')
             ->with('success', 'Todo created successfully!');
@@ -240,6 +242,7 @@ class TodoController extends Controller
         unset($validated['date_added']);
 
         $todo->update($validated);
+        app(InAppNotificationService::class)->notifyTodoUpdated($todo->fresh('user'), auth()->user());
 
         return redirect()->route('todos.index')
             ->with('updated', 'Todo updated successfully!');
@@ -255,6 +258,7 @@ class TodoController extends Controller
         ]);
 
         $todo->update(['status' => $validated['status']]);
+        app(InAppNotificationService::class)->notifyTodoStatusChanged($todo->fresh('user'), auth()->user());
 
         return response()->json(['success' => true, 'status' => $validated['status']]);
     }
@@ -269,6 +273,7 @@ class TodoController extends Controller
         ]);
 
         $todo->update(['priority' => $validated['priority']]);
+        app(InAppNotificationService::class)->notifyTodoPriorityChanged($todo->fresh('user'), auth()->user());
 
         return response()->json(['success' => true, 'priority' => $validated['priority']]);
     }
@@ -308,6 +313,14 @@ class TodoController extends Controller
         ]);
 
         $todo->update($validated);
+
+        if (array_key_exists('status', $validated) && $validated['status']) {
+            app(InAppNotificationService::class)->notifyTodoStatusChanged($todo->fresh('user'), auth()->user());
+        } elseif (array_key_exists('priority', $validated) && $validated['priority']) {
+            app(InAppNotificationService::class)->notifyTodoPriorityChanged($todo->fresh('user'), auth()->user());
+        } else {
+            app(InAppNotificationService::class)->notifyTodoUpdated($todo->fresh('user'), auth()->user());
+        }
 
         return response()->json(['success' => true, 'status' => $todo->status, 'assigned_to' => $todo->assigned_to]);
     }

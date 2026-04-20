@@ -1,0 +1,37 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="paper" x1="144" y1="110" x2="372" y2="356" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F4F7FD"/>
+    </linearGradient>
+    <linearGradient id="route" x1="172" y1="326" x2="336" y2="270" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF855E"/>
+      <stop offset="1" stop-color="#FFD474"/>
+    </linearGradient>
+    <filter id="shadow" x="84" y="74" width="344" height="348" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="12"/>
+      <feGaussianBlur stdDeviation="18"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.0588235 0 0 0 0 0.113725 0 0 0 0 0.235294 0 0 0 0.16 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <path d="M160 141C160 127.745 170.745 117 184 117H282.745C289.111 117 295.215 119.529 299.716 124.029L346.971 171.284C351.471 175.785 354 181.889 354 188.255V333C354 346.255 343.255 357 330 357H184C170.745 357 160 346.255 160 333V141Z" fill="url(#paper)"/>
+    <path d="M288 118V161C288 171.493 296.507 180 307 180H350" fill="#D8E3F6"/>
+    <path d="M194 185H283" stroke="#173B8F" stroke-width="18" stroke-linecap="round"/>
+    <path d="M194 226H316" stroke="#173B8F" stroke-width="18" stroke-linecap="round" opacity="0.88"/>
+    <path d="M194 267H268" stroke="#173B8F" stroke-width="18" stroke-linecap="round" opacity="0.72"/>
+
+    <path d="M176 322C200.653 299.482 227.124 287.84 255.414 287.074C285.976 286.247 315.505 297.976 344 322.263" stroke="url(#route)" stroke-width="16" stroke-linecap="round"/>
+    <circle cx="176" cy="322" r="15" fill="#FF855E"/>
+    <circle cx="257" cy="287" r="13" fill="#FFAF68"/>
+    <circle cx="344" cy="322" r="11" fill="#FFD474"/>
+
+    <path d="M146 366C146 353.85 155.85 344 168 344H283C295.15 344 305 353.85 305 366C305 378.15 295.15 388 283 388H168C155.85 388 146 378.15 146 366Z" fill="#B0191E"/>
+    <path d="M320 366C320 353.85 329.85 344 342 344C354.15 344 364 353.85 364 366C364 378.15 354.15 388 342 388C329.85 388 320 378.15 320 366Z" fill="#173B8F"/>
+  </g>
+</svg>

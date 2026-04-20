@@ -6,6 +6,7 @@ use App\Models\Document;
 use App\Models\DocumentFile;
 use App\Models\Office;
 use App\Models\User;
+use App\Services\InAppNotificationService;
 use App\Support\TableExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +28,7 @@ class DocumentController extends Controller
     {
         $query = Document::with(['originatingOffice', 'destinationOffice', 'currentOffice', 'holder']);
         $isTravelOrderPage = $this->isTravelOrderRequest($request);
+        $sortBy = $request->get('sort_by');
         $exportMode = $request->get('export');
 
         // Filter by document type tab
@@ -96,17 +98,21 @@ class DocumentController extends Controller
         }
 
         // Sort by date
-        if ($request->filled('sort_by')) {
-            if ($request->sort_by === 'newest') {
-                $query->orderBy('created_at', 'desc');
-            } elseif ($request->sort_by === 'oldest') {
-                $query->orderBy('created_at', 'asc');
-            } elseif ($request->sort_by === 'az') {
-                $query->orderBy('subject', 'asc');
-            } elseif ($request->sort_by === 'za') {
-                $query->orderBy('subject', 'desc');
+        if ($sortBy === 'newest') {
+            $query->orderBy('created_at', 'desc');
+        } elseif ($sortBy === 'oldest') {
+            $query->orderBy('created_at', 'asc');
+        } elseif ($sortBy === 'az') {
+            if ($isTravelOrderPage) {
+                $query->orderByRaw('COALESCE(particulars, subject, \'\') asc');
             } else {
-                $query->orderBy('doc_number', 'asc');
+                $query->orderBy('subject', 'asc');
+            }
+        } elseif ($sortBy === 'za') {
+            if ($isTravelOrderPage) {
+                $query->orderByRaw('COALESCE(particulars, subject, \'\') desc');
+            } else {
+                $query->orderBy('subject', 'desc');
             }
         } else {
             $query->orderBy('doc_number', 'asc');
@@ -142,14 +148,18 @@ class DocumentController extends Controller
                     $doc->memorandum_number ?? '—',
                     $doc->subject ?? '—',
                     $doc->originatingOffice->code ?? '—',
-                    $doc->direction === 'OUTGOING' ? ($doc->delivery_scope ? ucfirst(strtolower($doc->delivery_scope)) : 'Unspecified') : '—',
+                    match ($doc->direction) {
+                        'INCOMING' => 'Incoming',
+                        'OUTGOING' => 'Outgoing',
+                        default => '—',
+                    },
                     $doc->status,
                     $doc->date_received ? $doc->date_received->format('F d, Y') : ($doc->created_at ? $doc->created_at->format('F d, Y') : '—'),
                     $doc->remarks ?? '—',
                 ];
             })->all();
 
-            return TableExport::csv('documents-report.csv', ['Tracking Code', 'PICTO No', 'Number', 'Subject', 'Originating Office', 'Outgoing Type', 'Status', 'Date Received', 'Remarks'], $rows);
+            return TableExport::csv('documents-report.csv', ['Tracking Code', 'PICTO No', 'Number', 'Subject', 'Originating Office', 'Type Direction', 'Status', 'Date Received', 'Remarks'], $rows);
         }
 
         if (in_array($exportMode, ['print', 'pdf'], true)) {
@@ -199,7 +209,7 @@ class DocumentController extends Controller
                 'number' => 'Number',
                 'subject' => 'Subject',
                 'originating_office' => 'Originating Office',
-                'outgoing_type' => 'Outgoing Type',
+                'outgoing_type' => 'Type Direction',
                 'status' => 'Status',
                 'date_received' => 'Date Received',
             ];
@@ -211,7 +221,11 @@ class DocumentController extends Controller
                     'number' => $doc->memorandum_number ?? '—',
                     'subject' => $doc->subject ?? '—',
                     'originating_office' => $doc->originatingOffice->code ?? '—',
-                    'outgoing_type' => $doc->direction === 'OUTGOING' ? ($doc->delivery_scope ? ucfirst(strtolower($doc->delivery_scope)) : 'Unspecified') : '—',
+                    'outgoing_type' => match ($doc->direction) {
+                        'INCOMING' => 'Incoming',
+                        'OUTGOING' => 'Outgoing',
+                        default => '—',
+                    },
                     'status' => $doc->status,
                     'date_received' => $doc->date_received ? $doc->date_received->format('F d, Y') : ($doc->created_at ? $doc->created_at->format('F d, Y') : '—'),
                 ];
@@ -389,13 +403,17 @@ class DocumentController extends Controller
         $exportMode = request()->get('export');
 
         if ($exportMode === 'csv') {
-            return TableExport::csv('document-' . $document->id . '.csv', ['Tracking Code', 'PICTO No', 'Number', 'Document Type', 'Direction', 'Outgoing Type', 'Subject', 'Particulars', 'Originating Office', 'Date Received', 'Action Required', 'Endorsed To', 'Current Office', 'Current Holder', 'Status', 'Remarks'], [[
+            return TableExport::csv('document-' . $document->id . '.csv', ['Tracking Code', 'PICTO No', 'Number', 'Document Type', 'Direction', 'Type Direction', 'Subject', 'Particulars', 'Originating Office', 'Date Received', 'Action Required', 'Endorsed To', 'Current Office', 'Current Holder', 'Status', 'Remarks'], [[
                 $document->dts_number,
                 $document->doc_number ?? '—',
                 $document->memorandum_number ?? '—',
                 $document->document_type,
                 $document->direction,
-                $document->direction === 'OUTGOING' ? ($document->delivery_scope ? ucfirst(strtolower($document->delivery_scope)) : 'Unspecified') : '—',
+                match ($document->direction) {
+                    'INCOMING' => 'Incoming',
+                    'OUTGOING' => 'Outgoing',
+                    default => '—',
+                },
                 $document->subject ?? '—',
                 $document->particulars ?? '—',
                 $document->originatingOffice->name ?? '—',
@@ -419,7 +437,11 @@ class DocumentController extends Controller
                         'Number' => $document->memorandum_number ?? '—',
                         'Document Type' => $document->document_type,
                         'Direction' => $document->direction,
-                        'Outgoing Type' => $document->direction === 'OUTGOING' ? ($document->delivery_scope ? ucfirst(strtolower($document->delivery_scope)) : 'Unspecified') : '—',
+                        'Type Direction' => match ($document->direction) {
+                            'INCOMING' => 'Incoming',
+                            'OUTGOING' => 'Outgoing',
+                            default => '—',
+                        },
                         'Subject' => $document->subject ?? '—',
                         'Particulars' => $document->particulars ?? '—',
                         'Originating Office' => $document->originatingOffice->name ?? '—',
@@ -621,6 +643,8 @@ class DocumentController extends Controller
             'current_office' => $request->to_office,
         ]);
 
+        app(InAppNotificationService::class)->notifyDocumentForwarded($document->fresh(['currentOffice', 'destinationOffice', 'encoder', 'holder']), (int) $request->to_office, auth()->user());
+
         return redirect()->route('documents.show', $document)->with('success', 'Document forwarded successfully.');
     }
 
@@ -639,6 +663,8 @@ class DocumentController extends Controller
         $document->update([
             'current_holder' => auth()->id(),
         ]);
+
+        app(InAppNotificationService::class)->notifyDocumentReceived($document->fresh(['encoder', 'holder']), auth()->user());
 
         return redirect()->route('documents.show', $document)->with('success', 'Document received.');
     }

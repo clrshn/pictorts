@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Todo;
 use App\Models\User;
 use App\Services\EmailNotificationService;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
@@ -171,7 +174,139 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        $users = User::all();
-        return view('notifications.index', compact('users'));
+        return view('notifications.index');
+    }
+
+    /**
+     * Return the authenticated user's notification feed.
+     */
+    public function feed()
+    {
+        $user = Auth::user();
+        $limit = max(10, min((int) request('limit', 15), 100));
+        $category = request('category');
+        $onlyUnread = request()->boolean('unread');
+
+        $databaseNotifications = $user->notifications()
+            ->when($onlyUnread, fn ($query) => $query->whereNull('read_at'))
+            ->latest()
+            ->limit($limit)
+            ->get()
+            ->map(fn (DatabaseNotification $notification) => [
+                'id' => $notification->id,
+                'title' => $notification->data['title'] ?? 'Notification',
+                'message' => $notification->data['message'] ?? '',
+                'url' => $notification->data['url'] ?? null,
+                'type' => $notification->data['type'] ?? 'info',
+                'icon' => $notification->data['icon'] ?? 'fa-solid fa-bell',
+                'category' => $notification->data['category'] ?? 'general',
+                'read_at' => $notification->read_at?->toIso8601String(),
+                'created_at' => $notification->created_at?->toIso8601String(),
+                'time_label' => $notification->created_at?->diffForHumans(),
+                'synthetic' => false,
+            ]);
+
+        $reminders = $this->buildTodoReminders($user);
+        $items = $databaseNotifications
+            ->concat($reminders)
+            ->when($category && $category !== 'all', function ($collection) use ($category) {
+                return $collection->filter(fn (array $item) => ($item['category'] ?? 'general') === $category);
+            })
+            ->sortByDesc(fn (array $item) => $item['created_at'] ?? now()->toIso8601String())
+            ->values()
+            ->take($limit)
+            ->all();
+
+        return response()->json([
+            'unread_count' => $user->unreadNotifications()->count() + $reminders->count(),
+            'items' => $items,
+        ]);
+    }
+
+    /**
+     * Mark a database notification as read.
+     */
+    public function markRead(string $notificationId)
+    {
+        $notification = Auth::user()
+            ->notifications()
+            ->where('id', $notificationId)
+            ->firstOrFail();
+
+        if (!$notification->read_at) {
+            $notification->markAsRead();
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Mark all database notifications as read.
+     */
+    public function markAllRead()
+    {
+        Auth::user()->unreadNotifications->markAsRead();
+
+        return response()->json(['success' => true]);
+    }
+
+    private function buildTodoReminders(User $user)
+    {
+        $today = Carbon::today();
+        $tomorrow = Carbon::tomorrow();
+        $normalizedName = mb_strtolower(trim($user->name));
+
+        $todos = Todo::query()
+            ->whereNotIn('status', ['done', 'cancelled'])
+            ->where(function ($query) use ($user, $normalizedName) {
+                $query->where('user_id', $user->id);
+
+                if ($normalizedName !== '') {
+                    $query->orWhereRaw('LOWER(assigned_to) LIKE ?', ['%' . $normalizedName . '%']);
+                }
+            })
+            ->whereNotNull('due_date')
+            ->whereDate('due_date', '<=', $tomorrow)
+            ->orderBy('due_date')
+            ->limit(5)
+            ->get();
+
+        return $todos->map(function (Todo $todo) use ($today, $tomorrow) {
+            $dueDate = $todo->due_date;
+            $isOverdue = $dueDate && $dueDate->lt($today);
+            $isToday = $dueDate && $dueDate->isSameDay($today);
+            $isTomorrow = $dueDate && $dueDate->isSameDay($tomorrow);
+
+            if ($isOverdue) {
+                $title = 'Overdue Task Reminder';
+                $message = sprintf('"%s" is overdue since %s.', $todo->title, $dueDate->format('M d, Y'));
+                $type = 'danger';
+                $icon = 'fa-solid fa-clock';
+            } elseif ($isToday) {
+                $title = 'Task Due Today';
+                $message = sprintf('"%s" is due today.', $todo->title);
+                $type = 'warning';
+                $icon = 'fa-solid fa-hourglass-half';
+            } else {
+                $title = 'Task Due Tomorrow';
+                $message = sprintf('"%s" is due tomorrow.', $todo->title);
+                $type = 'info';
+                $icon = 'fa-solid fa-calendar-day';
+            }
+
+            return [
+                'id' => 'todo-reminder-' . $todo->id,
+                'title' => $title,
+                'message' => $message,
+                'url' => route('todos.show', $todo),
+                'type' => $type,
+                'icon' => $icon,
+                'category' => 'reminder',
+                'read_at' => null,
+                'created_at' => $todo->updated_at?->toIso8601String() ?? now()->toIso8601String(),
+                'time_label' => $dueDate ? 'Due ' . $dueDate->format('M d, Y') : 'Reminder',
+                'synthetic' => true,
+            ];
+        });
     }
 }

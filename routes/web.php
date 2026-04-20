@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\FinancialController;
+use App\Http\Controllers\TableReportController;
 use App\Http\Controllers\TrackController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OfficeController;
@@ -36,6 +37,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/financial/{financial}/route', [FinancialController::class, 'route'])->name('financial.route');
     Route::post('/financial/{financial}/receive', [FinancialController::class, 'receive'])->name('financial.receive');
     Route::patch('/financial/{financial}/update-status', [FinancialController::class, 'updateStatus'])->name('financial.update-status');
+
+    // Ad hoc table reports
+    Route::post('/table-reports', [TableReportController::class, 'store'])->name('table-reports.store');
+    Route::get('/table-reports/{report}', [TableReportController::class, 'show'])->name('table-reports.show');
 
     // Test route
     Route::patch('/test-update-status', function (Request $request) {
@@ -81,6 +86,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Email Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/feed', [NotificationController::class, 'feed'])->name('notifications.feed');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('/notifications/test', [NotificationController::class, 'sendTestNotification'])->name('notifications.test');
     Route::post('/notifications/document', [NotificationController::class, 'sendDocumentNotification'])->name('notifications.document');
     Route::post('/notifications/financial', [NotificationController::class, 'sendFinancialNotification'])->name('notifications.financial');

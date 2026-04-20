@@ -6,6 +6,7 @@ use App\Models\FinancialRecord;
 use App\Models\FinancialAttachment;
 use App\Models\Office;
 use App\Models\User;
+use App\Services\InAppNotificationService;
 use App\Support\TableExport;
 use Illuminate\Http\Request;
 
@@ -42,22 +43,39 @@ class FinancialController extends Controller
             });
         }
 
-        // Sort by various options
         if ($request->filled('sort_by')) {
-            if ($request->sort_by === 'newest') {
-                $query->orderBy('created_at', 'desc');
-            } elseif ($request->sort_by === 'oldest') {
-                $query->orderBy('created_at', 'asc');
-            } elseif ($request->sort_by === 'az') {
-                $query->orderBy('description', 'asc');
-            } elseif ($request->sort_by === 'za') {
-                $query->orderBy('description', 'desc');
-            } elseif ($request->sort_by === 'highest') {
-                $query->orderBy('pr_amount', 'desc');
-            } elseif ($request->sort_by === 'lowest') {
-                $query->orderBy('pr_amount', 'asc');
-            } else {
-                $query->latest();
+            switch ($request->sort_by) {
+                case 'newest':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+                case 'oldest':
+                    $query->orderBy('created_at', 'asc');
+                    break;
+                case 'az':
+                case 'description_az':
+                    $query->orderBy('description', 'asc');
+                    break;
+                case 'za':
+                case 'description_za':
+                    $query->orderBy('description', 'desc');
+                    break;
+                case 'highest':
+                case 'pr_highest':
+                    $query->orderBy('pr_amount', 'desc');
+                    break;
+                case 'lowest':
+                case 'pr_lowest':
+                    $query->orderBy('pr_amount', 'asc');
+                    break;
+                case 'po_highest':
+                    $query->orderBy('po_amount', 'desc');
+                    break;
+                case 'po_lowest':
+                    $query->orderBy('po_amount', 'asc');
+                    break;
+                default:
+                    $query->latest();
+                    break;
             }
         } else {
             $query->latest();
@@ -353,6 +371,8 @@ class FinancialController extends Controller
             'updated_by' => auth()->id(),
         ]);
 
+        app(InAppNotificationService::class)->notifyFinancialStatusChanged($financial->fresh(['createdBy', 'holder']), auth()->user());
+
         return response()->json([
             'success' => true,
             'message' => 'Status updated successfully',
@@ -386,6 +406,8 @@ class FinancialController extends Controller
             'current_office' => $request->to_office,
         ]);
 
+        app(InAppNotificationService::class)->notifyFinancialForwarded($financial->fresh(['createdBy', 'holder', 'currentOffice']), (int) $request->to_office, auth()->user());
+
         return redirect()->route('financial.show', $financial)->with('success', 'Financial record forwarded.');
     }
 
@@ -404,6 +426,8 @@ class FinancialController extends Controller
         $financial->update([
             'current_holder' => auth()->id(),
         ]);
+
+        app(InAppNotificationService::class)->notifyFinancialReceived($financial->fresh(['createdBy', 'holder']), auth()->user());
 
         return redirect()->route('financial.show', $financial)->with('success', 'Financial record received.');
     }

@@ -48,14 +48,20 @@
 
             <div>
                 <div style="margin-bottom:8px; font-size:13px; font-weight:700; color:#334155;">Report Scope</div>
-                <div style="display:grid; gap:8px;">
-                    <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#475569;">
-                        <input type="radio" name="{{ $toolbarId }}_scope" value="filtered" checked>
-                        <span>All filtered results</span>
+                <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;">
+                    <label style="display:flex; align-items:flex-start; gap:10px; font-size:13px; color:#475569; padding:12px 14px; border:1px solid rgba(148,163,184,0.28); border-radius:14px; background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%); cursor:pointer; box-shadow:0 8px 20px rgba(15,23,42,0.05);">
+                        <input type="radio" name="{{ $toolbarId }}_scope" value="filtered" checked style="margin-top:2px; accent-color:#c0392b;">
+                        <span style="display:flex; flex-direction:column; gap:4px;">
+                            <span style="font-size:13px; font-weight:700; color:#334155;">All filtered results</span>
+                            <span style="font-size:12px; color:#64748b; line-height:1.4;">Uses the current page filters.</span>
+                        </span>
                     </label>
-                    <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#475569;">
-                        <input type="radio" name="{{ $toolbarId }}_scope" value="selected">
-                        <span>Only selected rows on this page</span>
+                    <label style="display:flex; align-items:flex-start; gap:10px; font-size:13px; color:#475569; padding:12px 14px; border:1px solid rgba(148,163,184,0.28); border-radius:14px; background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%); cursor:pointer; box-shadow:0 8px 20px rgba(15,23,42,0.05);">
+                        <input type="radio" name="{{ $toolbarId }}_scope" value="selected" style="margin-top:2px; accent-color:#c0392b;">
+                        <span style="display:flex; flex-direction:column; gap:4px;">
+                            <span style="font-size:13px; font-weight:700; color:#334155;">Only selected rows</span>
+                            <span style="font-size:12px; color:#64748b; line-height:1.4;">Uses checked rows on this page.</span>
+                        </span>
                     </label>
                 </div>
             </div>
@@ -79,8 +85,7 @@
             </div>
 
             <div style="font-size:12px; color:#64748b; line-height:1.5;">
-                `All filtered results` uses the current page filters.
-                `Only selected rows` uses the checkboxes and the columns you currently made visible.
+                Reports will follow the columns you currently made visible in the table.
             </div>
 
             <div style="display:flex; gap:10px; justify-content:flex-end; padding-top:4px;">
@@ -103,7 +108,11 @@
         const defaultHidden = @json($defaultHidden);
         const lockedColumns = @json($lockedColumns);
         const printUrl = @json($printUrl);
+        const selectedReportStoreUrl = @json(route('table-reports.store'));
         const defaultTitle = @json($reportTitle);
+        const leftLogoUrl = @json(url('images/pglu-logo.png'));
+        const rightLogoUrl = @json(url('images/Bagong_Pilipinas_logo.png'));
+        const previewTitle = 'PICTO Report Preview';
 
         window[`toggleTableToolsMenu_${toolbarId}`] = function () {
             const menu = document.getElementById(`${toolbarId}_menu`);
@@ -163,45 +172,13 @@
             window.alert(message);
         }
 
-        function buildPrintMarkup(title, headers, rows, options = {}) {
-            const generatedAt = new Date().toLocaleString();
-            const orientation = options.orientation || 'portrait';
-            const paperSize = options.paperSize || 'A4';
-
-            return `
-                <!doctype html>
-                <html>
-                <head>
-                    <meta charset="utf-8">
-                    <title>${title}</title>
-                    <style>
-                        @page { size: ${paperSize} ${orientation}; margin: 14mm; }
-                        body { font-family: Arial, sans-serif; margin: 24px; color: #1f2937; }
-                        h1 { margin: 0 0 8px; font-size: 24px; }
-                        .meta { margin-bottom: 16px; color: #64748b; font-size: 13px; }
-                        table { width: 100%; border-collapse: collapse; }
-                        th, td { border: 1px solid #cbd5e1; padding: 10px 12px; font-size: 12px; text-align: left; vertical-align: top; }
-                        th { background: #f8fafc; font-weight: 700; }
-                    </style>
-                </head>
-                <body>
-                    <h1>${title}</h1>
-                    <div class="meta">
-                        <div>Generated: ${generatedAt}</div>
-                        <div>Paper: ${paperSize}</div>
-                        <div>Orientation: ${orientation}</div>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>${headers.map((header) => `<th>${header}</th>`).join('')}</tr>
-                        </thead>
-                        <tbody>
-                            ${rows.map((row) => `<tr>${row.map((value) => `<td>${String(value ?? '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</td>`).join('')}</tr>`).join('')}
-                        </tbody>
-                    </table>
-                </body>
-                </html>
-            `;
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         function getReportOptions() {
@@ -212,10 +189,10 @@
             return { title, paperSize, orientation, scope };
         }
 
-        function printSelectedRows(options = {}) {
+        async function openSelectedRowsPreview(options = {}) {
             const table = document.getElementById(tableId);
             if (!table) {
-                return;
+                return false;
             }
 
             const selectedRows = Array.from(table.querySelectorAll('tbody .table-row-select:checked'))
@@ -248,25 +225,144 @@
                 });
             });
 
-            const printWindow = window.open('', '_blank', 'width=1200,height=800');
-            if (!printWindow) {
+            const previewWindow = window.open('', '_blank');
+
+            if (!previewWindow) {
                 showMessage('Allow pop-ups to generate the selected-row report.', 'Popup Blocked');
                 return false;
             }
 
-            printWindow.document.open();
-            printWindow.document.write(buildPrintMarkup(options.title || (document.title + ' - Selected Rows'), headers, rows, options));
-            printWindow.document.close();
-            printWindow.focus();
-            printWindow.print();
+            if (previewWindow && previewWindow.document) {
+                previewWindow.document.open();
+                previewWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>${escapeHtml(previewTitle)}</title>
+                        <style>
+                            body {
+                                margin: 0;
+                                min-height: 100vh;
+                                display: grid;
+                                place-items: center;
+                                background: #dde6ef;
+                                color: #1f2937;
+                                font-family: Arial, Helvetica, sans-serif;
+                            }
+
+                            .loading-card {
+                                padding: 20px 24px;
+                                border-radius: 14px;
+                                background: #ffffff;
+                                box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+                                font-size: 14px;
+                                font-weight: 600;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="loading-card">Preparing report preview...</div>
+                    </body>
+                    </html>
+                `);
+                previewWindow.document.close();
+            }
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                const response = await fetch(selectedReportStoreUrl, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        title: options.title || defaultTitle,
+                        headers,
+                        rows,
+                        paper_size: options.paperSize || 'A4',
+                        orientation: options.orientation || 'portrait',
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate selected-row preview.');
+                }
+
+                const data = await response.json();
+                if (!data.preview_url) {
+                    throw new Error('Preview link was not returned.');
+                }
+
+                previewWindow.location.href = data.preview_url;
+            } catch (error) {
+                if (previewWindow && !previewWindow.closed && previewWindow.document) {
+                    previewWindow.document.open();
+                    previewWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <title>${escapeHtml(previewTitle)}</title>
+                            <style>
+                                body {
+                                    margin: 0;
+                                    min-height: 100vh;
+                                    display: grid;
+                                    place-items: center;
+                                    background: #dde6ef;
+                                    color: #1f2937;
+                                    font-family: Arial, Helvetica, sans-serif;
+                                }
+
+                                .error-card {
+                                    width: min(420px, calc(100vw - 40px));
+                                    padding: 22px 24px;
+                                    border-radius: 16px;
+                                    background: #ffffff;
+                                    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+                                }
+
+                                .error-title {
+                                    margin: 0 0 8px;
+                                    font-size: 16px;
+                                    font-weight: 700;
+                                    color: #991b1b;
+                                }
+
+                                .error-text {
+                                    margin: 0;
+                                    font-size: 13px;
+                                    line-height: 1.6;
+                                    color: #475569;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="error-card">
+                                <h1 class="error-title">Report Preview Error</h1>
+                                <p class="error-text">The selected-row report could not be prepared. Please close this tab and try again.</p>
+                            </div>
+                        </body>
+                        </html>
+                    `);
+                    previewWindow.document.close();
+                }
+                showMessage('The selected-row report could not be prepared. Please try again.', 'Preview Error');
+                return false;
+            }
+
             return true;
         }
 
-        window[`generateReport_${toolbarId}`] = function () {
+        window[`generateReport_${toolbarId}`] = async function () {
             const options = getReportOptions();
 
             if (options.scope === 'selected') {
-                if (printSelectedRows(options)) {
+                if (await openSelectedRowsPreview(options)) {
                     window[`closeReportDialog_${toolbarId}`]();
                 }
                 return;

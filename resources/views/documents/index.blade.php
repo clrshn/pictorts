@@ -12,10 +12,7 @@
         $isOutgoingView = request('direction') === 'OUTGOING' || request('type') === 'TO';
         $isSpecificOutgoingScopeView = $isOutgoingView && filled(request('delivery_scope'));
         $isIncomingPage = request('direction') === 'INCOMING';
-        $isOutgoingRootPage = request('direction') === 'OUTGOING' && !filled(request('delivery_scope')) && request('type') !== 'TO';
-        $showTravelOrderTypeFilter = !($isIncomingPage || $isSpecificOutgoingScopeView) || !empty($isTravelOrderPage);
-        $showOutgoingTypeFilter = !$isIncomingPage;
-        $documentTypeOptions = $isSpecificOutgoingScopeView
+        $documentTypeOptions = ($isSpecificOutgoingScopeView || $isIncomingPage)
             ? ['MEMO', 'EO', 'SO', 'LETTER', 'SP', 'OTHERS']
             : ['MEMO', 'EO', 'SO', 'LETTER', 'SP', 'TO', 'OTHERS'];
         $typeLabel = match(request('type')) {
@@ -43,7 +40,7 @@
                         <span class="active-filter-pill">{{ request('direction') }} <a href="{{ request()->fullUrlWithQuery(['direction' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none;cursor:pointer;" title="Remove direction filter">&times;</a></span>
                     @endif
                     @if(request('delivery_scope'))
-                        <span class="active-filter-pill">{{ request('delivery_scope') }} <a href="{{ request()->fullUrlWithQuery(['delivery_scope' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none;cursor:pointer;" title="Remove outgoing type filter">&times;</a></span>
+                        <span class="active-filter-pill">{{ request('delivery_scope') }} <a href="{{ request()->fullUrlWithQuery(['delivery_scope' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none;cursor:pointer;" title="Remove outgoing scope filter">&times;</a></span>
                     @endif
                     @if(request('status'))
                         <span class="active-filter-pill">{{ request('status') }} <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none;cursor:pointer;" title="Remove status filter">&times;</a></span>
@@ -64,18 +61,27 @@
                         <span class="active-filter-pill">{{ request('search') }} <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none;cursor:pointer;" title="Remove search filter">&times;</a></span>
                     @endif
                     @if(request('sort_by'))
-                        <span class="active-filter-pill">{{ request('sort_by') == 'newest' ? 'NEWEST TO OLDEST' : (request('sort_by') == 'oldest' ? 'OLDEST TO NEWEST' : (request('sort_by') == 'az' ? 'A-Z' : (request('sort_by') == 'za' ? 'Z-A' : strtoupper(str_replace('_', ' ', request('sort_by')))))) }} <a href="{{ request()->fullUrlWithQuery(['sort_by' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none;cursor:pointer;" title="Remove sort filter">&times;</a></span>
+                        <span class="active-filter-pill">{{ match(request('sort_by')) {
+                            'newest' => (!empty($isTravelOrderPage) ? 'PARTICULARS / PURPOSE: NEWEST TO OLDEST' : 'SUBJECT: NEWEST TO OLDEST'),
+                            'oldest' => (!empty($isTravelOrderPage) ? 'PARTICULARS / PURPOSE: OLDEST TO NEWEST' : 'SUBJECT: OLDEST TO NEWEST'),
+                            'az' => (!empty($isTravelOrderPage) ? 'PARTICULARS / PURPOSE: A-Z' : 'SUBJECT: A-Z'),
+                            'za' => (!empty($isTravelOrderPage) ? 'PARTICULARS / PURPOSE: Z-A' : 'SUBJECT: Z-A'),
+                            default => strtoupper(str_replace('_', ' ', request('sort_by')))
+                        } }} <a href="{{ request()->fullUrlWithQuery(['sort_by' => null]) }}" class="badge bg-light text-dark" style="text-decoration:none;cursor:pointer;" title="Remove sort filter">&times;</a></span>
                     @endif
                 </div>
             @endif
         </div>
 
         <form method="GET" action="{{ route('documents.index') }}">
-            @foreach(['status','search','direction','delivery_scope','type','travel_order_type','month','year','sort_by'] as $field)
+            @foreach(['direction', 'status', 'delivery_scope', 'travel_order_type', 'sort_by'] as $field)
                 @if(request($field))
                     <input type="hidden" name="{{ $field }}" value="{{ request($field) }}">
                 @endif
             @endforeach
+            @if(!empty($isTravelOrderPage))
+                <input type="hidden" name="type" value="TO">
+            @endif
 
             <div style="display:grid;grid-template-columns:1fr;gap:8px;">
                 <div class="form-group" style="margin:0;">
@@ -97,54 +103,17 @@
                     <label>Year</label>
                     <input type="number" name="year" class="form-control" value="{{ request('year', now()->year) }}" min="2020" max="2035">
                 </div>
-                <div class="form-group" style="margin:0;margin-top:12px;">
-                    <label>Document Type</label>
-                    <select name="type" class="form-control" id="documentTypeFilter">
-                        <option value="">All Types</option>
-                        @foreach($documentTypeOptions as $t)
-                            <option value="{{ $t }}" {{ request('type') === $t ? 'selected' : '' }}>{{ $t === 'TO' ? 'TO - Travel Order' : $t }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                @if($showTravelOrderTypeFilter)
+                @if(empty($isTravelOrderPage))
                     <div class="form-group" style="margin:0;margin-top:12px;">
-                        <label>Travel Order Type</label>
-                        <select name="travel_order_type" class="form-control" id="travelOrderTypeFilter" {{ !empty($isTravelOrderPage) || request('type') === 'TO' || (!$isIncomingPage && !$isSpecificOutgoingScopeView) ? '' : 'disabled' }}>
+                        <label>Document Type</label>
+                        <select name="type" class="form-control" id="documentTypeFilter">
                             <option value="">All Types</option>
-                            <option value="WITHIN_LA_UNION" {{ request('travel_order_type') === 'WITHIN_LA_UNION' ? 'selected' : '' }}>Within La Union</option>
-                            <option value="OUTSIDE_LA_UNION" {{ request('travel_order_type') === 'OUTSIDE_LA_UNION' ? 'selected' : '' }}>Outside La Union</option>
-                            <option value="SPECIAL_ORDER" {{ request('travel_order_type') === 'SPECIAL_ORDER' ? 'selected' : '' }}>Special Order</option>
+                            @foreach($documentTypeOptions as $t)
+                                <option value="{{ $t }}" {{ request('type') === $t ? 'selected' : '' }}>{{ $t === 'TO' ? 'TO - Travel Order' : $t }}</option>
+                            @endforeach
                         </select>
                     </div>
                 @endif
-                <div class="form-group" style="margin:0;margin-top:12px;">
-                    <label>Direction</label>
-                    <select name="direction" class="form-control">
-                        <option value="">All</option>
-                        <option value="INCOMING" {{ request('direction') === 'INCOMING' ? 'selected' : '' }}>Incoming</option>
-                        <option value="OUTGOING" {{ request('direction') === 'OUTGOING' ? 'selected' : '' }}>Outgoing</option>
-                    </select>
-                </div>
-                @if($showOutgoingTypeFilter)
-                    <div class="form-group" style="margin:0;margin-top:12px;">
-                        <label>Outgoing Type</label>
-                        <select name="delivery_scope" class="form-control">
-                            <option value="">All</option>
-                            <option value="EXTERNAL" {{ request('delivery_scope') === 'EXTERNAL' ? 'selected' : '' }}>External</option>
-                            <option value="INTERNAL" {{ request('delivery_scope') === 'INTERNAL' ? 'selected' : '' }}>Internal</option>
-                        </select>
-                    </div>
-                @endif
-                <div class="form-group" style="margin:0;margin-top:12px;">
-                    <label>Sort By</label>
-                    <select name="sort_by" class="form-control">
-                        <option value="">Default</option>
-                        <option value="newest" {{ request('sort_by') == 'newest' ? 'selected' : '' }}>Newest to Oldest</option>
-                        <option value="oldest" {{ request('sort_by') == 'oldest' ? 'selected' : '' }}>Oldest to Newest</option>
-                        <option value="az" {{ request('sort_by') == 'az' ? 'selected' : '' }}>A-Z</option>
-                        <option value="za" {{ request('sort_by') == 'za' ? 'selected' : '' }}>Z-A</option>
-                    </select>
-                </div>
             </div>
 
             <div class="form-group" style="display:flex;gap:12px;margin-top:24px;justify-content:flex-end;">
@@ -176,7 +145,7 @@
                     'number' => 'Number',
                     'subject' => 'Subject',
                     'originating_office' => 'Originating Office',
-                    'outgoing_type' => 'Outgoing Type',
+                    'outgoing_type' => 'Type Direction',
                     'status' => 'Status',
                     'date_received' => 'Date Received',
                 ];
@@ -214,20 +183,87 @@
                         <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:120px;border-bottom:2px solid #8b0000;">ACTION</th>
                         @if(!empty($isTravelOrderPage))
                             <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:160px;border-bottom:2px solid #8b0000;">DTS NUMBER</th>
-                            <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:170px;border-bottom:2px solid #8b0000;">TO TYPE</th>
+                            <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:170px;border-bottom:2px solid #8b0000; position:relative;">
+                                <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleDocumentHeaderDropdown('documentTravelTypeDropdown', 'documentTravelTypeIcon', event)">
+                                    <span>TO TYPE</span>
+                                    <i class="fas fa-chevron-down" id="documentTravelTypeIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
+                                </div>
+                                <div id="documentTravelTypeDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:170px; display:none; overflow:hidden;">
+                                    <a href="{{ request()->fullUrlWithQuery(['travel_order_type' => 'WITHIN_LA_UNION']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Within La Union</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['travel_order_type' => 'OUTSIDE_LA_UNION']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Outside La Union</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['travel_order_type' => 'SPECIAL_ORDER']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Special Order</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['travel_order_type' => null]) }}" class="table-header-filter-link">All TO Type</a>
+                                </div>
+                            </th>
                             <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:160px;border-bottom:2px solid #8b0000;">DATE/S OF TRAVEL</th>
                             <th style="text-align:center;padding:12px 8px;min-width:220px;border-bottom:2px solid #8b0000;">NAME/S</th>
                             <th style="text-align:center;padding:12px 8px;min-width:220px;border-bottom:2px solid #8b0000;">DESTINATION/S</th>
-                            <th style="text-align:center;padding:12px 8px;min-width:260px;border-bottom:2px solid #8b0000;">PARTICULARS / PURPOSE</th>
-                            <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:100px;border-bottom:2px solid #8b0000;">STATUS</th>
+                            <th style="text-align:center;padding:12px 8px;min-width:260px;border-bottom:2px solid #8b0000; position:relative;">
+                                <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleDocumentHeaderDropdown('documentPurposeSortDropdown', 'documentPurposeSortIcon', event)">
+                                    <span>PARTICULARS / PURPOSE</span>
+                                    <i class="fas fa-chevron-down" id="documentPurposeSortIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
+                                </div>
+                                <div id="documentPurposeSortDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:180px; display:none; overflow:hidden;">
+                                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'newest']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Newest to Oldest</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'oldest']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Oldest to Newest</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'az']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">A-Z</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'za']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Z-A</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => null]) }}" class="table-header-filter-link">Default Order</a>
+                                </div>
+                            </th>
+                            <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:100px;border-bottom:2px solid #8b0000; position:relative;">
+                                <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleDocumentHeaderDropdown('documentStatusDropdown', 'documentStatusIcon', event)">
+                                    <span>STATUS</span>
+                                    <i class="fas fa-chevron-down" id="documentStatusIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
+                                </div>
+                                <div id="documentStatusDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:150px; display:none; overflow:hidden;">
+                                    <a href="{{ request()->fullUrlWithQuery(['status' => 'ONGOING']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Ongoing</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['status' => 'DELIVERED']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Delivered</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['status' => 'DONE']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Done</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="table-header-filter-link">All Status</a>
+                                </div>
+                            </th>
                         @else
                             <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:150px;border-bottom:2px solid #8b0000;">TRACKING CODE</th>
                             <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:180px;border-bottom:2px solid #8b0000;">PICTO NO</th>
                             <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:150px;border-bottom:2px solid #8b0000;">NUMBER</th>
-                            <th style="text-align:center;padding:12px 8px;min-width:250px;border-bottom:2px solid #8b0000;">SUBJECT</th>
+                            <th style="text-align:center;padding:12px 8px;min-width:250px;border-bottom:2px solid #8b0000; position:relative;">
+                                <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleDocumentHeaderDropdown('documentSubjectSortDropdown', 'documentSubjectSortIcon', event)">
+                                    <span>SUBJECT</span>
+                                    <i class="fas fa-chevron-down" id="documentSubjectSortIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
+                                </div>
+                                <div id="documentSubjectSortDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:180px; display:none; overflow:hidden;">
+                                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'newest']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Newest to Oldest</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'oldest']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Oldest to Newest</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'az']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">A-Z</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'za']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Z-A</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => null]) }}" class="table-header-filter-link">Default Order</a>
+                                </div>
+                            </th>
                             <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:120px;border-bottom:2px solid #8b0000;">ORIGINATING OFFICE</th>
-                            <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:130px;border-bottom:2px solid #8b0000;">OUTGOING TYPE</th>
-                            <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:100px;border-bottom:2px solid #8b0000;">STATUS</th>
+                            <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:130px;border-bottom:2px solid #8b0000; position:relative;">
+                                <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleDocumentHeaderDropdown('documentDirectionDropdown', 'documentDirectionIcon', event)">
+                                    <span>TYPE DIRECTION</span>
+                                    <i class="fas fa-chevron-down" id="documentDirectionIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
+                                </div>
+                                <div id="documentDirectionDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:160px; display:none; overflow:hidden;">
+                                    <a href="{{ request()->fullUrlWithQuery(['direction' => 'INCOMING', 'delivery_scope' => null]) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Incoming</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['direction' => 'OUTGOING', 'delivery_scope' => null]) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Outgoing</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['direction' => null, 'delivery_scope' => null]) }}" class="table-header-filter-link">All Type Direction</a>
+                                </div>
+                            </th>
+                            <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:100px;border-bottom:2px solid #8b0000; position:relative;">
+                                <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleDocumentHeaderDropdown('documentStatusDropdown', 'documentStatusIcon', event)">
+                                    <span>STATUS</span>
+                                    <i class="fas fa-chevron-down" id="documentStatusIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
+                                </div>
+                                <div id="documentStatusDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:150px; display:none; overflow:hidden;">
+                                    <a href="{{ request()->fullUrlWithQuery(['status' => 'ONGOING']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Ongoing</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['status' => 'DELIVERED']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Delivered</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['status' => 'DONE']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Done</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="table-header-filter-link">All Status</a>
+                                </div>
+                            </th>
                             <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:120px;border-bottom:2px solid #8b0000;">DATE RECEIVED</th>
                         @endif
                     </tr>
@@ -272,7 +308,7 @@
                                 <td style="text-align:left;padding:20px;white-space:nowrap;width:150px;">{{ $doc->memorandum_number ?? '—' }}</td>
                                 <td style="text-align:left;padding:20px;min-width:250px;word-wrap:break-word;">{{ $doc->subject }}</td>
                                 <td style="text-align:left;padding:20px;white-space:nowrap;width:120px;font-size:12px;">{{ $doc->originatingOffice->code ?? '—' }}</td>
-                                <td style="text-align:left;padding:20px;white-space:nowrap;width:130px;">{{ $doc->direction === 'OUTGOING' ? ($doc->delivery_scope ? ucfirst(strtolower($doc->delivery_scope)) : 'Unspecified') : '—' }}</td>
+                                <td style="text-align:left;padding:20px;white-space:nowrap;width:130px;">{{ match($doc->direction) { 'INCOMING' => 'Incoming', 'OUTGOING' => 'Outgoing', default => '—' } }}</td>
                                 <td style="text-align:left;padding:20px;white-space:nowrap;width:100px;">
                                     @php
                                         $badgeClass = match($doc->status) {
@@ -331,6 +367,39 @@
     </div>
 
     <script>
+        function closeDocumentHeaderDropdowns() {
+            ['documentTravelTypeDropdown', 'documentPurposeSortDropdown', 'documentSubjectSortDropdown', 'documentDirectionDropdown', 'documentStatusDropdown'].forEach((id) => {
+                const dropdown = document.getElementById(id);
+                if (dropdown) {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            ['documentTravelTypeIcon', 'documentPurposeSortIcon', 'documentSubjectSortIcon', 'documentDirectionIcon', 'documentStatusIcon'].forEach((id) => {
+                const icon = document.getElementById(id);
+                if (icon) {
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            });
+        }
+
+        function toggleDocumentHeaderDropdown(dropdownId, iconId, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+
+            const dropdown = document.getElementById(dropdownId);
+            const icon = document.getElementById(iconId);
+            const isOpen = dropdown && dropdown.style.display === 'block';
+
+            closeDocumentHeaderDropdowns();
+
+            if (dropdown && icon && !isOpen) {
+                dropdown.style.display = 'block';
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
         function confirmDelete(docId, subject, trackingCode) {
             if (window.confirm(`Delete this document?\n\nTitle: ${subject}\nTracking Code: ${trackingCode}`)) {
                 const form = document.getElementById(`deleteForm-${docId}`);
@@ -350,29 +419,26 @@
                 });
             });
 
-            const isTravelOrderPage = @json(!empty($isTravelOrderPage));
-            const isOutgoingView = @json($isOutgoingView);
-            const isSpecificOutgoingScopeView = @json($isSpecificOutgoingScopeView);
+            const filterForm = document.querySelector('.filter-box form');
             const typeFilter = document.getElementById('documentTypeFilter');
-            const travelTypeFilter = document.getElementById('travelOrderTypeFilter');
+            const travelTypeInput = filterForm ? filterForm.querySelector('input[name="travel_order_type"]') : null;
+            const deliveryScopeInput = filterForm ? filterForm.querySelector('input[name="delivery_scope"]') : null;
 
-            const syncTravelOrderTypeFilter = () => {
-                if (!typeFilter || !travelTypeFilter) {
-                    return;
-                }
-
-                const enabled = isTravelOrderPage || typeFilter.value === 'TO';
-                travelTypeFilter.disabled = !enabled;
-
-                if (!enabled) {
-                    travelTypeFilter.value = '';
-                }
-            };
-
-            if (typeFilter) {
-                typeFilter.addEventListener('change', syncTravelOrderTypeFilter);
-                syncTravelOrderTypeFilter();
+            if (typeFilter && travelTypeInput) {
+                typeFilter.addEventListener('change', function() {
+                    if (this.value !== 'TO') {
+                        travelTypeInput.value = '';
+                    }
+                });
             }
+
+            if (deliveryScopeInput && !filterForm.querySelector('input[name="direction"]')) {
+                deliveryScopeInput.value = '';
+            }
+        });
+
+        document.addEventListener('click', function() {
+            closeDocumentHeaderDropdowns();
         });
     </script>
 </x-app-layout>

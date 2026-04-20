@@ -57,6 +57,10 @@
             background: #475569;
         }
 
+        .preview-action.download {
+            background: #2563eb;
+        }
+
         .preview-shell {
             width: {{ $sheetWidth }};
             max-width: 100%;
@@ -91,6 +95,7 @@
     <div class="preview-page">
         <div class="preview-actions">
             <a href="{{ $pdfInlineUrl }}" target="_blank" rel="noopener" class="preview-action print">Print</a>
+            <a href="{{ $pdfDownloadUrl }}" class="preview-action download">Download PDF</a>
             <button type="button" class="preview-action close" onclick="window.close()">Close</button>
         </div>
 

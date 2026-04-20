@@ -55,51 +55,8 @@
                 <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Enter keywords...">
             </div>
 
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:12px; margin-top:12px;">
-                <div class="form-group">
-                    <label>Status</label>
-                    <select name="status" class="form-control">
-                        <option value="">All</option>
-                        <option value="pending" {{ request('status')=='pending'?'selected':'' }}>Pending</option>
-                        <option value="on-going" {{ request('status')=='on-going' || request('status')=='in_progress'?'selected':'' }}>Ongoing</option>
-                        <option value="done" {{ request('status')=='done' || request('status')=='completed'?'selected':'' }}>Done</option>
-                        <option value="cancelled" {{ request('status')=='cancelled'?'selected':'' }}>Cancelled</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Priority</label>
-                    <select name="priority" class="form-control">
-                        <option value="">All</option>
-                        <option value="top" {{ request('priority')=='top'?'selected':'' }}>Top</option>
-                        <option value="high" {{ request('priority')=='high'?'selected':'' }}>High</option>
-                        <option value="medium" {{ request('priority')=='medium'?'selected':'' }}>Medium</option>
-                        <option value="low" {{ request('priority')=='low'?'selected':'' }}>Low</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Assigned To</label>
-                    <select name="assigned_to" class="form-control">
-                        <option value="">All</option>
-                        @foreach(['ADMIN UNIT','CLYDE','MARGIE','MELETH','JACKIE','PATRICK','MITCH'] as $person)
-                            <option value="{{ $person }}" {{ request('assigned_to')==$person?'selected':'' }}>{{ $person }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Sort By</label>
-                    <select name="sort_by" class="form-control">
-                        <option value="">Default</option>
-                        <option value="newest" {{ request('sort_by')=='newest'?'selected':'' }}>Newest to Oldest</option>
-                        <option value="oldest" {{ request('sort_by')=='oldest'?'selected':'' }}>Oldest to Newest</option>
-                        <option value="az" {{ request('sort_by')=='az'?'selected':'' }}>A-Z</option>
-                        <option value="za" {{ request('sort_by')=='za'?'selected':'' }}>Z-A</option>
-                    </select>
-                </div>
-
-                <div class="form-group" style="display:flex; gap:12px; margin-top:24px; justify-content:flex-end;">
+            <div style="display:grid; grid-template-columns: 1fr; gap:12px; margin-top:12px;">
+                <div class="form-group" style="display:flex; gap:12px; justify-content:flex-end;">
                     <button type="submit" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center; vertical-align: top;"><i class="fas fa-search"></i> Filter</button>
                     <a href="{{ route('todos.index') }}" class="btn-gray" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center; vertical-align: top;">Reset</a>
                 </div>
@@ -140,12 +97,59 @@
                         </th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ACTION</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DATE ADDED</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:210px; border-bottom:2px solid #8b0000;">PRIORITY</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">ASSIGNED TO</th>
-                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000;">TASK</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:210px; border-bottom:2px solid #8b0000; position:relative;">
+                            <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleTodoHeaderDropdown('todoPriorityDropdown', 'todoPriorityDropdownIcon', event)">
+                                <span>PRIORITY</span>
+                                <i class="fas fa-chevron-down" id="todoPriorityDropdownIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
+                            </div>
+                            <div id="todoPriorityDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:140px; display:none; overflow:hidden;">
+                                <a href="{{ request()->fullUrlWithQuery(['priority' => 'top']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Top</a>
+                                <a href="{{ request()->fullUrlWithQuery(['priority' => 'high']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">High</a>
+                                <a href="{{ request()->fullUrlWithQuery(['priority' => 'medium']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Medium</a>
+                                <a href="{{ request()->fullUrlWithQuery(['priority' => 'low']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Low</a>
+                                <a href="{{ request()->fullUrlWithQuery(['priority' => null]) }}" class="table-header-filter-link">All Priority</a>
+                            </div>
+                        </th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:140px; border-bottom:2px solid #8b0000; position:relative;">
+                            <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleTodoHeaderDropdown('todoAssignedDropdown', 'todoAssignedDropdownIcon', event)">
+                                <span>ASSIGNED TO</span>
+                                <i class="fas fa-chevron-down" id="todoAssignedDropdownIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
+                            </div>
+                            <div id="todoAssignedDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:150px; display:none; overflow:hidden;">
+                                @foreach(['ADMIN UNIT','CLYDE','MARGIE','MELETH','JACKIE','PATRICK','MITCH'] as $person)
+                                    <a href="{{ request()->fullUrlWithQuery(['assigned_to' => $person]) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">{{ $person }}</a>
+                                @endforeach
+                                <a href="{{ request()->fullUrlWithQuery(['assigned_to' => null]) }}" class="table-header-filter-link">All Assigned</a>
+                            </div>
+                        </th>
+                        <th style="text-align:center; padding:12px 8px; min-width:200px; border-bottom:2px solid #8b0000; position:relative;">
+                            <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleTodoHeaderDropdown('todoTaskDropdown', 'todoTaskDropdownIcon', event)">
+                                <span>TASK</span>
+                                <i class="fas fa-chevron-down" id="todoTaskDropdownIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
+                            </div>
+                            <div id="todoTaskDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:168px; display:none; overflow:hidden;">
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'newest']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Newest to Oldest</a>
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'oldest']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Oldest to Newest</a>
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'az']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">A-Z</a>
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'za']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Z-A</a>
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => null]) }}" class="table-header-filter-link">Default Order</a>
+                            </div>
+                        </th>
                         <th style="text-align:center; padding:12px 8px; min-width:250px; border-bottom:2px solid #8b0000;">WHAT TO DO</th>
                         <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:120px; border-bottom:2px solid #8b0000;">DEADLINE</th>
-                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:210px; border-bottom:2px solid #8b0000;">STATUS</th>
+                        <th style="text-align:center; padding:12px 8px; white-space:nowrap; width:210px; border-bottom:2px solid #8b0000; position:relative;">
+                            <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleTodoHeaderDropdown('todoStatusDropdown', 'todoStatusDropdownIcon', event)">
+                                <span>STATUS</span>
+                                <i class="fas fa-chevron-down" id="todoStatusDropdownIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
+                            </div>
+                            <div id="todoStatusDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:150px; display:none; overflow:hidden;">
+                                <a href="{{ request()->fullUrlWithQuery(['status' => 'pending']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Pending</a>
+                                <a href="{{ request()->fullUrlWithQuery(['status' => 'on-going']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">On-going</a>
+                                <a href="{{ request()->fullUrlWithQuery(['status' => 'done']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Done</a>
+                                <a href="{{ request()->fullUrlWithQuery(['status' => 'cancelled']) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Cancelled</a>
+                                <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="table-header-filter-link">All Status</a>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -279,6 +283,39 @@
     <div class="notification-container" id="notificationContainer"></div>
 
     <script>
+        function closeTodoHeaderDropdowns() {
+            ['todoPriorityDropdown', 'todoAssignedDropdown', 'todoTaskDropdown', 'todoStatusDropdown'].forEach((id) => {
+                const dropdown = document.getElementById(id);
+                if (dropdown) {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            ['todoPriorityDropdownIcon', 'todoAssignedDropdownIcon', 'todoTaskDropdownIcon', 'todoStatusDropdownIcon'].forEach((id) => {
+                const icon = document.getElementById(id);
+                if (icon) {
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            });
+        }
+
+        function toggleTodoHeaderDropdown(dropdownId, iconId, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+
+            const dropdown = document.getElementById(dropdownId);
+            const icon = document.getElementById(iconId);
+            const isOpen = dropdown && dropdown.style.display === 'block';
+
+            closeTodoHeaderDropdowns();
+
+            if (dropdown && icon && !isOpen) {
+                dropdown.style.display = 'block';
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
         // Clickable rows functionality
         document.querySelectorAll('.clickable-row').forEach(row => {
             row.addEventListener('click', function(e) {
@@ -288,6 +325,10 @@
                 }
                 window.location.href = this.dataset.href;
             });
+        });
+
+        document.addEventListener('click', function() {
+            closeTodoHeaderDropdowns();
         });
 
         // Delete confirmation function
