@@ -76,6 +76,33 @@
                     <textarea name="remarks" class="form-control" rows="3" placeholder="Add any additional remarks...">{{ old('remarks', $todo->remarks) }}</textarea>
                 </div>
 
+                <div style="margin-top:20px; padding:16px; border-radius:14px; border:1px solid rgba(148,163,184,0.22); background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%);">
+                    <div style="font-size:13px; font-weight:700; color:#334155; margin-bottom:12px;">Recurring Task</div>
+                    <label style="display:flex; align-items:center; gap:10px; margin-bottom:14px; font-size:13px; color:#475569;">
+                        <input type="checkbox" name="is_recurring" value="1" {{ old('is_recurring', $todo->is_recurring) ? 'checked' : '' }}>
+                        <span>Keep this as a recurring task</span>
+                    </label>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:16px;">
+                        <div class="form-group">
+                            <label>Frequency</label>
+                            <select name="recurrence_frequency" class="form-control">
+                                <option value="daily" {{ old('recurrence_frequency', $todo->recurrence_frequency) === 'daily' ? 'selected' : '' }}>Daily</option>
+                                <option value="weekly" {{ old('recurrence_frequency', $todo->recurrence_frequency ?? 'weekly') === 'weekly' ? 'selected' : '' }}>Weekly</option>
+                                <option value="monthly" {{ old('recurrence_frequency', $todo->recurrence_frequency) === 'monthly' ? 'selected' : '' }}>Monthly</option>
+                                <option value="yearly" {{ old('recurrence_frequency', $todo->recurrence_frequency) === 'yearly' ? 'selected' : '' }}>Yearly</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Repeat Every</label>
+                            <input type="number" name="recurrence_interval" class="form-control" min="1" max="30" value="{{ old('recurrence_interval', $todo->recurrence_interval ?? 1) }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Repeat Until</label>
+                            <input type="date" name="recurrence_end_date" class="form-control" value="{{ old('recurrence_end_date', $todo->recurrence_end_date?->format('Y-m-d')) }}">
+                        </div>
+                    </div>
+                </div>
+
                 <div style="background:#f8f9fa; border-left:4px solid #3498db; padding:12px; margin-bottom:20px; border-radius:4px;">
                     <div style="font-size:12px; color:#666; margin-bottom:4px;">Created:</div>
                     <div style="font-size:13px; color:#333;">{{ $todo->created_at->format('F d, Y h:i A') }}</div>

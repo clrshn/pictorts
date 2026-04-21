@@ -28,6 +28,11 @@
         </div>
     @endif
 
+    @include('components.saved-filter-bar', [
+        'module' => 'financial',
+        'savedFilters' => $savedFilters ?? collect(),
+    ])
+
     <!-- Search Filter -->
     <div class="filter-box">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
@@ -215,6 +220,11 @@
                                 <a href="{{ route('financial.edit', $rec) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
                                     <i class="fas fa-edit"></i>
                                 </a>
+                                @if($rec->pinnedByCurrentUser())
+                                    <span title="Pinned" style="display:inline-flex; align-items:center; justify-content:center; min-width:32px; height:32px; border-radius:8px; background:#fff7ed; color:#c2410c; border:1px solid #fdba74;">
+                                        <i class="fas fa-thumbtack"></i>
+                                    </span>
+                                @endif
                                 <form action="{{ route('financial.destroy', $rec) }}" method="POST" style="display:inline;" id="deleteForm-{{ $rec->id }}">
                                     @csrf @method('DELETE')
                                     <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $rec->id }}, '{{ $rec->description ?? 'Financial Record' }}')" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">

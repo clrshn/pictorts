@@ -12,6 +12,19 @@
         </div>
     @endif
 
+    @if(session('duplicate_warning'))
+        <div class="alert alert-warning" style="margin-bottom:16px;">
+            <strong>{{ session('duplicate_warning') }}</strong>
+            @if(session('duplicate_candidates'))
+                <ul style="margin:10px 0 0 18px; padding:0;">
+                    @foreach(session('duplicate_candidates') as $candidate)
+                        <li>{{ $candidate->dts_number }} - {{ $candidate->subject ?? $candidate->particulars ?? 'Untitled' }} ({{ $candidate->originatingOffice->code ?? 'N/A' }})</li>
+                    @endforeach
+                </ul>
+            @endif
+        </div>
+    @endif
+
     <div class="table-card">
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">
             <i class="fas fa-edit"></i> EDIT DOCUMENT — {{ $document->dts_number }}
@@ -170,6 +183,10 @@
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:8px;">
+                    <label style="display:flex; align-items:center; gap:8px; margin-right:auto; font-size:12px; color:#64748b;">
+                        <input type="checkbox" name="force_save_duplicate" value="1" {{ old('force_save_duplicate') ? 'checked' : '' }}>
+                        Save anyway if this matches an existing document
+                    </label>
                     <button type="submit" class="btn-red"><i class="fas fa-save"></i> {{ !empty($isTravelOrder) ? 'Update Travel Order' : 'Update Document' }}</button>
                     <a href="{{ route('documents.show', $document) }}" class="btn-blue"><i class="fas fa-eye"></i> View</a>
                     <a href="{{ route('documents.index', !empty($isTravelOrder) ? ['type' => 'TO'] : []) }}" class="btn-gray"><i class="fas fa-times"></i> Cancel</a>

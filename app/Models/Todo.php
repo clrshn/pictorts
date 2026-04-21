@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use App\Models\Concerns\HasCollaborationFeatures;
 
 class Todo extends Model
 {
+    use HasCollaborationFeatures;
+
     protected $fillable = [
         'title',
         'description',
@@ -16,12 +19,19 @@ class Todo extends Model
         'user_id',
         'assigned_to',
         'remarks',
-        'date_added'
+        'date_added',
+        'is_recurring',
+        'recurrence_frequency',
+        'recurrence_interval',
+        'recurrence_end_date',
+        'recurring_parent_id',
     ];
 
     protected $casts = [
         'due_date' => 'date',
         'date_added' => 'date',
+        'is_recurring' => 'boolean',
+        'recurrence_end_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -29,6 +39,21 @@ class Todo extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function subtasks()
+    {
+        return $this->hasMany(TodoSubtask::class)->orderBy('position');
+    }
+
+    public function recurringParent()
+    {
+        return $this->belongsTo(self::class, 'recurring_parent_id');
+    }
+
+    public function recurringChildren()
+    {
+        return $this->hasMany(self::class, 'recurring_parent_id');
     }
 
     public function scopeForUser($query)
@@ -99,5 +124,16 @@ class Todo extends Model
     public function isOverdue()
     {
         return $this->due_date && $this->due_date->isPast() && !in_array($this->status, ['done', 'cancelled'], true);
+    }
+
+    public function getCompletionPercentAttribute(): int
+    {
+        $total = $this->subtasks->count();
+
+        if ($total === 0) {
+            return 0;
+        }
+
+        return (int) round(($this->subtasks->where('is_completed', true)->count() / $total) * 100);
     }
 }

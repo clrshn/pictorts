@@ -27,6 +27,7 @@
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px; display:flex; justify-content:space-between; align-items:center;">
             <span><i class="fas fa-file-alt"></i> {{ !empty($isTravelOrder) ? 'Travel Order Track' : 'Document Track' }}</span>
             <div class="detail-header-actions">
+                @include('components.pin-toggle', ['record' => $document, 'subjectType' => 'document'])
                 <a href="{{ request()->fullUrlWithQuery(['export' => 'print']) }}" target="_blank" class="btn-blue"><i class="fas fa-print"></i> Print</a>
                 <a href="{{ route('documents.edit', $document) }}" class="btn-orange"><i class="fas fa-edit"></i> Edit</a>
                 <a href="{{ route('documents.index', !empty($isTravelOrder) ? ['type' => 'TO'] : []) }}" class="btn-gray"><i class="fas fa-arrow-left"></i> Back</a>
@@ -133,6 +134,8 @@
                     <div style="display:flex; gap:8px;">
                         @if(strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION)) === 'pdf')
                             <button onclick="viewPdf('{{ asset('storage/' . $file->file_path) }}', '{{ $file->file_name }}')" class="btn-blue" style="padding:3px 10px;" title="View PDF"><i class="fas fa-eye"></i></button>
+                        @elseif(in_array(strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION)), ['png','jpg','jpeg','gif','webp']))
+                            <button onclick="viewImage('{{ asset('storage/' . $file->file_path) }}', '{{ $file->file_name }}')" class="btn-blue" style="padding:3px 10px;" title="View Image"><i class="fas fa-image"></i></button>
                         @endif
                         <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="btn-blue" style="padding:3px 10px;" title="Download"><i class="fas fa-download"></i></a>
                     </div>
@@ -151,6 +154,18 @@
             </div>
             <div style="flex:1; padding:16px; overflow:auto;">
                 <iframe id="pdfFrame" style="width:100%; height:100%; border:none;" src=""></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div id="imageViewerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.82); z-index:9999; justify-content:center; align-items:center;">
+        <div style="background:white; width:min(92vw, 980px); height:min(92vh, 760px); border-radius:8px; display:flex; flex-direction:column;">
+            <div style="padding:16px; border-bottom:1px solid #e0e0e0; display:flex; justify-content:space-between; align-items:center;">
+                <h3 id="imageTitle" style="margin:0; color:#333;">Image Preview</h3>
+                <button onclick="closeImageViewer()" style="background:none; border:none; font-size:24px; cursor:pointer; color:#666;">&times;</button>
+            </div>
+            <div style="flex:1; padding:16px; display:flex; align-items:center; justify-content:center; overflow:auto;">
+                <img id="imagePreview" src="" alt="" style="max-width:100%; max-height:100%; object-fit:contain;">
             </div>
         </div>
     </div>
@@ -292,6 +307,11 @@
         </div>
     </div>
 
+    @include('components.collaboration-panel', [
+        'record' => $document,
+        'subjectType' => 'document',
+    ])
+
     </x-app-layout>
 
 <script>
@@ -306,6 +326,17 @@ function closePdfViewer() {
     document.getElementById('pdfFrame').src = '';
 }
 
+function viewImage(url, title) {
+    document.getElementById('imageTitle').textContent = title;
+    document.getElementById('imagePreview').src = url;
+    document.getElementById('imageViewerModal').style.display = 'flex';
+}
+
+function closeImageViewer() {
+    document.getElementById('imageViewerModal').style.display = 'none';
+    document.getElementById('imagePreview').src = '';
+}
+
 // Close modal when clicking outside
 document.getElementById('pdfViewerModal').addEventListener('click', function(e) {
     if (e.target === this) {
@@ -313,10 +344,17 @@ document.getElementById('pdfViewerModal').addEventListener('click', function(e) 
     }
 });
 
+document.getElementById('imageViewerModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeImageViewer();
+    }
+});
+
 // Close modal with Escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closePdfViewer();
+        closeImageViewer();
     }
 });
 

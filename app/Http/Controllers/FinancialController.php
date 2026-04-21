@@ -5,13 +5,108 @@ namespace App\Http\Controllers;
 use App\Models\FinancialRecord;
 use App\Models\FinancialAttachment;
 use App\Models\Office;
+use App\Models\SavedFilter;
 use App\Models\User;
+use App\Services\ActivityLogService;
 use App\Services\InAppNotificationService;
 use App\Support\TableExport;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FinancialController extends Controller
 {
+    private function ensureFinancialActionAllowed(FinancialRecord $financial, bool $expectsJson = false, string $action = 'update')
+    {
+        $approval = $financial->approval;
+
+        if (!auth()->user()?->isAdmin() && $approval?->status === 'pending') {
+            return $expectsJson
+                ? response()->json(['success' => false, 'message' => 'This financial record has a pending approval request and is temporarily locked.'], 422)
+                : redirect()->back()->with('warning', 'This financial record has a pending approval request and is temporarily locked.');
+        }
+
+        if (!auth()->user()?->isAdmin() && in_array($action, ['update', 'delete'], true) && $approval?->status === 'approved') {
+            return $expectsJson
+                ? response()->json(['success' => false, 'message' => 'This financial record is already approved. Only an admin can modify it now.'], 422)
+                : redirect()->back()->with('warning', 'This financial record is already approved. Only an admin can modify it now.');
+        }
+
+        return null;
+    }
+
+    private function generateReferenceCode(?string $date = null): string
+    {
+        return DB::transaction(function () use ($date) {
+            $year = ($date ? Carbon::parse($date) : now())->format('Y');
+            $prefix = "PICTO-FIN-{$year}-";
+
+            $lastRecord = FinancialRecord::query()
+                ->where('reference_code', 'like', $prefix . '%')
+                ->orderByDesc('reference_code')
+                ->lockForUpdate()
+                ->first();
+
+            $next = 1;
+            if ($lastRecord?->reference_code) {
+                $next = ((int) substr($lastRecord->reference_code, -6)) + 1;
+            }
+
+            return $prefix . str_pad((string) $next, 6, '0', STR_PAD_LEFT);
+        });
+    }
+
+    private function findPotentialDuplicates(Request $request, ?FinancialRecord $ignore = null)
+    {
+        $description = trim((string) $request->input('description'));
+        $supplier = trim((string) $request->input('supplier'));
+        $hasReferenceFields = $description !== ''
+            || $request->filled('pr_number')
+            || $request->filled('po_number')
+            || $request->filled('obr_number')
+            || $request->filled('voucher_number');
+
+        if (!$hasReferenceFields) {
+            return collect();
+        }
+
+        $query = FinancialRecord::query()
+            ->when($ignore, fn ($q) => $q->whereKeyNot($ignore->id))
+            ->where(function ($q) use ($request, $description, $supplier) {
+                if ($description !== '') {
+                    $q->orWhereRaw('LOWER(description) = ?', [strtolower($description)]);
+                }
+
+                if ($request->filled('pr_number')) {
+                    $q->orWhere('pr_number', $request->pr_number);
+                }
+
+                if ($request->filled('po_number')) {
+                    $q->orWhere('po_number', $request->po_number);
+                }
+
+                if ($request->filled('obr_number')) {
+                    $q->orWhere('obr_number', $request->obr_number);
+                }
+
+                if ($request->filled('voucher_number')) {
+                    $q->orWhere('voucher_number', $request->voucher_number);
+                }
+
+                if ($description !== '' && $supplier !== '' && $request->filled('type')) {
+                    $q->orWhere(function ($inner) use ($description, $supplier, $request) {
+                        $inner->whereRaw('LOWER(description) = ?', [strtolower($description)])
+                            ->whereRaw('LOWER(COALESCE(supplier, "")) = ?', [strtolower($supplier)])
+                            ->where('type', $request->type);
+                    });
+                }
+            })
+            ->latest()
+            ->limit(5);
+
+        return $query->get();
+    }
+
     public function index(Request $request)
     {
         $query = FinancialRecord::with(['originOffice', 'currentOffice', 'holder']);
@@ -25,10 +120,15 @@ class FinancialController extends Controller
             $query->where('type', $request->type);
         }
 
+        if ($request->boolean('pinned_only')) {
+            $query->whereHas('pins', fn ($pinQuery) => $pinQuery->where('user_id', auth()->id()));
+        }
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('type', 'like', "%{$search}%")
+                  ->orWhere('reference_code', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
                   ->orWhere('supplier', 'like', "%{$search}%")
                   ->orWhere('pr_number', 'like', "%{$search}%")
@@ -150,10 +250,16 @@ class FinancialController extends Controller
                 : TableExport::printTable('Financial Monitoring', $headers, $printRows, $meta);
         }
 
+        $query->with(['pins' => fn ($pinQuery) => $pinQuery->where('user_id', auth()->id())]);
+
         $records = $query->paginate(15)->withQueryString();
         $offices = Office::ordered()->get();
+        $savedFilters = SavedFilter::where('user_id', auth()->id())
+            ->where('module', 'financial')
+            ->latest()
+            ->get();
 
-        return view('financial.index', compact('records', 'offices'));
+        return view('financial.index', compact('records', 'offices', 'savedFilters'));
     }
 
     public function create()
@@ -172,9 +278,18 @@ class FinancialController extends Controller
             'files.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
+        $duplicates = $this->findPotentialDuplicates($request);
+        if ($duplicates->isNotEmpty() && !$request->boolean('force_save_duplicate')) {
+            return back()
+                ->withInput()
+                ->with('duplicate_warning', 'Possible duplicate financial records were found. Please review them before saving.')
+                ->with('duplicate_candidates', $duplicates);
+        }
+
         $record = FinancialRecord::create([
             'type' => $request->type,
             'description' => $request->description,
+            'reference_code' => $this->generateReferenceCode(),
             'supplier' => $request->supplier,
             'pr_number' => $request->pr_number,
             'pr_amount' => $request->pr_amount,
@@ -214,13 +329,42 @@ class FinancialController extends Controller
             'remarks' => 'Financial record created and initially recorded',
         ]);
 
+        app(ActivityLogService::class)->log(
+            $record,
+            'created',
+            'Financial record created',
+            auth()->user()?->name . ' created this financial record.',
+            [
+                'status' => $record->status,
+                'type' => $record->type,
+            ]
+        );
+
         return redirect()->route('financial.index')->with('success', 'Financial record created.');
     }
 
     public function show(FinancialRecord $financial)
     {
         $this->authorize('view', $financial);
-        $financial->load(['originOffice', 'currentOffice', 'holder', 'routes.fromOffice', 'routes.toOffice', 'routes.releasedByUser', 'routes.receivedByUser', 'attachments']);
+        $financial->load([
+            'originOffice',
+            'currentOffice',
+            'holder',
+            'createdBy',
+            'routes.fromOffice',
+            'routes.toOffice',
+            'routes.releasedByUser',
+            'routes.receivedByUser',
+            'attachments',
+            'comments.user',
+            'activityLogs.user',
+            'approval.requester',
+            'approval.reviewer',
+            'pins',
+        ]);
+        $supplierHistory = filled($financial->supplier)
+            ? $financial->relatedSupplierRecords()->with('originOffice')->get()
+            : collect();
         $offices = Office::ordered()->get();
         $users = User::all();
         $exportMode = request()->get('export');
@@ -275,7 +419,7 @@ class FinancialController extends Controller
             ]);
         }
 
-        return view('financial.show', compact('financial', 'offices', 'users'));
+        return view('financial.show', compact('financial', 'offices', 'users', 'supplierHistory'));
     }
 
     public function edit(FinancialRecord $financial)
@@ -288,6 +432,10 @@ class FinancialController extends Controller
     public function update(Request $request, FinancialRecord $financial)
     {
         $this->authorize('update', $financial);
+        if ($blocked = $this->ensureFinancialActionAllowed($financial)) {
+            return $blocked;
+        }
+
         $request->validate([
             'description' => 'required|string',
             'office_origin' => 'required|exists:offices,id',
@@ -296,9 +444,18 @@ class FinancialController extends Controller
             'files.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
+        $duplicates = $this->findPotentialDuplicates($request, $financial);
+        if ($duplicates->isNotEmpty() && !$request->boolean('force_save_duplicate')) {
+            return back()
+                ->withInput()
+                ->with('duplicate_warning', 'Possible duplicate financial records were found. Please review them before saving.')
+                ->with('duplicate_candidates', $duplicates);
+        }
+
         $updateData = [
             'type' => $request->type,
             'description' => $request->description,
+            'reference_code' => $financial->reference_code ?: $this->generateReferenceCode(),
             'supplier' => $request->supplier,
             'pr_number' => $request->pr_number,
             'pr_amount' => $request->pr_amount,
@@ -330,8 +487,19 @@ class FinancialController extends Controller
         $previousStatus = $financial->status;
         $financial->update($updateData);
 
-        // Add completion entry if status changed to COMPLETED
-        if (($updateData['status'] ?? $previousStatus) === 'COMPLETED' && $previousStatus !== 'COMPLETED') {
+        app(ActivityLogService::class)->log(
+            $financial,
+            'updated',
+            'Financial record updated',
+            auth()->user()?->name . ' updated this financial record.',
+            [
+                'status' => $financial->status,
+                'type' => $financial->type,
+            ]
+        );
+
+        // Add completion entry if status changed to FINISHED
+        if (($updateData['status'] ?? $previousStatus) === 'FINISHED' && $previousStatus !== 'FINISHED') {
             $financial->routes()->create([
                 'from_office' => $updateData['current_office'] ?? $financial->current_office,
                 'to_office' => $updateData['current_office'] ?? $financial->current_office,
@@ -339,7 +507,7 @@ class FinancialController extends Controller
                 'datetime_released' => now(),
                 'datetime_received' => now(),
                 'received_by' => auth()->id(),
-                'remarks' => 'Financial record marked as COMPLETED',
+                'remarks' => 'Financial record marked as FINISHED',
             ]);
         }
 
@@ -361,6 +529,9 @@ class FinancialController extends Controller
     public function updateStatus(Request $request, FinancialRecord $financial)
     {
         $this->authorize('update', $financial);
+        if ($blocked = $this->ensureFinancialActionAllowed($financial, true)) {
+            return $blocked;
+        }
         
         $request->validate([
             'status' => 'required|in:ACTIVE,CANCELLED,FINISHED',
@@ -370,6 +541,14 @@ class FinancialController extends Controller
             'status' => $request->status,
             'updated_by' => auth()->id(),
         ]);
+
+        app(ActivityLogService::class)->log(
+            $financial,
+            'status_changed',
+            'Financial status changed',
+            auth()->user()?->name . ' changed the financial status.',
+            ['status' => $financial->status]
+        );
 
         app(InAppNotificationService::class)->notifyFinancialStatusChanged($financial->fresh(['createdBy', 'holder']), auth()->user());
 
@@ -383,6 +562,10 @@ class FinancialController extends Controller
     public function destroy(FinancialRecord $financial)
     {
         $this->authorize('delete', $financial);
+        if ($blocked = $this->ensureFinancialActionAllowed($financial, false, 'delete')) {
+            return $blocked;
+        }
+
         $financial->delete();
         return redirect()->route('financial.index')->with('success', 'Financial record deleted.');
     }
@@ -390,6 +573,10 @@ class FinancialController extends Controller
     public function route(Request $request, FinancialRecord $financial)
     {
         $this->authorize('route', $financial);
+        if ($blocked = $this->ensureFinancialActionAllowed($financial)) {
+            return $blocked;
+        }
+
         $request->validate([
             'to_office' => 'required|exists:offices,id',
         ]);
@@ -406,6 +593,14 @@ class FinancialController extends Controller
             'current_office' => $request->to_office,
         ]);
 
+        app(ActivityLogService::class)->log(
+            $financial,
+            'forwarded',
+            'Financial record forwarded',
+            auth()->user()?->name . ' forwarded this financial record.',
+            ['to_office' => $request->to_office]
+        );
+
         app(InAppNotificationService::class)->notifyFinancialForwarded($financial->fresh(['createdBy', 'holder', 'currentOffice']), (int) $request->to_office, auth()->user());
 
         return redirect()->route('financial.show', $financial)->with('success', 'Financial record forwarded.');
@@ -414,6 +609,10 @@ class FinancialController extends Controller
     public function receive(Request $request, FinancialRecord $financial)
     {
         $this->authorize('receive', $financial);
+        if ($blocked = $this->ensureFinancialActionAllowed($financial)) {
+            return $blocked;
+        }
+
         $latestRoute = $financial->routes()->whereNull('datetime_received')->latest()->first();
 
         if ($latestRoute) {
@@ -426,6 +625,13 @@ class FinancialController extends Controller
         $financial->update([
             'current_holder' => auth()->id(),
         ]);
+
+        app(ActivityLogService::class)->log(
+            $financial,
+            'received',
+            'Financial record received',
+            auth()->user()?->name . ' received this financial record.'
+        );
 
         app(InAppNotificationService::class)->notifyFinancialReceived($financial->fresh(['createdBy', 'holder']), auth()->user());
 

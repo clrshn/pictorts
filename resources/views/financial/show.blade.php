@@ -9,6 +9,7 @@
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px; display:flex; justify-content:space-between; align-items:center;">
             <span><i class="fas fa-coins"></i> Financial Record Details</span>
             <div class="detail-header-actions">
+                @include('components.pin-toggle', ['record' => $financial, 'subjectType' => 'financial'])
                 <a href="{{ request()->fullUrlWithQuery(['export' => 'print']) }}" target="_blank" class="btn-blue"><i class="fas fa-print"></i> Print</a>
                 <a href="{{ route('financial.edit', $financial) }}" class="btn-orange"><i class="fas fa-edit"></i> Edit</a>
                 <a href="{{ route('financial.index') }}" class="btn-gray"><i class="fas fa-arrow-left"></i> Back</a>
@@ -31,6 +32,7 @@
                 
                 <!-- Financial Identification -->
                 <div style="border-left:3px solid #c0392b; padding-left:12px;">
+                    <div style="margin-bottom:8px;"><strong>Reference Code:</strong> <span style="font-family:monospace; color:#c0392b;">{{ $financial->reference_code ?? '—' }}</span></div>
                     <div style="margin-bottom:8px;"><strong>Type:</strong> {{ $financial->type ?? '—' }}</div>
                     <div style="margin-bottom:8px;"><strong>Supplier:</strong> {{ $financial->supplier ?? '—' }}</div>
                     <div><strong>Office:</strong> {{ $financial->originOffice->code ?? '—' }} – {{ $financial->originOffice->name ?? '' }}</div>
@@ -89,6 +91,8 @@
                     <div style="display:flex; gap:8px;">
                         @if(strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION)) === 'pdf')
                             <button onclick="viewPdf('{{ asset('storage/' . $file->file_path) }}', '{{ $file->file_name }}')" class="btn-blue" style="padding:3px 10px;" title="View PDF"><i class="fas fa-eye"></i></button>
+                        @elseif(in_array(strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION)), ['png','jpg','jpeg','gif','webp']))
+                            <button onclick="viewImage('{{ asset('storage/' . $file->file_path) }}', '{{ $file->file_name }}')" class="btn-blue" style="padding:3px 10px;" title="View Image"><i class="fas fa-image"></i></button>
                         @endif
                         <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="btn-blue" style="padding:3px 10px;" title="Download"><i class="fas fa-download"></i></a>
                     </div>
@@ -110,6 +114,41 @@
             </div>
         </div>
     </div>
+
+    <div id="imageViewerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.82); z-index:9999; justify-content:center; align-items:center;">
+        <div style="background:white; width:min(92vw, 980px); height:min(92vh, 760px); border-radius:8px; display:flex; flex-direction:column;">
+            <div style="padding:16px; border-bottom:1px solid #e0e0e0; display:flex; justify-content:space-between; align-items:center;">
+                <h3 id="imageTitle" style="margin:0; color:#333;">Image Preview</h3>
+                <button onclick="closeImageViewer()" style="background:none; border:none; font-size:24px; cursor:pointer; color:#666;">&times;</button>
+            </div>
+            <div style="flex:1; padding:16px; display:flex; align-items:center; justify-content:center; overflow:auto;">
+                <img id="imagePreview" src="" alt="" style="max-width:100%; max-height:100%; object-fit:contain;">
+            </div>
+        </div>
+    </div>
+
+    @if($supplierHistory->isNotEmpty())
+    <div class="table-card" style="margin-bottom:20px;">
+        <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">
+            <i class="fas fa-building"></i> Supplier History
+        </div>
+        <div style="padding:16px;">
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                @foreach($supplierHistory as $relatedRecord)
+                    <a href="{{ route('financial.show', $relatedRecord) }}" style="display:flex; justify-content:space-between; gap:12px; align-items:center; text-decoration:none; color:#334155; padding:12px 14px; border-radius:12px; border:1px solid rgba(226,232,240,0.92); background:#fff;">
+                        <div>
+                            <div style="font-size:13px; font-weight:700;">{{ $relatedRecord->description }}</div>
+                            <div style="font-size:12px; color:#64748b; margin-top:4px;">{{ $relatedRecord->type ?? '—' }} • {{ $relatedRecord->originOffice?->code ?? '—' }}</div>
+                        </div>
+                        <div style="font-size:12px; color:#0f172a; font-weight:700;">
+                            {{ $relatedRecord->pr_amount ? '₱ ' . number_format((float) $relatedRecord->pr_amount, 2) : '—' }}
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </div>
+    @endif
 
     <!-- Forward -->
     @if($financial->status === 'ACTIVE')
@@ -211,6 +250,11 @@
             @endif
         </div>
     </div>
+
+    @include('components.collaboration-panel', [
+        'record' => $financial,
+        'subjectType' => 'financial',
+    ])
 </x-app-layout>
 
 <script>
@@ -225,6 +269,17 @@ function closePdfViewer() {
     document.getElementById('pdfFrame').src = '';
 }
 
+function viewImage(url, title) {
+    document.getElementById('imageTitle').textContent = title;
+    document.getElementById('imagePreview').src = url;
+    document.getElementById('imageViewerModal').style.display = 'flex';
+}
+
+function closeImageViewer() {
+    document.getElementById('imageViewerModal').style.display = 'none';
+    document.getElementById('imagePreview').src = '';
+}
+
 // Close modal when clicking outside
 document.getElementById('pdfViewerModal').addEventListener('click', function(e) {
     if (e.target === this) {
@@ -232,10 +287,17 @@ document.getElementById('pdfViewerModal').addEventListener('click', function(e) 
     }
 });
 
+document.getElementById('imageViewerModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeImageViewer();
+    }
+});
+
 // Close modal with Escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closePdfViewer();
+        closeImageViewer();
     }
 });
 </script>

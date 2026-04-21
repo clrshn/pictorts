@@ -12,11 +12,25 @@
         </div>
     @endif
 
+    @if(session('duplicate_warning'))
+        <div class="alert alert-warning" style="margin-bottom:16px;">
+            <strong>{{ session('duplicate_warning') }}</strong>
+            @if(session('duplicate_candidates'))
+                <ul style="margin:10px 0 0 18px; padding:0;">
+                    @foreach(session('duplicate_candidates') as $candidate)
+                        <li>{{ $candidate->reference_code ?? 'No Ref' }} - {{ $candidate->description }} ({{ $candidate->supplier ?? 'No Supplier' }})</li>
+                    @endforeach
+                </ul>
+            @endif
+        </div>
+    @endif
+
     <div class="table-card">
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">
             <i class="fas fa-edit"></i> EDIT FINANCIAL RECORD #{{ $financial->id }}
         </div>
         <div style="padding:24px;">
+            <p style="font-size:12px; color:#999; margin-bottom:16px;">Reference code: <strong>{{ $financial->reference_code ?? 'Will be generated automatically if missing' }}</strong></p>
             <form method="POST" action="{{ route('financial.update', $financial) }}" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
@@ -143,6 +157,10 @@
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:8px;">
+                    <label style="display:flex; align-items:center; gap:8px; margin-right:auto; font-size:12px; color:#64748b;">
+                        <input type="checkbox" name="force_save_duplicate" value="1" {{ old('force_save_duplicate') ? 'checked' : '' }}>
+                        Save anyway if this matches an existing financial record
+                    </label>
                     <button type="submit" class="btn-red"><i class="fas fa-save"></i> Update Record</button>
                     <a href="{{ route('financial.show', $financial) }}" class="btn-blue"><i class="fas fa-eye"></i> View</a>
                     <a href="{{ route('financial.index') }}" class="btn-gray"><i class="fas fa-times"></i> Cancel</a>

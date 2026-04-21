@@ -12,7 +12,20 @@
         <section class="dashboard-hero">
             <div class="dashboard-hero-copy">
                 <div class="dashboard-kicker">PICTO - Provincial Information and Communications Technology Office</div>
-                
+                <div class="hero-inline-stats">
+                    <div class="hero-inline-stat">
+                        <span>Ongoing Docs</span>
+                        <strong>{{ $docOngoing }}</strong>
+                    </div>
+                    <div class="hero-inline-stat">
+                        <span>Active Financial</span>
+                        <strong>{{ $financialActive }}</strong>
+                    </div>
+                    <div class="hero-inline-stat">
+                        <span>Pending Approvals</span>
+                        <strong>{{ $approvalPendingCount }}</strong>
+                    </div>
+                </div>
 
                 <form method="GET" action="{{ route('documents.index') }}" class="dashboard-search">
                     <div class="dashboard-search-field">
@@ -37,8 +50,16 @@
                         <strong>{{ $todoDueToday }}</strong>
                     </div>
                     <div class="hero-chip">
+                        <span class="hero-chip-title">Due Tomorrow</span>
+                        <strong>{{ $todoDueTomorrow }}</strong>
+                    </div>
+                    <div class="hero-chip">
                         <span class="hero-chip-title">Overdue</span>
                         <strong>{{ $todoOverdue }}</strong>
+                    </div>
+                    <div class="hero-chip">
+                        <span class="hero-chip-title">Approvals Waiting</span>
+                        <strong>{{ $approvalPendingCount }}</strong>
                     </div>
                     <div class="hero-chip">
                         <span class="hero-chip-title">Documents This Year</span>
@@ -129,67 +150,148 @@
             </div>
         </section>
 
-        <section class="dashboard-detail-grid">
-            <div class="dashboard-analytics-card">
-                <div class="dashboard-section-title dashboard-section-title--tight">
-                    <span>Activity Trend</span>
-                    <small>Monthly documents and financial records</small>
+        <section class="dashboard-main-grid">
+            <div class="dashboard-main-column">
+                <div class="dashboard-analytics-card dashboard-panel dashboard-panel--wide">
+                    <div class="dashboard-section-title dashboard-section-title--tight">
+                        <span>Activity Trend</span>
+                        <small>Monthly documents and financial records</small>
+                    </div>
+                    <div class="dashboard-chart-shell">
+                        <canvas id="monthlyChart" height="120"></canvas>
+                    </div>
                 </div>
-                <div class="dashboard-chart-shell">
-                    <canvas id="monthlyChart" height="120"></canvas>
+
+                <div class="dashboard-panel dashboard-summary-panel">
+                    <div class="dashboard-section-title dashboard-section-title--tight">
+                        <span>Financial Snapshot</span>
+                        <small>Quick value view across active and finished records</small>
+                    </div>
+                    <div class="reminder-summary reminder-summary--double">
+                        <div class="snapshot-card snapshot-card--blue">
+                            <span>Active PR Total</span>
+                            <strong>P {{ number_format($activeFinancialAmount, 2) }}</strong>
+                        </div>
+                        <div class="snapshot-card snapshot-card--red">
+                            <span>Finished PR Total</span>
+                            <strong>P {{ number_format($finishedFinancialAmount, 2) }}</strong>
+                        </div>
+                    </div>
+                    <div class="dashboard-section-title dashboard-section-title--tight dashboard-section-title--spaced">
+                        <span>Document Status Mix</span>
+                        <small>How your records are moving today</small>
+                    </div>
+                    <div class="reminder-summary reminder-summary--triple">
+                        <a href="{{ route('documents.index', ['status' => 'ONGOING']) }}" class="reminder-mini-card reminder-mini-card-link">
+                            <strong>{{ $docOngoing }}</strong>
+                            <span>Ongoing</span>
+                        </a>
+                        <a href="{{ route('documents.index', ['status' => 'DELIVERED']) }}" class="reminder-mini-card reminder-mini-card-link">
+                            <strong>{{ $docDelivered }}</strong>
+                            <span>Delivered</span>
+                        </a>
+                        <a href="{{ route('documents.index', ['status' => 'DONE']) }}" class="reminder-mini-card reminder-mini-card-link">
+                            <strong>{{ $docCompleted }}</strong>
+                            <span>Done</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="dashboard-panel dashboard-activity-panel">
+                    <div class="dashboard-section-title dashboard-section-title--tight">
+                        <span>Recent Activity</span>
+                        <small>Latest actions across the system</small>
+                    </div>
+
+                    <div class="activity-list">
+                        @forelse($recentActivities as $activity)
+                            <div class="activity-item">
+                                <div class="activity-dot"></div>
+                                <div class="activity-copy">
+                                    <div class="activity-title">{{ $activity->title ?? ucwords(str_replace('_', ' ', $activity->action)) }}</div>
+                                    <div class="activity-meta">
+                                        <span>{{ $activity->user?->name ?? 'System' }}</span>
+                                        <span>{{ $activity->created_at?->diffForHumans() }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="reminder-empty">
+                                <i class="fas fa-clock"></i>
+                                <p>No recent activity yet.</p>
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
 
-            <div class="dashboard-reminder-card">
-                <div class="dashboard-section-title dashboard-section-title--tight">
-                    <span>To-Do Reminder</span>
-                    <small>Upcoming and overdue tasks</small>
-                </div>
+            <div class="dashboard-side-column">
+                <div class="dashboard-reminder-card dashboard-panel">
+                    <div class="dashboard-section-title dashboard-section-title--tight">
+                        <span>To-Do Reminder</span>
+                        <small>Upcoming and overdue tasks</small>
+                    </div>
 
-                <div class="reminder-summary">
-                    <a href="{{ route('todos.index', ['status' => 'pending']) }}" class="reminder-pill reminder-pill--blue">
-                        <strong>{{ $todoPending }}</strong>
-                        <span>Open Tasks</span>
-                    </a>
-                    <a href="{{ route('todos.index') }}" class="reminder-pill reminder-pill--red">
-                        <strong>{{ $todoOverdue }}</strong>
-                        <span>Need Attention</span>
-                    </a>
-                </div>
-
-                <div class="reminder-list">
-                    @forelse($todoReminders as $todo)
-                        @php
-                            $isOverdue = $todo->due_date && $todo->due_date->isPast();
-                            $isToday = $todo->due_date && $todo->due_date->isToday();
-                        @endphp
-                        <a href="{{ route('todos.show', $todo) }}" class="reminder-item {{ $isOverdue ? 'is-overdue' : ($isToday ? 'is-today' : '') }}">
-                            <div class="reminder-item-main">
-                                <div class="reminder-title">{{ $todo->title }}</div>
-                                <div class="reminder-meta">
-                                    <span>{{ strtoupper($todo->priority ?? 'medium') }}</span>
-                                    <span>{{ $todo->assigned_to ?? 'Unassigned' }}</span>
-                                </div>
-                            </div>
-                            <div class="reminder-date">
-                                @if($todo->due_date)
-                                    {{ $todo->due_date->format('M d') }}
-                                @else
-                                    No due date
-                                @endif
-                            </div>
+                    <div class="reminder-summary">
+                        <a href="{{ route('todos.index', ['status' => 'pending']) }}" class="reminder-pill reminder-pill--blue">
+                            <strong>{{ $todoPending }}</strong>
+                            <span>Open Tasks</span>
                         </a>
-                    @empty
-                        <div class="reminder-empty">
-                            <i class="fas fa-check-circle"></i>
-                            <p>No pending reminders right now.</p>
-                        </div>
-                    @endforelse
-                </div>
+                        <a href="{{ route('todos.index') }}" class="reminder-pill reminder-pill--red">
+                            <strong>{{ $todoOverdue }}</strong>
+                            <span>Need Attention</span>
+                        </a>
+                    </div>
 
-                <a href="{{ route('todos.index') }}" class="reminder-footer-link">
-                    View full task board <i class="fas fa-arrow-right"></i>
-                </a>
+                    <div class="reminder-summary reminder-summary--triple">
+                        <div class="reminder-mini-card">
+                            <strong>{{ $todoDueToday }}</strong>
+                            <span>Due Today</span>
+                        </div>
+                        <div class="reminder-mini-card">
+                            <strong>{{ $todoDueTomorrow }}</strong>
+                            <span>Due Tomorrow</span>
+                        </div>
+                        <div class="reminder-mini-card">
+                            <strong>{{ $todoDueThisWeek }}</strong>
+                            <span>Next 7 Days</span>
+                        </div>
+                    </div>
+
+                    <div class="reminder-list">
+                        @forelse($todoReminders as $todo)
+                            @php
+                                $isOverdue = $todo->due_date && $todo->due_date->isPast();
+                                $isToday = $todo->due_date && $todo->due_date->isToday();
+                            @endphp
+                            <a href="{{ route('todos.show', $todo) }}" class="reminder-item {{ $isOverdue ? 'is-overdue' : ($isToday ? 'is-today' : '') }}">
+                                <div class="reminder-item-main">
+                                    <div class="reminder-title">{{ $todo->title }}</div>
+                                    <div class="reminder-meta">
+                                        <span>{{ strtoupper($todo->priority ?? 'medium') }}</span>
+                                        <span>{{ $todo->assigned_to ?? 'Unassigned' }}</span>
+                                    </div>
+                                </div>
+                                <div class="reminder-date">
+                                    @if($todo->due_date)
+                                        {{ $todo->due_date->format('M d') }}
+                                    @else
+                                        No due date
+                                    @endif
+                                </div>
+                            </a>
+                        @empty
+                            <div class="reminder-empty">
+                                <i class="fas fa-check-circle"></i>
+                                <p>No pending reminders right now.</p>
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <a href="{{ route('todos.index') }}" class="reminder-footer-link">
+                        View full task board <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
             </div>
         </section>
     </div>
@@ -286,53 +388,67 @@
     <style>
         .dashboard-shell {
             display: grid;
-            gap: 24px;
+            gap: 16px;
         }
 
         .dashboard-hero {
             display: grid;
             grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
-            gap: 24px;
-            padding: 28px;
-            border-radius: 26px;
+            gap: 16px;
+            padding: 18px 20px;
+            border-radius: 24px;
             background:
                 radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), transparent 34%),
                 radial-gradient(circle at bottom right, rgba(239, 68, 68, 0.14), transparent 30%),
                 linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.94) 100%);
             border: 1px solid rgba(148, 163, 184, 0.18);
-            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
         }
 
         .dashboard-kicker {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.12em;
             text-transform: uppercase;
             color: #2563eb;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
-        .dashboard-hero-copy h2 {
-            margin: 0 0 10px;
-            font-size: clamp(28px, 3vw, 38px);
-            line-height: 1.1;
-            color: #0f172a;
+        .hero-inline-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
         }
 
-        .dashboard-hero-copy p {
-            margin: 0;
-            max-width: 720px;
+        .hero-inline-stat {
+            padding: 12px 14px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(191, 219, 254, 0.45);
+        }
+
+        .hero-inline-stat span {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
             color: #64748b;
-            font-size: 15px;
-            line-height: 1.7;
+            margin-bottom: 6px;
+        }
+
+        .hero-inline-stat strong {
+            font-size: 24px;
+            line-height: 1;
+            color: #0f172a;
         }
 
         .dashboard-search {
             display: flex;
-            gap: 14px;
+            gap: 10px;
             align-items: center;
             flex-wrap: wrap;
-            margin-top: 22px;
+            margin-top: 12px;
         }
 
         .dashboard-search-field {
@@ -341,10 +457,10 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 0 16px;
+            padding: 0 14px;
             background: rgba(255, 255, 255, 0.92);
             border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 16px;
+            border-radius: 14px;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
         }
 
@@ -361,48 +477,48 @@
         }
 
         .dashboard-hero-panel {
-            padding: 22px;
-            border-radius: 22px;
+            padding: 16px;
+            border-radius: 20px;
             background: linear-gradient(160deg, rgba(255,255,255,0.82) 0%, rgba(241,245,249,0.95) 100%);
             border: 1px solid rgba(148, 163, 184, 0.18);
         }
 
         .hero-panel-label {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             color: #0f172a;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .hero-panel-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
+            gap: 10px;
         }
 
         .hero-chip {
-            padding: 16px;
-            border-radius: 18px;
+            padding: 12px;
+            border-radius: 14px;
             background: linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(248,250,252,0.92) 100%);
             border: 1px solid rgba(191, 219, 254, 0.55);
         }
 
         .hero-chip-title {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             color: #64748b;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .hero-chip strong {
-            font-size: 28px;
+            font-size: 21px;
             color: #0f172a;
             font-weight: 800;
         }
 
         .dashboard-section {
             display: grid;
-            gap: 14px;
+            gap: 10px;
         }
 
         .dashboard-section-title {
@@ -413,23 +529,23 @@
         }
 
         .dashboard-section-title span {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 800;
             color: #0f172a;
         }
 
         .dashboard-section-title small {
             color: #64748b;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .dashboard-section-title--tight {
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .dashboard-card-grid {
             display: grid;
-            gap: 16px;
+            gap: 12px;
         }
 
         .dashboard-card-grid--three {
@@ -444,14 +560,14 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: 14px;
-            padding: 24px;
-            min-height: 150px;
-            border-radius: 24px;
+            gap: 12px;
+            padding: 18px;
+            min-height: 126px;
+            border-radius: 20px;
             text-decoration: none;
             color: #0f172a;
             border: 1px solid rgba(255,255,255,0.45);
-            box-shadow: 0 18px 30px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 14px 26px rgba(15, 23, 42, 0.07);
             transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
 
@@ -461,23 +577,23 @@
         }
 
         .overview-card-label {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             color: rgba(15, 23, 42, 0.72);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .overview-card-value {
-            font-size: 42px;
+            font-size: 34px;
             line-height: 1;
             font-weight: 800;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .overview-card-meta {
-            font-size: 13px;
+            font-size: 12px;
             line-height: 1.5;
             color: rgba(15, 23, 42, 0.68);
         }
@@ -523,24 +639,36 @@
             background: linear-gradient(135deg, #eef8ff 0%, #dcefff 55%, #d7ebff 100%);
         }
 
-        .dashboard-detail-grid {
+        .dashboard-main-grid {
             display: grid;
             grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
-            gap: 18px;
+            gap: 12px;
             align-items: start;
         }
 
+        .dashboard-main-column,
+        .dashboard-side-column {
+            display: grid;
+            gap: 12px;
+            align-content: start;
+        }
+
+        .dashboard-reminder-card {
+            min-height: 100%;
+        }
+
+        .dashboard-panel,
         .dashboard-analytics-card,
         .dashboard-reminder-card {
-            padding: 22px;
-            border-radius: 24px;
+            padding: 18px;
+            border-radius: 22px;
             background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.98) 100%);
             border: 1px solid rgba(148, 163, 184, 0.16);
-            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
         }
 
         .dashboard-analytics-card {
-            min-height: 340px;
+            min-height: 280px;
             display: flex;
             flex-direction: column;
         }
@@ -548,39 +676,47 @@
         .dashboard-chart-shell {
             position: relative;
             width: 100%;
-            height: 240px;
+            height: 200px;
         }
 
         #monthlyChart {
             width: 100% !important;
-            height: 240px !important;
+            height: 200px !important;
         }
 
         .reminder-summary {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-            margin-bottom: 16px;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .reminder-summary--triple {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .reminder-summary--double {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
         .reminder-pill {
             display: flex;
             flex-direction: column;
             gap: 6px;
-            padding: 16px;
+            padding: 14px;
             text-decoration: none;
-            border-radius: 18px;
+            border-radius: 16px;
             color: #0f172a;
             border: 1px solid rgba(255,255,255,0.4);
         }
 
         .reminder-pill strong {
-            font-size: 28px;
+            font-size: 24px;
             line-height: 1;
         }
 
         .reminder-pill span {
-            font-size: 13px;
+            font-size: 12px;
             color: rgba(15, 23, 42, 0.72);
         }
 
@@ -592,9 +728,86 @@
             background: linear-gradient(135deg, #ffe8ec 0%, #ffe0e7 100%);
         }
 
+        .reminder-mini-card,
+        .snapshot-card {
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: #fff;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .reminder-mini-card strong,
+        .snapshot-card strong {
+            font-size: 20px;
+            line-height: 1;
+            color: #0f172a;
+        }
+
+        .reminder-mini-card span,
+        .snapshot-card span {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .reminder-mini-card-link {
+            text-decoration: none;
+        }
+
+        .snapshot-card--blue {
+            background: linear-gradient(135deg, #eef4ff 0%, #dbeafe 100%);
+        }
+
+        .snapshot-card--red {
+            background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+        }
+
         .reminder-list {
             display: grid;
+            gap: 8px;
+        }
+
+        .activity-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .activity-item {
+            display: grid;
+            grid-template-columns: 12px minmax(0, 1fr);
+            gap: 12px;
+            align-items: start;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #2563eb 0%, #dc2626 100%);
+            margin-top: 5px;
+        }
+
+        .activity-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .activity-meta {
+            display: flex;
             gap: 10px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #64748b;
         }
 
         .reminder-item {
@@ -602,8 +815,8 @@
             justify-content: space-between;
             align-items: center;
             gap: 14px;
-            padding: 14px 16px;
-            border-radius: 16px;
+            padding: 12px 14px;
+            border-radius: 14px;
             text-decoration: none;
             background: #ffffff;
             border: 1px solid rgba(226, 232, 240, 0.9);
@@ -627,7 +840,7 @@
         }
 
         .reminder-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             color: #0f172a;
             margin-bottom: 4px;
@@ -637,12 +850,12 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            font-size: 12px;
+            font-size: 11px;
             color: #64748b;
         }
 
         .reminder-date {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             white-space: nowrap;
             color: #334155;
@@ -666,13 +879,13 @@
         }
 
         .reminder-footer-link {
-            margin-top: 16px;
+            margin-top: 12px;
             display: inline-flex;
             align-items: center;
             gap: 8px;
             text-decoration: none;
             color: #2563eb;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
         }
 
@@ -681,14 +894,15 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
-            .dashboard-detail-grid {
+            .dashboard-main-grid {
                 grid-template-columns: 1fr;
             }
         }
 
         @media (max-width: 900px) {
             .dashboard-hero,
-            .dashboard-card-grid--three {
+            .dashboard-card-grid--three,
+            .hero-inline-stats {
                 grid-template-columns: 1fr;
             }
         }

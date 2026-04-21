@@ -18,7 +18,11 @@ class InAppNotificationService
             ->when($excludeUserId, fn (Collection $items) => $items->where('id', '!=', $excludeUserId))
             ->unique('id');
 
-        $normalizedUsers->each(function (User $user) use ($payload) {
+        $category = $payload['category'] ?? 'general';
+
+        $normalizedUsers
+            ->filter(fn (User $user) => $user->wantsNotificationCategory($category))
+            ->each(function (User $user) use ($payload) {
                 $user->notify(new InAppActivityNotification($payload));
             });
     }

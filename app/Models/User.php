@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -55,6 +56,21 @@ class User extends Authenticatable
         return $this->belongsTo(Office::class);
     }
 
+    public function notificationPreference()
+    {
+        return $this->hasOne(NotificationPreference::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
     public function isAdmin()
     {
         return $this->role === self::ROLE_ADMIN;
@@ -74,5 +90,23 @@ class User extends Authenticatable
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new \Illuminate\Auth\Notifications\ResetPassword($token));
+    }
+
+    public function wantsNotificationCategory(string $category): bool
+    {
+        $preference = $this->notificationPreference;
+
+        if (!$preference) {
+            return true;
+        }
+
+        return match ($category) {
+            'todo' => $preference->todo_notifications,
+            'document' => $preference->document_notifications,
+            'financial' => $preference->financial_notifications,
+            'reminder' => $preference->reminder_notifications,
+            'approval' => $preference->approval_notifications,
+            default => true,
+        };
     }
 }

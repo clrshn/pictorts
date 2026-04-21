@@ -4,12 +4,18 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\FinancialController;
+use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\TableReportController;
 use App\Http\Controllers\TrackController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ApprovalController;
+use App\Http\Controllers\PinController;
+use App\Http\Controllers\SavedFilterController;
 use App\Http\Controllers\TestEmailController;
+use App\Http\Controllers\TodoSubtaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +31,7 @@ Route::post('/track/search', [TrackController::class, 'search'])->name('track.se
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/track-document', [TrackController::class, 'page'])->name('track.page');
+    Route::get('/search', [GlobalSearchController::class, 'index'])->name('search.index');
 
     // Documents
     Route::resource('documents', DocumentController::class);
@@ -96,6 +103,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/notifications/welcome', [NotificationController::class, 'sendWelcomeEmail'])->name('notifications.welcome');
     Route::post('/notifications/admins', [NotificationController::class, 'sendToAdmins'])->name('notifications.admins');
     Route::post('/notifications/office', [NotificationController::class, 'sendToOffice'])->name('notifications.office');
+
+    Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::post('/approvals/request', [ApprovalController::class, 'requestApproval'])->name('approvals.request');
+    Route::post('/approvals/review', [ApprovalController::class, 'review'])->name('approvals.review');
+    Route::post('/pins', [PinController::class, 'store'])->name('pins.store');
+    Route::delete('/pins', [PinController::class, 'destroy'])->name('pins.destroy');
+    Route::post('/saved-filters', [SavedFilterController::class, 'store'])->name('saved-filters.store');
+    Route::delete('/saved-filters/{savedFilter}', [SavedFilterController::class, 'destroy'])->name('saved-filters.destroy');
+    Route::post('/todos/{todo}/subtasks', [TodoSubtaskController::class, 'store'])->name('todos.subtasks.store');
+    Route::match(['patch', 'put'], '/todos/{todo}/subtasks/{subtask}', [TodoSubtaskController::class, 'update'])->name('todos.subtasks.update');
+    Route::delete('/todos/{todo}/subtasks/{subtask}', [TodoSubtaskController::class, 'destroy'])->name('todos.subtasks.destroy');
 
     // Email Testing
     Route::get('/test-email', [TestEmailController::class, 'test'])->name('test.email');

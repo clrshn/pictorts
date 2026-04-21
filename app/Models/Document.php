@@ -7,9 +7,12 @@ use App\Models\Office;
 use App\Models\User;
 use App\Models\DocumentRoute;
 use App\Models\DocumentFile;
+use App\Models\Concerns\HasCollaborationFeatures;
 
 class Document extends Model
 {
+    use HasCollaborationFeatures;
+
     protected $fillable = [
         'dts_number',
         'picto_number',

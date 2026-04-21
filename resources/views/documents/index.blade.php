@@ -30,6 +30,11 @@
         };
     @endphp
 
+    @include('components.saved-filter-bar', [
+        'module' => !empty($isTravelOrderPage) ? 'travel_orders' : 'documents',
+        'savedFilters' => $savedFilters ?? collect(),
+    ])
+
     <div class="filter-box">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
             <h3 style="margin:0;">Search Filter</h3>
@@ -277,6 +282,11 @@
                             <td style="text-align:left;padding:20px;white-space:nowrap;width:120px;" onclick="event.stopPropagation();">
                                 <div style="display:flex;gap:4px;align-items:center;justify-content:flex-start;">
                                     <a href="{{ route('documents.edit', $doc) }}" class="btn-blue" title="Edit" style="padding:6px 8px;min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-edit"></i></a>
+                                    @if($doc->pinnedByCurrentUser())
+                                        <span title="Pinned" style="display:inline-flex; align-items:center; justify-content:center; min-width:32px; height:32px; border-radius:8px; background:#fff7ed; color:#c2410c; border:1px solid #fdba74;">
+                                            <i class="fas fa-thumbtack"></i>
+                                        </span>
+                                    @endif
                                     <form action="{{ route('documents.destroy', $doc) }}" method="POST" style="display:inline;" id="deleteForm-{{ $doc->id }}">
                                         @csrf
                                         @method('DELETE')

@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use App\Models\DocumentFile;
 use App\Models\Office;
+use App\Models\SavedFilter;
 use App\Models\User;
+use App\Services\ActivityLogService;
 use App\Services\InAppNotificationService;
 use App\Support\TableExport;
 use Illuminate\Http\Request;
@@ -22,6 +24,74 @@ class DocumentController extends Controller
     private function isTravelOrderRequest(Request $request): bool
     {
         return $request->type === 'TO';
+    }
+
+    private function ensureDocumentActionAllowed(Document $document, bool $expectsJson = false, string $action = 'update')
+    {
+        $approval = $document->approval;
+
+        if (!auth()->user()?->isAdmin() && $approval?->status === 'pending') {
+            return $expectsJson
+                ? response()->json(['success' => false, 'message' => 'This document has a pending approval request and is temporarily locked.'], 422)
+                : redirect()->back()->with('warning', 'This document has a pending approval request and is temporarily locked.');
+        }
+
+        if (!auth()->user()?->isAdmin() && in_array($action, ['update', 'delete'], true) && $approval?->status === 'approved') {
+            return $expectsJson
+                ? response()->json(['success' => false, 'message' => 'This document is already approved. Only an admin can modify it now.'], 422)
+                : redirect()->back()->with('warning', 'This document is already approved. Only an admin can modify it now.');
+        }
+
+        return null;
+    }
+
+    private function findPotentialDuplicates(Request $request, ?Document $ignore = null)
+    {
+        $subject = trim((string) ($request->input('subject') ?: $request->input('particulars')));
+        $hasReferenceFields = $subject !== ''
+            || $request->filled('memorandum_number')
+            || $request->filled('opg_reference_no')
+            || $request->filled('opa_reference_no')
+            || $request->filled('dts_no')
+            || $request->filled('shared_drive_link');
+
+        if (!$hasReferenceFields) {
+            return collect();
+        }
+
+        return Document::query()
+            ->with('originatingOffice')
+            ->when($ignore, fn ($q) => $q->whereKeyNot($ignore->id))
+            ->when($request->filled('originating_office'), fn ($q) => $q->where('originating_office', $request->originating_office))
+            ->where(function ($q) use ($request, $subject) {
+                if ($subject !== '') {
+                    $q->orWhereRaw('LOWER(subject) = ?', [strtolower($subject)])
+                        ->orWhereRaw('LOWER(COALESCE(particulars, "")) = ?', [strtolower($subject)]);
+                }
+
+                if ($request->filled('memorandum_number')) {
+                    $q->orWhere('memorandum_number', $request->memorandum_number);
+                }
+
+                if ($request->filled('opg_reference_no')) {
+                    $q->orWhere('opg_reference_no', $request->opg_reference_no);
+                }
+
+                if ($request->filled('opa_reference_no')) {
+                    $q->orWhere('opa_reference_no', $request->opa_reference_no);
+                }
+
+                if ($request->filled('dts_no')) {
+                    $q->orWhere('dts_no', $request->dts_no);
+                }
+
+                if ($request->filled('shared_drive_link')) {
+                    $q->orWhere('shared_drive_link', $request->shared_drive_link);
+                }
+            })
+            ->latest()
+            ->limit(5)
+            ->get();
     }
 
     public function index(Request $request)
@@ -52,6 +122,10 @@ class DocumentController extends Controller
 
         if ($request->filled('delivery_scope')) {
             $query->where('delivery_scope', $request->delivery_scope);
+        }
+
+        if ($request->boolean('pinned_only')) {
+            $query->whereHas('pins', fn ($pinQuery) => $pinQuery->where('user_id', auth()->id()));
         }
 
         // Filter by status
@@ -244,10 +318,16 @@ class DocumentController extends Controller
             ]);
         }
 
+        $query->with(['pins' => fn ($pinQuery) => $pinQuery->where('user_id', auth()->id())]);
+
         $documents = $query->paginate(15)->withQueryString();
         $offices = Office::ordered()->get();
+        $savedFilters = SavedFilter::where('user_id', auth()->id())
+            ->where('module', $isTravelOrderPage ? 'travel_orders' : 'documents')
+            ->latest()
+            ->get();
 
-        return view('documents.index', compact('documents', 'offices', 'isTravelOrderPage'));
+        return view('documents.index', compact('documents', 'offices', 'isTravelOrderPage', 'savedFilters'));
     }
 
     public function create(Request $request)
@@ -260,19 +340,20 @@ class DocumentController extends Controller
 
     private function generateTrackingCode(string $type, int $originOfficeId, $date = null): string
     {
-        // Use document date if provided, otherwise use current date
         $documentDate = $date ? \Carbon\Carbon::parse($date) : now();
         $year = $documentDate->year;
-
-        // Generate random string (12 characters)
         $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $randomString = '';
-        for ($i = 0; $i < 12; $i++) {
-            $randomString .= $characters[rand(0, strlen($characters) - 1)];
-        }
 
-        // Format: {YEAR}{RANDOM_STRING}
-        return $year . $randomString;
+        do {
+            $randomString = '';
+            for ($i = 0; $i < 12; $i++) {
+                $randomString .= $characters[random_int(0, strlen($characters) - 1)];
+            }
+
+            $trackingCode = $year . $randomString;
+        } while (Document::where('dts_number', $trackingCode)->exists());
+
+        return $trackingCode;
     }
 
     private function generateTransactionNumber(string $type, int $originOfficeId, $date = null): string
@@ -324,6 +405,14 @@ class DocumentController extends Controller
         $subject = $isTravelOrder
             ? trim((string) ($request->particulars ?: $request->subject ?: 'Travel Order'))
             : $request->subject;
+
+        $duplicates = $this->findPotentialDuplicates($request);
+        if ($duplicates->isNotEmpty() && !$request->boolean('force_save_duplicate')) {
+            return back()
+                ->withInput()
+                ->with('duplicate_warning', 'Possible duplicate documents were found. Please review them before saving.')
+                ->with('duplicate_candidates', $duplicates);
+        }
 
         $trackingCode = $this->generateTrackingCode($request->document_type, $request->originating_office, $request->date_received);
         $transactionNumber = $this->generateTransactionNumber($request->document_type, $request->originating_office, $request->date_received);
@@ -388,6 +477,17 @@ class DocumentController extends Controller
             'remarks' => 'Document created and initially recorded',
         ]);
 
+        app(ActivityLogService::class)->log(
+            $document,
+            'created',
+            'Document created',
+            auth()->user()?->name . ' created this document.',
+            [
+                'status' => $document->status,
+                'dts_number' => $document->dts_number,
+            ]
+        );
+
         return redirect()
             ->route('documents.index', $isTravelOrder ? ['type' => 'TO'] : [])
             ->with('success', 'Document recorded successfully - Tracking Code: ' . $trackingCode . ', Transaction Number: ' . $transactionNumber);
@@ -396,7 +496,23 @@ class DocumentController extends Controller
     public function show(Document $document)
     {
         $this->authorize('view', $document);
-        $document->load(['originatingOffice', 'destinationOffice', 'currentOffice', 'holder', 'encoder', 'routes.fromOffice', 'routes.toOffice', 'routes.releasedByUser', 'routes.receivedByUser', 'files']);
+        $document->load([
+            'originatingOffice',
+            'destinationOffice',
+            'currentOffice',
+            'holder',
+            'encoder',
+            'routes.fromOffice',
+            'routes.toOffice',
+            'routes.releasedByUser',
+            'routes.receivedByUser',
+            'files',
+            'comments.user',
+            'activityLogs.user',
+            'approval.requester',
+            'approval.reviewer',
+            'pins',
+        ]);
         $offices = Office::ordered()->get();
         $users = User::all();
         $isTravelOrder = $document->document_type === 'TO';
@@ -494,6 +610,10 @@ class DocumentController extends Controller
     public function update(Request $request, Document $document)
     {
         $this->authorize('update', $document);
+        if ($blocked = $this->ensureDocumentActionAllowed($document)) {
+            return $blocked;
+        }
+
         $request->validate([
             'document_type' => 'required|in:MEMO,EO,SO,LETTER,SP,TO,OTHERS',
             'direction' => 'required|in:INCOMING,OUTGOING',
@@ -512,6 +632,14 @@ class DocumentController extends Controller
         $subject = $isTravelOrder
             ? trim((string) ($request->particulars ?: $request->subject ?: 'Travel Order'))
             : $request->subject;
+
+        $duplicates = $this->findPotentialDuplicates($request, $document);
+        if ($duplicates->isNotEmpty() && !$request->boolean('force_save_duplicate')) {
+            return back()
+                ->withInput()
+                ->with('duplicate_warning', 'Possible duplicate documents were found. Please review them before saving.')
+                ->with('duplicate_candidates', $duplicates);
+        }
 
         // Check if date changed and regenerate tracking code and transaction number if needed
         $oldDate = $document->date_received ? $document->date_received->format('Y-m-d') : null;
@@ -580,6 +708,17 @@ class DocumentController extends Controller
         $previousStatus = $document->status;
         $document->update($updateData);
 
+        app(ActivityLogService::class)->log(
+            $document,
+            'updated',
+            'Document updated',
+            auth()->user()?->name . ' updated this document.',
+            [
+                'status' => $document->status,
+                'dts_number' => $document->dts_number,
+            ]
+        );
+
         // Add completion entry if status changed to DONE
         if (($updateData['status'] ?? $previousStatus) === 'DONE' && $previousStatus !== 'DONE') {
             $document->routes()->create([
@@ -618,6 +757,10 @@ class DocumentController extends Controller
     public function destroy(Document $document)
     {
         $this->authorize('delete', $document);
+        if ($blocked = $this->ensureDocumentActionAllowed($document, false, 'delete')) {
+            return $blocked;
+        }
+
         $isTravelOrder = $document->document_type === 'TO';
         $document->delete();
         return redirect()->route('documents.index', $isTravelOrder ? ['type' => 'TO'] : [])->with('success', 'Document deleted.');
@@ -626,6 +769,10 @@ class DocumentController extends Controller
     public function route(Request $request, Document $document)
     {
         $this->authorize('route', $document);
+        if ($blocked = $this->ensureDocumentActionAllowed($document)) {
+            return $blocked;
+        }
+
         $request->validate([
             'to_office' => 'required|exists:offices,id',
             'remarks' => 'nullable|string',
@@ -643,6 +790,17 @@ class DocumentController extends Controller
             'current_office' => $request->to_office,
         ]);
 
+        app(ActivityLogService::class)->log(
+            $document,
+            'forwarded',
+            'Document forwarded',
+            auth()->user()?->name . ' forwarded this document.',
+            [
+                'to_office' => $request->to_office,
+                'dts_number' => $document->dts_number,
+            ]
+        );
+
         app(InAppNotificationService::class)->notifyDocumentForwarded($document->fresh(['currentOffice', 'destinationOffice', 'encoder', 'holder']), (int) $request->to_office, auth()->user());
 
         return redirect()->route('documents.show', $document)->with('success', 'Document forwarded successfully.');
@@ -651,6 +809,10 @@ class DocumentController extends Controller
     public function receive(Request $request, Document $document)
     {
         $this->authorize('receive', $document);
+        if ($blocked = $this->ensureDocumentActionAllowed($document)) {
+            return $blocked;
+        }
+
         $latestRoute = $document->routes()->whereNull('datetime_received')->latest()->first();
 
         if ($latestRoute) {
@@ -663,6 +825,14 @@ class DocumentController extends Controller
         $document->update([
             'current_holder' => auth()->id(),
         ]);
+
+        app(ActivityLogService::class)->log(
+            $document,
+            'received',
+            'Document received',
+            auth()->user()?->name . ' received this document.',
+            ['dts_number' => $document->dts_number]
+        );
 
         app(InAppNotificationService::class)->notifyDocumentReceived($document->fresh(['encoder', 'holder']), auth()->user());
 

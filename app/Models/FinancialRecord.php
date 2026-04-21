@@ -3,12 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\HasCollaborationFeatures;
 
 class FinancialRecord extends Model
 {
+    use HasCollaborationFeatures;
+
     protected $fillable = [
         'type',
         'description',
+        'reference_code',
         'supplier',
         'pr_number',
         'pr_amount',
@@ -58,5 +62,15 @@ class FinancialRecord extends Model
     public function attachments()
     {
         return $this->hasMany(FinancialAttachment::class, 'financial_id');
+    }
+
+    public function relatedSupplierRecords()
+    {
+        return static::query()
+            ->whereNotNull('supplier')
+            ->where('supplier', $this->supplier)
+            ->whereKeyNot($this->getKey())
+            ->latest()
+            ->limit(8);
     }
 }

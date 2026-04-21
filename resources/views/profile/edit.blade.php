@@ -74,6 +74,49 @@
         </div>
     </div>
 
+    <div class="table-card" style="margin-bottom:20px;">
+        <div class="table-header" style="display:flex; justify-content:flex-start; align-items:center;">
+            <i class="fas fa-bell" style="margin-right:8px; color:#8b0000;"></i>
+            <h3 style="margin:0; color:#333;">Notification Preferences</h3>
+        </div>
+        <div style="padding:20px;">
+            <form method="post" action="{{ route('profile.update') }}">
+                @csrf
+                @method('PATCH')
+                <input type="hidden" name="name" value="{{ old('name', auth()->user()->name) }}">
+                <input type="hidden" name="email" value="{{ old('email', auth()->user()->email) }}">
+
+                @php
+                    $prefs = auth()->user()->notificationPreference;
+                @endphp
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
+                    @foreach([
+                        'todo_notifications' => ['title' => 'To-Do Updates', 'desc' => 'Task creation, updates, status changes, and priority changes.'],
+                        'document_notifications' => ['title' => 'Document Updates', 'desc' => 'Forwarding, receiving, and document activity alerts.'],
+                        'financial_notifications' => ['title' => 'Financial Updates', 'desc' => 'Routing and status changes for financial records.'],
+                        'reminder_notifications' => ['title' => 'Reminders', 'desc' => 'Due today, tomorrow, and overdue task reminders.'],
+                        'approval_notifications' => ['title' => 'Approvals', 'desc' => 'Approval requests and review decisions.'],
+                    ] as $field => $meta)
+                        <label style="display:flex; align-items:flex-start; gap:12px; padding:16px; border-radius:16px; border:1px solid rgba(226,232,240,0.92); background:linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%); cursor:pointer;">
+                            <input type="checkbox" name="{{ $field }}" value="1" {{ old($field, $prefs?->{$field} ?? true) ? 'checked' : '' }} style="width:18px; height:18px; margin-top:2px;">
+                            <span>
+                                <span style="display:block; font-size:14px; font-weight:700; color:#0f172a;">{{ $meta['title'] }}</span>
+                                <span style="display:block; margin-top:4px; font-size:12px; color:#64748b; line-height:1.55;">{{ $meta['desc'] }}</span>
+                            </span>
+                        </label>
+                    @endforeach
+                </div>
+
+                <div class="form-group" style="margin-top:20px;">
+                    <button type="submit" class="btn-red">
+                        <i class="fas fa-save"></i> Save Notification Preferences
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Password Update -->
     <div class="table-card" style="margin-bottom:20px;">
         <div class="table-header" style="display:flex; justify-content:flex-start; align-items:center;">

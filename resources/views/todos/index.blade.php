@@ -8,6 +8,11 @@
 
     @include('components.notifications')
 
+    @include('components.saved-filter-bar', [
+        'module' => 'todos',
+        'savedFilters' => $savedFilters ?? collect(),
+    ])
+
     <div class="filter-box">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
             <h3 style="margin:0;">Search Filter</h3>
@@ -165,6 +170,11 @@
                                 <a href="{{ route('todos.edit',$todo) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
                                     <i class="fas fa-edit"></i>
                                 </a>
+                                @if($todo->pinnedByCurrentUser())
+                                    <span title="Pinned" style="display:inline-flex; align-items:center; justify-content:center; min-width:32px; height:32px; border-radius:8px; background:#fff7ed; color:#c2410c; border:1px solid #fdba74;">
+                                        <i class="fas fa-thumbtack"></i>
+                                    </span>
+                                @endif
                                 <form action="{{ route('todos.destroy', $todo) }}" method="POST" style="display:inline;" id="deleteForm-{{ $todo->id }}">
                                     @csrf @method('DELETE')
                                     <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $todo->id }}, '{{ $todo->title }}')" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
