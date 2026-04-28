@@ -8,6 +8,7 @@ class Comment extends Model
 {
     protected $fillable = [
         'user_id',
+        'parent_id',
         'body',
     ];
 
@@ -19,5 +20,15 @@ class Comment extends Model
     public function commentable()
     {
         return $this->morphTo();
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(self::class, 'parent_id')->latest();
     }
 }

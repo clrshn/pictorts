@@ -18,6 +18,8 @@ class FinancialController extends Controller
 {
     private function ensureFinancialActionAllowed(FinancialRecord $financial, bool $expectsJson = false, string $action = 'update')
     {
+        // Financial records use the same approval lock principle as documents so
+        // reviewed records are not changed accidentally by regular users.
         $approval = $financial->approval;
 
         if (!auth()->user()?->isAdmin() && $approval?->status === 'pending') {
@@ -37,6 +39,8 @@ class FinancialController extends Controller
 
     private function generateReferenceCode(?string $date = null): string
     {
+        // Reference codes are generated inside a transaction and with row locking to
+        // reduce the chance of duplicate numbers during concurrent creation.
         return DB::transaction(function () use ($date) {
             $year = ($date ? Carbon::parse($date) : now())->format('Y');
             $prefix = "PICTO-FIN-{$year}-";
@@ -58,6 +62,8 @@ class FinancialController extends Controller
 
     private function findPotentialDuplicates(Request $request, ?FinancialRecord $ignore = null)
     {
+        // Duplicate checks are intentionally broad because financial records are often
+        // identified by one or more reference numbers, supplier, and description.
         $description = trim((string) $request->input('description'));
         $supplier = trim((string) $request->input('supplier'));
         $hasReferenceFields = $description !== ''
@@ -109,6 +115,8 @@ class FinancialController extends Controller
 
     public function index(Request $request)
     {
+        // Like the document module, the financial listing is also the source for
+        // exports and reports, so filtering and sorting are kept in one place.
         $query = FinancialRecord::with(['originOffice', 'currentOffice', 'holder']);
         $exportMode = $request->get('export');
 
@@ -357,6 +365,7 @@ class FinancialController extends Controller
             'routes.receivedByUser',
             'attachments',
             'comments.user',
+            'comments.children.user',
             'activityLogs.user',
             'approval.requester',
             'approval.reviewer',

@@ -14,6 +14,8 @@ class TodoController extends Controller
 {
     private function ensureTodoActionAllowed(Todo $todo, bool $expectsJson = false, string $action = 'update')
     {
+        // Task approval locks follow the same rule set as other modules so the
+        // collaboration workflow behaves consistently across the application.
         $approval = $todo->approval;
 
         if (!auth()->user()?->isAdmin() && $approval?->status === 'pending') {
@@ -36,6 +38,8 @@ class TodoController extends Controller
      */
     public function index(Request $request)
     {
+        // The task listing also powers export/report output. Keeping the query logic
+        // centralized prevents filter mismatches between UI tables and generated reports.
         $query = Todo::query();
         $exportMode = $request->get('export');
 
@@ -228,6 +232,7 @@ class TodoController extends Controller
             'pins',
             'subtasks',
             'comments.user',
+            'comments.children.user',
             'activityLogs.user',
             'approval.requester',
             'approval.reviewer',

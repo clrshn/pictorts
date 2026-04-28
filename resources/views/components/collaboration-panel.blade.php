@@ -2,6 +2,7 @@
     $approval = $record->approval;
     $comments = $record->comments ?? collect();
     $activityLogs = $record->activityLogs ?? collect();
+    $commentCount = $comments->sum(fn ($comment) => 1 + $comment->children->count());
     $approvalStatus = $approval?->status ?? \App\Models\Approval::STATUS_NOT_REQUESTED;
     $approvalBadgeStyles = match ($approvalStatus) {
         \App\Models\Approval::STATUS_APPROVED => 'background:#dcfce7;color:#166534;border:1px solid #86efac;',
@@ -21,7 +22,7 @@
                     <i class="fas fa-comments" style="color:#8b0000;"></i>
                     <h3 style="margin:0; color:#333;">Comments</h3>
                 </div>
-                <span style="font-size:12px; color:#64748b; font-weight:600;">{{ $comments->count() }} total</span>
+                <span style="font-size:12px; color:#64748b; font-weight:600;">{{ $commentCount }} total</span>
             </div>
             <div style="padding:18px 20px;">
                 <form method="POST" action="{{ route('comments.store') }}" style="margin-bottom:18px;">
@@ -30,6 +31,7 @@
                     <input type="hidden" name="subject_id" value="{{ $record->id }}">
                     <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px;">Add Comment</label>
                     <textarea name="body" class="form-control" rows="4" placeholder="Write an update, note, or discussion here..." required>{{ old('body') }}</textarea>
+                    <input type="hidden" name="parent_id" value="">
                     @error('body')
                         <div style="color:#dc2626; font-size:12px; margin-top:6px;">{{ $message }}</div>
                     @enderror
@@ -45,13 +47,12 @@
                 @else
                     <div style="display:flex; flex-direction:column; gap:12px;">
                         @foreach($comments as $comment)
-                            <div style="padding:14px 16px; border-radius:14px; border:1px solid rgba(226,232,240,0.92); background:linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%);">
-                                <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; flex-wrap:wrap;">
-                                    <div style="font-size:13px; font-weight:700; color:#0f172a;">{{ $comment->user->name ?? 'Unknown User' }}</div>
-                                    <div style="font-size:11px; color:#64748b;">{{ $comment->created_at?->format('M d, Y h:i A') }}</div>
-                                </div>
-                                <div style="font-size:13px; color:#475569; line-height:1.6; white-space:pre-line;">{{ $comment->body }}</div>
-                            </div>
+                            @include('components.comment-thread-item', [
+                                'comment' => $comment,
+                                'record' => $record,
+                                'subjectType' => $subjectType,
+                                'depth' => 0,
+                            ])
                         @endforeach
                     </div>
                 @endif
@@ -165,3 +166,14 @@
         </div>
     </div>
 </div>
+
+<script>
+    function toggleReplyForm(id) {
+        const form = document.getElementById(id);
+        if (!form) {
+            return;
+        }
+
+        form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
+    }
+</script>

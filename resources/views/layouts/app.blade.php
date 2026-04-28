@@ -964,6 +964,30 @@
             }
 
             /* Buttons - Modern Design */
+            .btn-red,
+            .btn-blue,
+            .btn-orange,
+            .btn-danger,
+            .btn-green,
+            .btn-gray {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                line-height: 1;
+                vertical-align: middle;
+                white-space: nowrap;
+            }
+
+            .btn-red i,
+            .btn-blue i,
+            .btn-orange i,
+            .btn-danger i,
+            .btn-green i,
+            .btn-gray i {
+                flex-shrink: 0;
+            }
+
             .btn-red { 
                 background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); 
                 color: #fff; 
@@ -1094,10 +1118,6 @@
             .detail-header-actions .btn-gray {
                 min-width: 98px;
                 min-height: 36px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                line-height: 1;
             }
 
             /* Badge - Modern Design */

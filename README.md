@@ -1,59 +1,89 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PICTO - Records and Tracking System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+PICTO - Records and Tracking System (`PICTO-RTS`) is a Laravel-based internal web application for monitoring:
 
-## About Laravel
+- documents and routing
+- financial records and routing
+- to-do / task monitoring
+- approvals, comments, pins, and activity history
+- notifications and printable reports
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This repository now uses a project-specific README so the next developer can quickly understand the system instead of starting from the default Laravel documentation.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Main Documentation
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Master documentation: [docs/PICTO_RTS_MASTER_DOCUMENTATION.md](C:\Users\Clarisahaina\xampp\htdocs\pictorts\docs\PICTO_RTS_MASTER_DOCUMENTATION.md)
+- User documentation: [docs/USER_DOCUMENTATION.md](C:\Users\Clarisahaina\xampp\htdocs\pictorts\docs\USER_DOCUMENTATION.md)
+- Requirements documentation: [docs/REQUIREMENTS_DOCUMENTATION.md](C:\Users\Clarisahaina\xampp\htdocs\pictorts\docs\REQUIREMENTS_DOCUMENTATION.md)
+- Architecture design documentation: [docs/ARCHITECTURE_DESIGN_DOCUMENTATION.md](C:\Users\Clarisahaina\xampp\htdocs\pictorts\docs\ARCHITECTURE_DESIGN_DOCUMENTATION.md)
+- Technical documentation: [docs/TECHNICAL_DOCUMENTATION.md](C:\Users\Clarisahaina\xampp\htdocs\pictorts\docs\TECHNICAL_DOCUMENTATION.md)
+- Developer handoff / technical documentation: [docs/DEVELOPER_DOCUMENTATION.md](C:\Users\Clarisahaina\xampp\htdocs\pictorts\docs\DEVELOPER_DOCUMENTATION.md)
+- Email setup notes: [EMAIL_SETUP.md](C:\Users\Clarisahaina\xampp\htdocs\pictorts\EMAIL_SETUP.md)
+- Change history: [CHANGELOG.md](C:\Users\Clarisahaina\xampp\htdocs\pictorts\CHANGELOG.md)
 
-## Learning Laravel
+## Tech Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- Laravel 12
+- PHP 8.2+
+- Blade templates
+- MySQL / MariaDB or SQLite depending on environment
+- Vite
+- Tailwind CSS / custom Blade styling
+- DOMPDF for PDF generation
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Quick Start
 
-## Laravel Sponsors
+1. Install PHP and Composer dependencies.
+2. Install Node dependencies.
+3. Copy `.env.example` to `.env`.
+4. Configure database and mail settings.
+5. Run migrations.
+6. Build frontend assets.
+7. Start the Laravel development server.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Typical commands:
 
-### Premium Partners
+```powershell
+composer install
+npm install
+Copy-Item .env.example .env
+php artisan key:generate
+php artisan migrate
+npm run dev
+php artisan serve
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Project Structure
 
-## Contributing
+- `app/Http/Controllers` - main request handling logic
+- `app/Models` - Eloquent models and relationships
+- `app/Services` - activity log and notification services
+- `database/migrations` - database schema history
+- `database/seeders` - sample/bootstrap data seeders
+- `resources/views` - Blade templates
+- `routes/web.php` - application routes
+- `scripts` - import/migration helper scripts for document batches
+- `public/images` - logos and branding assets
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Core Modules
 
-## Code of Conduct
+- Documents
+- Financial Monitoring
+- To-Do Monitoring
+- User Management
+- Office Management
+- Notifications
+- Table Reports / Print Preview
+- Public Document Tracking
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Goal of This Documentation
 
-## Security Vulnerabilities
+This repository now includes developer-focused documentation so the system can be handed over and continued by another developer even if the current developer leaves the project.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+If you are the next developer, start with:
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. [docs/PICTO_RTS_MASTER_DOCUMENTATION.md](C:\Users\Clarisahaina\xampp\htdocs\pictorts\docs\PICTO_RTS_MASTER_DOCUMENTATION.md)
+2. [routes/web.php](C:\Users\Clarisahaina\xampp\htdocs\pictorts\routes\web.php)
+3. [app/Models](C:\Users\Clarisahaina\xampp\htdocs\pictorts\app\Models)
+4. [app/Http/Controllers](C:\Users\Clarisahaina\xampp\htdocs\pictorts\app\Http\Controllers)
+5. [resources/views](C:\Users\Clarisahaina\xampp\htdocs\pictorts\resources\views)

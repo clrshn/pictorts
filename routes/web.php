@@ -16,7 +16,6 @@ use App\Http\Controllers\PinController;
 use App\Http\Controllers\SavedFilterController;
 use App\Http\Controllers\TestEmailController;
 use App\Http\Controllers\TodoSubtaskController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -29,6 +28,7 @@ Route::get('/', function () {
 Route::post('/track/search', [TrackController::class, 'search'])->name('track.search');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Main authenticated application area. Most system modules live under this group.
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/track-document', [TrackController::class, 'page'])->name('track.page');
     Route::get('/search', [GlobalSearchController::class, 'index'])->name('search.index');
@@ -49,40 +49,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/table-reports', [TableReportController::class, 'store'])->name('table-reports.store');
     Route::get('/table-reports/{report}', [TableReportController::class, 'show'])->name('table-reports.show');
 
-    // Test route
-    Route::patch('/test-update-status', function (Request $request) {
-        try {
-            $todo = \App\Models\Todo::find(1);
-            
-            if (!$todo) {
-                return response()->json(['error' => 'Todo not found'], 404);
-            }
-            
-            $validated = $request->validate([
-                'status' => 'required|in:pending,on-going,done,cancelled',
-            ]);
-
-            $todo->update(['status' => $validated['status']]);
-
-            return response()->json([
-                'success' => true, 
-                'status' => $validated['status']
-            ]);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    });
-
     // Todos
     Route::resource('todos', \App\Http\Controllers\TodoController::class);
     Route::patch('/todos/{todo}/update-status', [\App\Http\Controllers\TodoController::class, 'updateStatus'])->name('todos.updateStatus');
     Route::patch('/todos/{todo}/update-priority', [\App\Http\Controllers\TodoController::class, 'updatePriority'])->name('todos.updatePriority');
     Route::patch('/todos/{todo}/quick-update', [\App\Http\Controllers\TodoController::class, 'quickUpdate'])->name('todos.quickUpdate');
 
-    // User Management (Admin only)
+    // Administrative master-data pages are intentionally separated so regular users
+    // cannot manage accounts or office definitions.
     Route::middleware('admin')->group(function () {
         Route::resource('users', UserController::class);
         Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
@@ -91,7 +65,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('offices', OfficeController::class);
     });
 
-    // Email Notifications
+    // Notification routes support both the bell/dropdown UI and email/in-app testing.
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/feed', [NotificationController::class, 'feed'])->name('notifications.feed');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
@@ -105,6 +79,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/notifications/office', [NotificationController::class, 'sendToOffice'])->name('notifications.office');
 
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::post('/approvals/request', [ApprovalController::class, 'requestApproval'])->name('approvals.request');
     Route::post('/approvals/review', [ApprovalController::class, 'review'])->name('approvals.review');
     Route::post('/pins', [PinController::class, 'store'])->name('pins.store');

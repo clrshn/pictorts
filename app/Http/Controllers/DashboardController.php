@@ -12,6 +12,8 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // The dashboard aggregates multiple modules into one view, so the queries here
+        // intentionally stay read-only and summary-focused.
         $totalDocuments = Document::count();
         $incomingCount = Document::where('direction', 'INCOMING')->count();
         $outgoingCount = Document::where('direction', 'OUTGOING')->count();
@@ -57,7 +59,8 @@ class DashboardController extends Controller
             ->limit(8)
             ->get();
 
-        // Monthly document counts for the current year
+        // Monthly chart data is normalized to all 12 months so the frontend chart
+        // always renders a full-year timeline even when some months have zero records.
         $monthlyDocs = Document::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
             ->whereYear('created_at', now()->year)
             ->groupByRaw('MONTH(created_at)')

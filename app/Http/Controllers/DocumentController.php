@@ -28,6 +28,8 @@ class DocumentController extends Controller
 
     private function ensureDocumentActionAllowed(Document $document, bool $expectsJson = false, string $action = 'update')
     {
+        // Approved or pending-approval records are intentionally guarded to preserve
+        // workflow integrity and prevent regular users from changing reviewed data.
         $approval = $document->approval;
 
         if (!auth()->user()?->isAdmin() && $approval?->status === 'pending') {
@@ -47,6 +49,8 @@ class DocumentController extends Controller
 
     private function findPotentialDuplicates(Request $request, ?Document $ignore = null)
     {
+        // Duplicate detection is warning-based instead of hard-unique because legacy
+        // office records may contain near-matches that still need manual review.
         $subject = trim((string) ($request->input('subject') ?: $request->input('particulars')));
         $hasReferenceFields = $subject !== ''
             || $request->filled('memorandum_number')
@@ -96,6 +100,8 @@ class DocumentController extends Controller
 
     public function index(Request $request)
     {
+        // This index method doubles as both the standard table view and the source
+        // for CSV / print / PDF reports, so all filter logic is centralized here.
         $query = Document::with(['originatingOffice', 'destinationOffice', 'currentOffice', 'holder']);
         $isTravelOrderPage = $this->isTravelOrderRequest($request);
         $sortBy = $request->get('sort_by');
@@ -508,6 +514,7 @@ class DocumentController extends Controller
             'routes.receivedByUser',
             'files',
             'comments.user',
+            'comments.children.user',
             'activityLogs.user',
             'approval.requester',
             'approval.reviewer',

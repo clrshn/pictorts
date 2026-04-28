@@ -67,10 +67,10 @@ class InAppNotificationService
             ],
         ];
 
-        $recipients = $this->todoWatchers($todo)->when(
-            $actor,
-            fn (Collection $items) => $items->push($actor)
-        );
+        $recipients = $this->todoWatchers($todo)
+            ->merge($this->actorOfficeUsers($actor))
+            ->merge($this->adminUsers())
+            ->when($actor, fn (Collection $items) => $items->push($actor));
         $this->notifyUsers($recipients, $payload);
     }
 
@@ -97,10 +97,10 @@ class InAppNotificationService
             ],
         ];
 
-        $watchers = $this->todoWatchers($todo)->when(
-            $actor,
-            fn (Collection $items) => $items->push($actor)
-        );
+        $watchers = $this->todoWatchers($todo)
+            ->merge($this->actorOfficeUsers($actor))
+            ->merge($this->adminUsers())
+            ->when($actor, fn (Collection $items) => $items->push($actor));
         $this->notifyUsers($watchers, $payload);
     }
 
@@ -125,10 +125,10 @@ class InAppNotificationService
             ],
         ];
 
-        $watchers = $this->todoWatchers($todo)->when(
-            $actor,
-            fn (Collection $items) => $items->push($actor)
-        );
+        $watchers = $this->todoWatchers($todo)
+            ->merge($this->actorOfficeUsers($actor))
+            ->merge($this->adminUsers())
+            ->when($actor, fn (Collection $items) => $items->push($actor));
         $this->notifyUsers($watchers, $payload);
     }
 
@@ -153,10 +153,10 @@ class InAppNotificationService
             ],
         ];
 
-        $watchers = $this->todoWatchers($todo)->when(
-            $actor,
-            fn (Collection $items) => $items->push($actor)
-        );
+        $watchers = $this->todoWatchers($todo)
+            ->merge($this->actorOfficeUsers($actor))
+            ->merge($this->adminUsers())
+            ->when($actor, fn (Collection $items) => $items->push($actor));
         $this->notifyUsers($watchers, $payload);
     }
 
@@ -252,7 +252,11 @@ class InAppNotificationService
 
     public function notifyFinancialStatusChanged(FinancialRecord $financial, ?User $actor = null): void
     {
-        $watchers = collect([$financial->createdBy, $financial->holder])->filter();
+        $watchers = collect([$financial->createdBy, $financial->holder])
+            ->merge($this->officeUsers($financial->current_office))
+            ->merge($this->officeUsers($financial->office_origin))
+            ->merge($this->adminUsers())
+            ->filter();
 
         $payload = [
             'title' => 'Financial Status Updated',
@@ -337,6 +341,33 @@ class InAppNotificationService
         return User::query()
             ->where('name', 'like', '%' . $name . '%')
             ->orWhereRaw('LOWER(name) = ?', [mb_strtolower($name)])
+            ->get();
+    }
+
+    private function actorOfficeUsers(?User $actor): Collection
+    {
+        if (!$actor?->office_id) {
+            return collect();
+        }
+
+        return $this->officeUsers((int) $actor->office_id);
+    }
+
+    private function officeUsers(?int $officeId): Collection
+    {
+        if (!$officeId) {
+            return collect();
+        }
+
+        return User::query()
+            ->where('office_id', $officeId)
+            ->get();
+    }
+
+    private function adminUsers(): Collection
+    {
+        return User::query()
+            ->where('role', User::ROLE_ADMIN)
             ->get();
     }
 }

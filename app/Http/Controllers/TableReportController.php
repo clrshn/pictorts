@@ -17,6 +17,8 @@ class TableReportController extends Controller
 
     public function store(Request $request)
     {
+        // Report payloads are cached temporarily so the preview, print, and PDF URLs
+        // can reuse the same prepared dataset without rewriting it to the database.
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'headers' => 'required|array|min:1',
@@ -76,6 +78,8 @@ class TableReportController extends Controller
 
     public function show(Request $request, string $report): Response
     {
+        // The same cached report can be rendered either as print preview or PDF,
+        // depending on the requested output mode.
         $payload = Cache::get($this->cacheKey($report));
         abort_unless(is_array($payload), 404);
 
