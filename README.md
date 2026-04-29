@@ -1,6 +1,6 @@
-# PICTO - Records and Tracking System
+# PICTO - Records Monitoring System
 
-PICTO - Records and Tracking System (`PICTO-RTS`) is a Laravel-based internal web application for monitoring:
+PICTO - Records Monitoring System (`PICTO-RMS`) is a Laravel-based internal web application for monitoring:
 
 - documents and routing
 - financial records and routing

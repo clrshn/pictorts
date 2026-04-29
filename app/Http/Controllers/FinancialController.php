@@ -13,6 +13,7 @@ use App\Support\TableExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class FinancialController extends Controller
 {
@@ -429,6 +430,30 @@ class FinancialController extends Controller
         }
 
         return view('financial.show', compact('financial', 'offices', 'users', 'supplierHistory'));
+    }
+
+    public function previewFile(FinancialRecord $financial, FinancialAttachment $file)
+    {
+        $this->authorize('view', $financial);
+        abort_unless($file->financial_id === $financial->id, 404);
+        abort_unless(Storage::disk('public')->exists($file->file_path), 404);
+
+        $absolutePath = Storage::disk('public')->path($file->file_path);
+        $mimeType = Storage::disk('public')->mimeType($file->file_path) ?: 'application/octet-stream';
+
+        return response()->file($absolutePath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . addslashes($file->file_name) . '"',
+        ]);
+    }
+
+    public function downloadFile(FinancialRecord $financial, FinancialAttachment $file)
+    {
+        $this->authorize('view', $financial);
+        abort_unless($file->financial_id === $financial->id, 404);
+        abort_unless(Storage::disk('public')->exists($file->file_path), 404);
+
+        return Storage::disk('public')->download($file->file_path, $file->file_name);
     }
 
     public function edit(FinancialRecord $financial)

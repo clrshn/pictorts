@@ -38,12 +38,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/documents/{document}/route', [DocumentController::class, 'route'])->name('documents.route');
     Route::post('/documents/{document}/receive', [DocumentController::class, 'receive'])->name('documents.receive');
     Route::get('/tracking-numbers', [DocumentController::class, 'trackingNumbers'])->name('documents.tracking-numbers');
+    Route::get('/documents/{document}/files/{file}/preview', [DocumentController::class, 'previewFile'])->name('documents.files.preview');
+    Route::get('/documents/{document}/files/{file}/download', [DocumentController::class, 'downloadFile'])->name('documents.files.download');
 
     // Financial
     Route::resource('financial', FinancialController::class);
     Route::post('/financial/{financial}/route', [FinancialController::class, 'route'])->name('financial.route');
     Route::post('/financial/{financial}/receive', [FinancialController::class, 'receive'])->name('financial.receive');
     Route::patch('/financial/{financial}/update-status', [FinancialController::class, 'updateStatus'])->name('financial.update-status');
+    Route::get('/financial/{financial}/files/{file}/preview', [FinancialController::class, 'previewFile'])->name('financial.files.preview');
+    Route::get('/financial/{financial}/files/{file}/download', [FinancialController::class, 'downloadFile'])->name('financial.files.download');
 
     // Ad hoc table reports
     Route::post('/table-reports', [TableReportController::class, 'store'])->name('table-reports.store');

@@ -2,7 +2,7 @@
 
 ## 1. Document Purpose
 
-This document explains the technical implementation details of **PICTO - Records and Tracking System (PICTO-RTS)**.
+This document explains the technical implementation details of **PICTO - Records Monitoring System (PICTO-RMS)**.
 
 It is intended for:
 

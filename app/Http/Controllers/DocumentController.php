@@ -12,6 +12,7 @@ use App\Services\InAppNotificationService;
 use App\Support\TableExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
@@ -602,6 +603,30 @@ class DocumentController extends Controller
         }
 
         return view('documents.show', compact('document', 'offices', 'users', 'isTravelOrder'));
+    }
+
+    public function previewFile(Document $document, DocumentFile $file)
+    {
+        $this->authorize('view', $document);
+        abort_unless($file->document_id === $document->id, 404);
+        abort_unless(Storage::disk('public')->exists($file->file_path), 404);
+
+        $absolutePath = Storage::disk('public')->path($file->file_path);
+        $mimeType = Storage::disk('public')->mimeType($file->file_path) ?: 'application/octet-stream';
+
+        return response()->file($absolutePath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . addslashes($file->file_name) . '"',
+        ]);
+    }
+
+    public function downloadFile(Document $document, DocumentFile $file)
+    {
+        $this->authorize('view', $document);
+        abort_unless($file->document_id === $document->id, 404);
+        abort_unless(Storage::disk('public')->exists($file->file_path), 404);
+
+        return Storage::disk('public')->download($file->file_path, $file->file_name);
     }
 
     public function edit(Document $document)

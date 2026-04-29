@@ -86,15 +86,20 @@
         </div>
         <div style="padding:16px;">
             @foreach($financial->attachments as $file)
+                @php
+                    $extension = strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION));
+                    $previewUrl = route('financial.files.preview', [$financial, $file]);
+                    $downloadUrl = route('financial.files.download', [$financial, $file]);
+                @endphp
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#f9f9f9; border-radius:4px; margin-bottom:6px;">
                     <span style="font-size:13px; color:#444;"><i class="fas fa-file"></i> {{ $file->file_name }}</span>
                     <div style="display:flex; gap:8px;">
-                        @if(strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION)) === 'pdf')
-                            <button onclick="viewPdf('{{ asset('storage/' . $file->file_path) }}', '{{ $file->file_name }}')" class="btn-blue" style="padding:3px 10px;" title="View PDF"><i class="fas fa-eye"></i></button>
-                        @elseif(in_array(strtolower(pathinfo($file->file_name, PATHINFO_EXTENSION)), ['png','jpg','jpeg','gif','webp']))
-                            <button onclick="viewImage('{{ asset('storage/' . $file->file_path) }}', '{{ $file->file_name }}')" class="btn-blue" style="padding:3px 10px;" title="View Image"><i class="fas fa-image"></i></button>
+                        @if($extension === 'pdf')
+                            <button onclick="viewPdf('{{ $previewUrl }}', '{{ $file->file_name }}')" class="btn-blue" style="padding:3px 10px;" title="View PDF"><i class="fas fa-eye"></i></button>
+                        @elseif(in_array($extension, ['png','jpg','jpeg','gif','webp']))
+                            <button onclick="viewImage('{{ $previewUrl }}', '{{ $file->file_name }}')" class="btn-blue" style="padding:3px 10px;" title="View Image"><i class="fas fa-image"></i></button>
                         @endif
-                        <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="btn-blue" style="padding:3px 10px;" title="Download"><i class="fas fa-download"></i></a>
+                        <a href="{{ $downloadUrl }}" class="btn-blue" style="padding:3px 10px;" title="Download"><i class="fas fa-download"></i></a>
                     </div>
                 </div>
             @endforeach

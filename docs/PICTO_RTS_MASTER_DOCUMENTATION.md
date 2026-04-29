@@ -1,9 +1,9 @@
-# PICTO - Records and Tracking System
+# PICTO - Records Monitoring System
 # Master Documentation
 
 ## 1. Document Purpose
 
-This document is the consolidated documentation for the **PICTO - Records and Tracking System (PICTO-RTS)**.
+This document is the consolidated documentation for the **PICTO - Records Monitoring System (PICTO-RMS)**.
 
 It combines:
 
@@ -20,7 +20,7 @@ The purpose of this file is to make project turnover easier. If the current deve
 
 ### System Name
 
-**PICTO - Records and Tracking System (PICTO-RTS)**
+**PICTO - Records Monitoring System (PICTO-RMS)**
 
 ### Project Background
 
@@ -600,4 +600,4 @@ This document serves as the official single-file technical handoff package for t
 
 If management asks what this file is, you can say:
 
-> This is the consolidated documentation for the PICTO Records and Tracking System. It contains the system requirements, architecture design, technical implementation notes, and references to the embedded code documentation so another developer can continue the project after turnover.
+> This is the consolidated documentation for the PICTO Records Monitoring System. It contains the system requirements, architecture design, technical implementation notes, and references to the embedded code documentation so another developer can continue the project after turnover.

@@ -2,7 +2,7 @@
 
 ## 1. Document Purpose
 
-This document explains the system architecture of **PICTO - Records and Tracking System (PICTO-RTS)** so future developers can understand how the application is structured and where responsibility is divided.
+This document explains the system architecture of **PICTO - Records Monitoring System (PICTO-RMS)** so future developers can understand how the application is structured and where responsibility is divided.
 
 ---
 

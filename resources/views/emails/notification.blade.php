@@ -1,4 +1,4 @@
-@component('emails.layouts.app', ['title' => $subject ?? 'PICTO - RTS Notification'])
+@component('emails.layouts.app', ['title' => $subject ?? 'PICTO - RMS Notification'])
 
     <h2 style="color: #1a1a2e; margin-bottom: 20px;">{{ $title ?? 'System Notification' }}</h2>
     
@@ -29,5 +29,5 @@
         <strong>Reference:</strong> {{ $reference ?? 'N/A' }}
     </div>
     
-    <p>Best regards,<br>The PICTO - RTS Team</p>
+    <p>Best regards,<br>The PICTO - RMS Team</p>
 @endcomponent

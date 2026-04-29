@@ -2,7 +2,7 @@
 
 ## 1. Purpose
 
-This document is the starter user documentation for the **PICTO - Records and Tracking System (PICTO-RTS)**.
+This document is the starter user documentation for the **PICTO - Records Monitoring System (PICTO-RMS)**.
 
 It is intended for office users and staff members who operate the system.
 

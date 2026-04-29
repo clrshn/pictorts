@@ -2,7 +2,7 @@
 
 ## 1. Document Purpose
 
-This document defines the functional and non-functional requirements of the **PICTO - Records and Tracking System (PICTO-RTS)**.
+This document defines the functional and non-functional requirements of the **PICTO - Records Monitoring System (PICTO-RMS)**.
 
 It is intended to help:
 

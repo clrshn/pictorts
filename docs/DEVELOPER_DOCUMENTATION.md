@@ -2,7 +2,7 @@
 
 ## 1. Purpose of This Document
 
-This document is the **developer handoff / development documentation** for the **PICTO - Records and Tracking System**.
+This document is the **developer handoff / development documentation** for the **PICTO - Records Monitoring System**.
 
 Its purpose is to help the next developer:
 
@@ -26,7 +26,7 @@ For the current handoff, this developer document is the more important deliverab
 
 ### System Name
 
-**PICTO - Records and Tracking System (PICTO-RTS)**
+**PICTO - Records Monitoring System (PICTO-RMS)**
 
 ### Main Goal
 
@@ -728,7 +728,7 @@ For now, this developer documentation is the correct and most useful handoff doc
 
 If management asks what this document is:
 
-> This is the technical handoff document for the PICTO Records and Tracking System. It explains how the system is structured, how it is run, what modules it contains, and what the next developer needs to know in order to continue development and maintenance.
+> This is the technical handoff document for the PICTO Records Monitoring System. It explains how the system is structured, how it is run, what modules it contains, and what the next developer needs to know in order to continue development and maintenance.
 
 ---
 

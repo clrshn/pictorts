@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'PICTO - RTS Notification' }}</title>
+    <title>{{ $title ?? 'PICTO - RMS Notification' }}</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -83,7 +83,7 @@
                 <div style="width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;">
                     <i class="fas fa-file-alt" style="color:#fff;font-size:20px;"></i>
                 </div>
-                <h1>PICTO - RTS</h1>
+                <h1>PICTO - RMS</h1>
             </div>
         </div>
         
@@ -92,7 +92,7 @@
         </div>
         
         <div class="footer">
-            <p>&copy; {{ date('Y') }} PICTO - Records and Tracking System. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} PICTO - Records Monitoring System. All rights reserved.</p>
             <p>Provincial Information and Communications Technology Office</p>
             <p>This is an automated message. Please do not reply to this email.</p>
         </div>

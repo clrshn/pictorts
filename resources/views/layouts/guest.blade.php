@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>PICTO - RTS | Login</title>
+        <title>PICTO - RMS | Login</title>
         <link rel="icon" type="image/svg+xml" href="{{ asset('images/picto-rts-favicon.svg') }}">
         <link rel="shortcut icon" href="{{ asset('images/picto-rts-favicon.svg') }}">
 

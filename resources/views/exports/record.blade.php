@@ -232,7 +232,7 @@
         </table>
 
         <div class="title-block">
-            <p class="system-title">PICTO - Records and Tracking System</p>
+            <p class="system-title">PICTO - Records Monitoring System</p>
             <p class="report-title">{{ $reportTitle }}</p>
         </div>
 

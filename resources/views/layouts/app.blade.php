@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>PICTO - RTS</title>
+        <title>PICTO - RMS</title>
         <link rel="icon" type="image/svg+xml" href="{{ asset('images/picto-rts-favicon.svg') }}">
         <link rel="shortcut icon" href="{{ asset('images/picto-rts-favicon.svg') }}">
 
@@ -19,7 +19,7 @@
         <script src="https://unpkg.com/@zxing/library@latest"></script>
 
         <style>
-            /* Custom PICTO - RTS Design */
+            /* Custom PICTO - RMS Design */
             
             /* Sidebar - Light Design */
             .sidebar { 
@@ -524,19 +524,29 @@
             .header-logo { 
                 display: flex; 
                 align-items: center; 
-                gap: 16px;
+                gap: 18px;
+            }
+            .header-title {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 4px;
+                text-align: left;
             }
             .header-title h2 { 
                 margin: 0; 
                 color: #1a1a2e; 
-                font-size: 24px; 
+                font-size: 22px; 
+                line-height: 1.18;
                 font-weight: 700; 
                 text-shadow: 0 1px 2px rgba(0,0,0,0.1);
             }
             .header-title p { 
-                margin: 8px 0 0; 
+                margin: 0; 
                 color: #64748b; 
-                font-size: 14px; 
+                font-size: 13px; 
+                line-height: 1.35;
+                letter-spacing: 0.01em;
             }
             .header-account { 
                 display: flex; 
@@ -1757,11 +1767,11 @@
             <div class="header-content">
                 <div class="header-logo">
                     <div style="width:80px;height:80px;border-radius:28px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 10px 24px rgba(15,23,42,0.12);border:1px solid rgba(22,59,140,0.08);background:linear-gradient(145deg,#ffffff 0%,#f7faff 100%);">
-                        <img src="{{ asset('images/picto-rts-mark.svg') }}" alt="PICTO RTS Logo" style="width:100%;height:100%;object-fit:contain;padding:0;">
+                        <img src="{{ asset('images/picto-rts-mark.svg') }}" alt="PICTO RMS Logo" style="width:100%;height:100%;object-fit:contain;padding:0;">
                     </div>
                     <div class="header-title">
-                        <h2 style="margin:0; color:#1a1a2e; font-size:24px; font-weight:700;">PICTO - Records and Tracking System</h2>
-                        <p style="margin:4px 0 0; color:#64748b; font-size:13px;">Provincial Information and Communications Technology Office</p>
+                        <h2>PICTO - Records Monitoring System</h2>
+                        <p>Provincial Information and Communications Technology Office</p>
                     </div>
                 </div>
             </div>
@@ -1813,7 +1823,7 @@
 
             <!-- Footer -->
             <div class="footer">
-                &copy; Copyright {{ date('Y') }}. All rights reserved. <a href="#">PICTO - Records and Tracking System</a>.
+                &copy; Copyright {{ date('Y') }}. All rights reserved. <a href="#">PICTO - Records Monitoring System</a>.
             </div>
         </div>
 

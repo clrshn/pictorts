@@ -2,9 +2,9 @@
     <!-- Logo -->
     <div class="login-logo">
         <div class="logo-title">
-            <span class="red">PICTO</span><span class="blue"> - RTS</span>
+            <span class="red">PICTO</span><span class="blue"> - RMS</span>
         </div>
-        <div class="logo-sub">PICTO - RECORDS AND TRACKING SYSTEM</div>
+        <div class="logo-sub">PICTO - RECORDS MONITORING SYSTEM</div>
     </div>
 
     <!-- Session Status -->
@@ -62,7 +62,7 @@
     
     <!-- Footer -->
     <div class="login-footer">
-        &copy; Copyright {{ date('Y') }}. All rights reserved. <a href="#">PICTO - Records and Tracking System</a> V1.0
+        &copy; Copyright {{ date('Y') }}. All rights reserved. <a href="#">PICTO - Records Monitoring System</a> V1.0
     </div>
 
     <!-- Track Document Modal -->
@@ -73,7 +73,7 @@
                 <button onclick="document.getElementById('trackModal').style.display='none'" style="position:absolute; top:10px; right:14px; background:#333; color:#fff; border:none; width:26px; height:26px; border-radius:50%; font-size:14px; cursor:pointer; font-weight:700;">&times;</button>
                 <div style="font-size:24px; margin-bottom:4px;"><i class="fas fa-file-shield" style="color:#fff;"></i></div>
                 <div style="color:#fff; font-weight:800; font-size:16px; line-height:1.2;">
-                    <span style="color:#1a1a6c;">PICTO</span> RECORDS<br>& TRACKING<br><span style="color:#ffe082;">SYSTEM</span>
+                    <span style="color:#1a1a6c;">PICTO</span> RECORDS<br>MONITORING<br><span style="color:#ffe082;">SYSTEM</span>
                 </div>
             </div>
 
