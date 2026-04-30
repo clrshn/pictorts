@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Comment;
 use App\Models\Document;
 use App\Models\FinancialRecord;
 use App\Models\Todo;
@@ -68,10 +69,9 @@ class InAppNotificationService
         ];
 
         $recipients = $this->todoWatchers($todo)
-            ->merge($this->actorOfficeUsers($actor))
-            ->merge($this->adminUsers())
             ->when($actor, fn (Collection $items) => $items->push($actor));
         $this->notifyUsers($recipients, $payload);
+        $this->notifyAdmins($payload);
     }
 
     public function notifyTodoUpdated(Todo $todo, ?User $actor = null): void
@@ -98,10 +98,9 @@ class InAppNotificationService
         ];
 
         $watchers = $this->todoWatchers($todo)
-            ->merge($this->actorOfficeUsers($actor))
-            ->merge($this->adminUsers())
             ->when($actor, fn (Collection $items) => $items->push($actor));
         $this->notifyUsers($watchers, $payload);
+        $this->notifyAdmins($payload);
     }
 
     public function notifyTodoStatusChanged(Todo $todo, ?User $actor = null): void
@@ -126,10 +125,9 @@ class InAppNotificationService
         ];
 
         $watchers = $this->todoWatchers($todo)
-            ->merge($this->actorOfficeUsers($actor))
-            ->merge($this->adminUsers())
             ->when($actor, fn (Collection $items) => $items->push($actor));
         $this->notifyUsers($watchers, $payload);
+        $this->notifyAdmins($payload);
     }
 
     public function notifyTodoPriorityChanged(Todo $todo, ?User $actor = null): void
@@ -154,10 +152,9 @@ class InAppNotificationService
         ];
 
         $watchers = $this->todoWatchers($todo)
-            ->merge($this->actorOfficeUsers($actor))
-            ->merge($this->adminUsers())
             ->when($actor, fn (Collection $items) => $items->push($actor));
         $this->notifyUsers($watchers, $payload);
+        $this->notifyAdmins($payload);
     }
 
     public function notifyDocumentForwarded(Document $document, int $toOfficeId, ?User $actor = null): void
@@ -191,6 +188,7 @@ class InAppNotificationService
             ->when($actor, fn (Collection $items) => $items->push($actor));
 
         $this->notifyUsers($watchers, $payload);
+        $this->notifyAdmins($payload);
     }
 
     public function notifyDocumentReceived(Document $document, ?User $actor = null): void
@@ -220,6 +218,7 @@ class InAppNotificationService
         }
 
         $this->notifyUsers($watchers, $payload);
+        $this->notifyAdmins($payload);
     }
 
     public function notifyFinancialForwarded(FinancialRecord $financial, int $toOfficeId, ?User $actor = null): void
@@ -248,6 +247,7 @@ class InAppNotificationService
             ->when($actor, fn (Collection $items) => $items->push($actor));
 
         $this->notifyUsers($watchers, $payload);
+        $this->notifyAdmins($payload);
     }
 
     public function notifyFinancialStatusChanged(FinancialRecord $financial, ?User $actor = null): void
@@ -255,7 +255,6 @@ class InAppNotificationService
         $watchers = collect([$financial->createdBy, $financial->holder])
             ->merge($this->officeUsers($financial->current_office))
             ->merge($this->officeUsers($financial->office_origin))
-            ->merge($this->adminUsers())
             ->filter();
 
         $payload = [
@@ -282,6 +281,7 @@ class InAppNotificationService
         }
 
         $this->notifyUsers($watchers, $payload);
+        $this->notifyAdmins($payload);
     }
 
     public function notifyFinancialReceived(FinancialRecord $financial, ?User $actor = null): void
@@ -310,6 +310,60 @@ class InAppNotificationService
         }
 
         $this->notifyUsers($watchers, $payload);
+        $this->notifyAdmins($payload);
+    }
+
+    public function notifyCommentAdded($subject, Comment $comment, ?User $actor = null, bool $isReply = false): void
+    {
+        $label = $this->subjectLabel($subject);
+        $payload = [
+            'title' => $isReply ? 'Comment Reply Added' : 'New Comment Added',
+            'message' => sprintf(
+                '%s %s on %s.',
+                $actor?->name ?? 'A user',
+                $isReply ? 'replied to a comment' : 'added a comment',
+                $label
+            ),
+            'url' => $this->subjectUrl($subject),
+            'type' => 'info',
+            'icon' => 'fa-solid fa-comments',
+            'category' => $this->subjectCategory($subject),
+            'actor_name' => $actor?->name,
+            'meta' => [
+                'comment_id' => $comment->id,
+                'subject_type' => class_basename($comment->commentable_type),
+                'subject_id' => $comment->commentable_id,
+            ],
+        ];
+
+        $recipients = $this->subjectUsers($subject)
+            ->when($actor, fn (Collection $items) => $items->push($actor));
+
+        $this->notifyUsers($recipients, $payload);
+        $this->notifyAdmins($payload);
+    }
+
+    public function notifyCommentDeleted($subject, ?User $actor = null): void
+    {
+        $payload = [
+            'title' => 'Comment Deleted',
+            'message' => sprintf(
+                '%s deleted a comment on %s.',
+                $actor?->name ?? 'A user',
+                $this->subjectLabel($subject)
+            ),
+            'url' => $this->subjectUrl($subject),
+            'type' => 'warning',
+            'icon' => 'fa-solid fa-comment-slash',
+            'category' => $this->subjectCategory($subject),
+            'actor_name' => $actor?->name,
+        ];
+
+        $recipients = $this->subjectUsers($subject)
+            ->when($actor, fn (Collection $items) => $items->push($actor));
+
+        $this->notifyUsers($recipients, $payload);
+        $this->notifyAdmins($payload);
     }
 
     private function normalizeUsers(iterable $users): Collection
@@ -344,15 +398,6 @@ class InAppNotificationService
             ->get();
     }
 
-    private function actorOfficeUsers(?User $actor): Collection
-    {
-        if (!$actor?->office_id) {
-            return collect();
-        }
-
-        return $this->officeUsers((int) $actor->office_id);
-    }
-
     private function officeUsers(?int $officeId): Collection
     {
         if (!$officeId) {
@@ -369,5 +414,51 @@ class InAppNotificationService
         return User::query()
             ->where('role', User::ROLE_ADMIN)
             ->get();
+    }
+
+    private function subjectUsers($subject): Collection
+    {
+        return match (true) {
+            $subject instanceof Todo => $this->todoWatchers($subject),
+            $subject instanceof Document => collect([$subject->encoder, $subject->holder])
+                ->merge($this->officeUsers($subject->current_office))
+                ->merge($this->officeUsers($subject->destination_office))
+                ->filter(),
+            $subject instanceof FinancialRecord => collect([$subject->createdBy, $subject->holder])
+                ->merge($this->officeUsers($subject->current_office))
+                ->merge($this->officeUsers($subject->office_origin))
+                ->filter(),
+            default => collect(),
+        };
+    }
+
+    private function subjectLabel($subject): string
+    {
+        return match (true) {
+            $subject instanceof Todo => 'task "' . $subject->title . '"',
+            $subject instanceof Document => 'document "' . ($subject->subject ?: $subject->dts_number ?: 'Untitled document') . '"',
+            $subject instanceof FinancialRecord => 'financial record "' . ($subject->description ?: $subject->type ?: 'Untitled record') . '"',
+            default => 'this record',
+        };
+    }
+
+    private function subjectUrl($subject): string
+    {
+        return match (true) {
+            $subject instanceof Todo => route('todos.show', $subject),
+            $subject instanceof Document => route('documents.show', $subject),
+            $subject instanceof FinancialRecord => route('financial.show', $subject),
+            default => route('dashboard'),
+        };
+    }
+
+    private function subjectCategory($subject): string
+    {
+        return match (true) {
+            $subject instanceof Todo => 'todo',
+            $subject instanceof Document => 'document',
+            $subject instanceof FinancialRecord => 'financial',
+            default => 'general',
+        };
     }
 }

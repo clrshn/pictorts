@@ -267,8 +267,21 @@ class FinancialController extends Controller
             ->where('module', 'financial')
             ->latest()
             ->get();
+        $financialSnapshotRecord = (clone $query)
+            ->whereNotNull('pr_amount')
+            ->orderByDesc('pr_amount')
+            ->first();
 
-        return view('financial.index', compact('records', 'offices', 'savedFilters'));
+        $financialSnapshot = [
+            'active_total' => $financialSnapshotRecord?->pr_amount ?? 0,
+            'active_count' => $financialSnapshotRecord?->description ?? 'No visible PR amount record yet.',
+            'finished_total' => 0,
+            'finished_count' => $financialSnapshotRecord?->type ?? 'No type',
+            'cancelled_total' => 0,
+            'cancelled_count' => $financialSnapshotRecord?->status ?? 'No status',
+        ];
+
+        return view('financial.index', compact('records', 'offices', 'savedFilters', 'financialSnapshot', 'financialSnapshotRecord'));
     }
 
     public function create()

@@ -30,11 +30,6 @@
         };
     @endphp
 
-    @include('components.saved-filter-bar', [
-        'module' => !empty($isTravelOrderPage) ? 'travel_orders' : 'documents',
-        'savedFilters' => $savedFilters ?? collect(),
-    ])
-
     <div class="filter-box">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
             <h3 style="margin:0;">Search Filter</h3>
@@ -77,6 +72,11 @@
                 </div>
             @endif
         </div>
+
+        @include('components.saved-filter-bar', [
+            'module' => !empty($isTravelOrderPage) ? 'travel_orders' : 'documents',
+            'savedFilters' => $savedFilters ?? collect(),
+        ])
 
         <form method="GET" action="{{ route('documents.index') }}">
             @foreach(['direction', 'status', 'delivery_scope', 'travel_order_type', 'sort_by'] as $field)
@@ -150,7 +150,7 @@
                     'number' => 'Number',
                     'subject' => 'Subject',
                     'originating_office' => 'Originating Office',
-                    'outgoing_type' => 'Type Direction',
+                    'outgoing_type' => 'Communication Type',
                     'status' => 'Status',
                     'date_received' => 'Date Received',
                 ];
@@ -248,13 +248,13 @@
                             <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:120px;border-bottom:2px solid #8b0000;">ORIGINATING OFFICE</th>
                             <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:130px;border-bottom:2px solid #8b0000; position:relative;">
                                 <div style="display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;" onclick="toggleDocumentHeaderDropdown('documentDirectionDropdown', 'documentDirectionIcon', event)">
-                                    <span>TYPE DIRECTION</span>
+                                    <span>COMMUNICATION TYPE</span>
                                     <i class="fas fa-chevron-down" id="documentDirectionIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
                                 </div>
                                 <div id="documentDirectionDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:160px; display:none; overflow:hidden;">
                                     <a href="{{ request()->fullUrlWithQuery(['direction' => 'INCOMING', 'delivery_scope' => null]) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Incoming</a>
                                     <a href="{{ request()->fullUrlWithQuery(['direction' => 'OUTGOING', 'delivery_scope' => null]) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">Outgoing</a>
-                                    <a href="{{ request()->fullUrlWithQuery(['direction' => null, 'delivery_scope' => null]) }}" class="table-header-filter-link">All Type Direction</a>
+                                    <a href="{{ request()->fullUrlWithQuery(['direction' => null, 'delivery_scope' => null]) }}" class="table-header-filter-link">All Communication Types</a>
                                 </div>
                             </th>
                             <th style="text-align:center;padding:12px 8px;white-space:nowrap;width:100px;border-bottom:2px solid #8b0000; position:relative;">
@@ -287,11 +287,13 @@
                                             <i class="fas fa-thumbtack"></i>
                                         </span>
                                     @endif
-                                    <form action="{{ route('documents.destroy', $doc) }}" method="POST" style="display:inline;" id="deleteForm-{{ $doc->id }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button" class="btn-danger" title="Delete" onclick='confirmDelete({{ $doc->id }}, @json($doc->subject ?? "Untitled Document"), @json($doc->dts_number ?? "No Tracking Code"))' style="padding:6px 8px;min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-trash"></i></button>
-                                    </form>
+                                    @if(auth()->user()?->isAdmin())
+                                        <form action="{{ route('documents.destroy', $doc) }}" method="POST" style="display:inline;" id="deleteForm-{{ $doc->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="button" class="btn-danger" title="Delete" onclick='confirmDelete({{ $doc->id }}, @json($doc->subject ?? "Untitled Document"), @json($doc->dts_number ?? "No Tracking Code"))' style="padding:6px 8px;min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                             @if(!empty($isTravelOrderPage))

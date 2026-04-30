@@ -88,11 +88,13 @@
                                     {{ $subtask->title }}
                                 </div>
                             </form>
-                            <form method="POST" action="{{ route('todos.subtasks.destroy', [$todo, $subtask]) }}">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-danger" style="padding:6px 10px;"><i class="fas fa-trash"></i></button>
-                            </form>
+                            @if(auth()->user()?->isAdmin())
+                                <form method="POST" action="{{ route('todos.subtasks.destroy', [$todo, $subtask]) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-danger" style="padding:6px 10px;"><i class="fas fa-trash"></i></button>
+                                </form>
+                            @endif
                         </div>
                     @endforeach
                 </div>

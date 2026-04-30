@@ -49,17 +49,15 @@
 
                 <div class="form-group">
                     <label>Assigned To</label>
-                    <select name="assigned_to" class="form-control">
-                        <option value="">Select Person</option>
-                        <option value="ADMIN UNIT" {{ old('assigned_to', $todo->assigned_to) === 'ADMIN UNIT' ? 'selected' : '' }}>ADMIN UNIT</option>
-                        <option value="CLYDE" {{ old('assigned_to', $todo->assigned_to) === 'CLYDE' ? 'selected' : '' }}>CLYDE</option>
-                        <option value="MARGIE" {{ old('assigned_to', $todo->assigned_to) === 'MARGIE' ? 'selected' : '' }}>MARGIE</option>
-                        <option value="MELETH" {{ old('assigned_to', $todo->assigned_to) === 'MELETH' ? 'selected' : '' }}>MELETH</option>
-                        <option value="JACKIE" {{ old('assigned_to', $todo->assigned_to) === 'JACKIE' ? 'selected' : '' }}>JACKIE</option>
-                        <option value="PATRICK" {{ old('assigned_to', $todo->assigned_to) === 'PATRICK' ? 'selected' : '' }}>PATRICK</option>
-                        <option value="MITCH" {{ old('assigned_to', $todo->assigned_to) === 'MITCH' ? 'selected' : '' }}>MITCH</option>
-                    </select>
+                    <input type="text" name="assigned_to" class="form-control" value="{{ old('assigned_to', $todo->assigned_to) }}" list="todoAssignedPeople" placeholder="Enter one or more names">
+                    <small style="color:#64748b;">You can keep the current assignee, add another name, or enter multiple people manually.</small>
                 </div>
+
+                <datalist id="todoAssignedPeople">
+                    @foreach($assignedToOptions as $person)
+                        <option value="{{ $person }}"></option>
+                    @endforeach
+                </datalist>
 
                 <div class="form-group">
                     <label>DATE ADDED</label>

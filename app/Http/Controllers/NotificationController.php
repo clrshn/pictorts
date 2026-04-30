@@ -29,7 +29,7 @@ class NotificationController extends Controller
         $this->emailService->sendSystemAlert(
             $user,
             'Test Alert',
-            'This is a test notification from the PICTO - RTS system. If you receive this email, the email functionality is working correctly!',
+            'This is a test notification from the PICTO - RMS system. If you receive this email, the email functionality is working correctly!',
             route('dashboard')
         );
 
@@ -254,6 +254,7 @@ class NotificationController extends Controller
     {
         $today = Carbon::today();
         $tomorrow = Carbon::tomorrow();
+        $nextWeek = Carbon::today()->addDays(7);
         $normalizedName = mb_strtolower(trim($user->name));
 
         $todos = Todo::query()
@@ -266,16 +267,18 @@ class NotificationController extends Controller
                 }
             })
             ->whereNotNull('due_date')
-            ->whereDate('due_date', '<=', $tomorrow)
+            ->whereDate('due_date', '<=', $nextWeek)
             ->orderBy('due_date')
-            ->limit(5)
+            ->limit(8)
             ->get();
 
-        return $todos->map(function (Todo $todo) use ($today, $tomorrow) {
+        return $todos->map(function (Todo $todo) use ($today, $tomorrow, $nextWeek) {
             $dueDate = $todo->due_date;
             $isOverdue = $dueDate && $dueDate->lt($today);
             $isToday = $dueDate && $dueDate->isSameDay($today);
             $isTomorrow = $dueDate && $dueDate->isSameDay($tomorrow);
+            $isNextThreeDays = $dueDate && $dueDate->greaterThan($tomorrow) && $dueDate->lte(Carbon::today()->addDays(3));
+            $isWithinWeek = $dueDate && $dueDate->greaterThan(Carbon::today()->addDays(3)) && $dueDate->lte($nextWeek);
 
             if ($isOverdue) {
                 $title = 'Overdue Task Reminder';
@@ -287,11 +290,26 @@ class NotificationController extends Controller
                 $message = sprintf('"%s" is due today.', $todo->title);
                 $type = 'warning';
                 $icon = 'fa-solid fa-hourglass-half';
-            } else {
+            } elseif ($isTomorrow) {
                 $title = 'Task Due Tomorrow';
                 $message = sprintf('"%s" is due tomorrow.', $todo->title);
                 $type = 'info';
                 $icon = 'fa-solid fa-calendar-day';
+            } elseif ($isNextThreeDays) {
+                $title = 'Task Due Soon';
+                $message = sprintf('"%s" is due on %s.', $todo->title, $dueDate->format('M d, Y'));
+                $type = 'info';
+                $icon = 'fa-solid fa-calendar-check';
+            } elseif ($isWithinWeek) {
+                $title = 'Upcoming Task Deadline';
+                $message = sprintf('"%s" is scheduled on %s.', $todo->title, $dueDate->format('M d, Y'));
+                $type = 'info';
+                $icon = 'fa-solid fa-calendar-week';
+            } else {
+                $title = 'Task Reminder';
+                $message = sprintf('"%s" has an upcoming due date on %s.', $todo->title, $dueDate?->format('M d, Y'));
+                $type = 'info';
+                $icon = 'fa-solid fa-calendar';
             }
 
             return [

@@ -28,10 +28,63 @@
         </div>
     @endif
 
-    @include('components.saved-filter-bar', [
-        'module' => 'financial',
-        'savedFilters' => $savedFilters ?? collect(),
-    ])
+    <div style="margin-bottom:16px; padding:18px 20px; border-radius:18px; background:linear-gradient(135deg,#ffffff 0%,#f8fbff 44%,#fff5f5 100%); border:1px solid rgba(148,163,184,0.18); box-shadow:0 12px 24px rgba(15,23,42,0.05);">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:14px;">
+            <div>
+                <div style="font-size:12px; font-weight:700; letter-spacing:0.08em; color:#64748b; text-transform:uppercase;">Financial Snapshot</div>
+                <h3 style="margin:4px 0 0; color:#1e293b; font-size:22px;">Biggest PR Amount</h3>
+                <p style="margin:6px 0 0; color:#64748b; font-size:13px;">Shows the highest visible PR amount from the current filtered records.</p>
+            </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;">
+            <div style="padding:16px 18px; border-radius:16px; background:linear-gradient(135deg, rgba(250,204,21,0.18), rgba(255,255,255,0.95)); border:1px solid rgba(250,204,21,0.28);">
+                <div style="font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:#a16207;">PR Amount</div>
+                <div style="margin-top:8px; font-size:29px; font-weight:800; color:#0f172a;">{{ $financialSnapshotRecord?->pr_amount ? '₱ ' . number_format((float) $financialSnapshotRecord->pr_amount, 2) : '—' }}</div>
+                <div style="margin-top:6px; font-size:12px; color:#64748b;">{{ $financialSnapshotRecord?->description ?: 'No visible PR amount record yet.' }}</div>
+            </div>
+            <div style="padding:16px 18px; border-radius:16px; background:linear-gradient(135deg, rgba(15,23,42,0.04), rgba(255,255,255,0.95)); border:1px solid rgba(148,163,184,0.2);">
+                <div style="font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:#475569;">Supplier</div>
+                <div style="margin-top:8px; font-size:22px; font-weight:800; color:#0f172a;">{{ $financialSnapshotRecord?->supplier ?: '—' }}</div>
+                <div style="margin-top:6px; font-size:12px; color:#64748b;">{{ $financialSnapshotRecord?->type ?: 'No type' }}</div>
+            </div>
+            <div style="padding:16px 18px; border-radius:16px; background:linear-gradient(135deg, rgba(59,130,246,0.10), rgba(255,255,255,0.95)); border:1px solid rgba(59,130,246,0.16);">
+                <div style="font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:#1d4ed8;">Office Origin</div>
+                <div style="margin-top:8px; font-size:22px; font-weight:800; color:#0f172a;">{{ $financialSnapshotRecord?->originOffice?->code ?: '—' }}</div>
+                <div style="margin-top:6px; font-size:12px; color:#64748b;">{{ $financialSnapshotRecord?->status ?: 'No status' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:14px;">
+            <div>
+                <div style="font-size:12px; font-weight:700; letter-spacing:0.08em; color:#64748b; text-transform:uppercase;">Financial Snapshot</div>
+                <h3 style="margin:4px 0 0; color:#1e293b; font-size:22px;">Biggest PR Amount</h3>
+                <p style="margin:6px 0 0; color:#64748b; font-size:13px;">Shows the highest visible PR amount from the current filtered records.</p>
+            </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;">
+            <div style="padding:16px 18px; border-radius:16px; background:linear-gradient(135deg, rgba(59,130,246,0.14), rgba(255,255,255,0.95)); border:1px solid rgba(59,130,246,0.14);">
+                <div style="font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:#a16207;">PR Amount</div>
+                <div style="margin-top:8px; font-size:29px; font-weight:800; color:#0f172a;">₱ {{ number_format($financialSnapshot['active_total'] ?? 0, 2) }}</div>
+                <div style="margin-top:6px; font-size:12px; color:#64748b;">{{ $financialSnapshot?->description ?: 'No visible PR amount record yet.' }}</div>
+            </div>
+
+            <div style="padding:16px 18px; border-radius:16px; background:linear-gradient(135deg, rgba(34,197,94,0.14), rgba(255,255,255,0.95)); border:1px solid rgba(34,197,94,0.14);">
+                <div style="font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:#475569;">Supplier</div>
+                <div style="margin-top:8px; font-size:29px; font-weight:800; color:#0f172a;">₱ {{ number_format($financialSnapshot['finished_total'] ?? 0, 2) }}</div>
+                <div style="margin-top:6px; font-size:12px; color:#64748b;">{{ $financialSnapshot['finished_count'] ?? 'No type' }}</div>
+            </div>
+
+            <div style="padding:16px 18px; border-radius:16px; background:linear-gradient(135deg, rgba(239,68,68,0.12), rgba(255,255,255,0.95)); border:1px solid rgba(239,68,68,0.14);">
+                <div style="font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:#1d4ed8;">Office Origin</div>
+                <div style="margin-top:8px; font-size:29px; font-weight:800; color:#0f172a;">₱ {{ number_format($financialSnapshot['cancelled_total'] ?? 0, 2) }}</div>
+                <div style="margin-top:6px; font-size:12px; color:#64748b;">{{ $financialSnapshot['cancelled_count'] ?? 'No status' }}</div>
+            </div>
+        </div>
+    </div>
 
     <!-- Search Filter -->
     <div class="filter-box">
@@ -77,6 +130,11 @@
                 </div>
             @endif
         </div>
+
+        @include('components.saved-filter-bar', [
+            'module' => 'financial',
+            'savedFilters' => $savedFilters ?? collect(),
+        ])
         
         <form method="GET" action="{{ route('financial.index') }}">
             @if(request('type'))
@@ -225,12 +283,14 @@
                                         <i class="fas fa-thumbtack"></i>
                                     </span>
                                 @endif
-                                <form action="{{ route('financial.destroy', $rec) }}" method="POST" style="display:inline;" id="deleteForm-{{ $rec->id }}">
-                                    @csrf @method('DELETE')
-                                    <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $rec->id }}, '{{ $rec->description ?? 'Financial Record' }}')" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                                @if(auth()->user()?->isAdmin())
+                                    <form action="{{ route('financial.destroy', $rec) }}" method="POST" style="display:inline;" id="deleteForm-{{ $rec->id }}">
+                                        @csrf @method('DELETE')
+                                        <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $rec->id }}, '{{ $rec->description ?? 'Financial Record' }}')" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </td>
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:180px;" onclick="event.stopPropagation();">
@@ -431,9 +491,9 @@
         }
 
         .inline-select.status-active {
-            background: #bbf7d0 !important;
-            color: #166534 !important;
-            border-color: #86efac !important;
+            background: #fef08a !important;
+            color: #854d0e !important;
+            border-color: #facc15 !important;
         }
 
         .inline-select.status-cancelled {
@@ -443,9 +503,9 @@
         }
 
         .inline-select.status-finished {
-            background: #bfdbfe !important;
-            color: #1d4ed8 !important;
-            border-color: #93c5fd !important;
+            background: #bbf7d0 !important;
+            color: #166534 !important;
+            border-color: #86efac !important;
         }
 
         /* When dropdown is OPEN -> force neutral */

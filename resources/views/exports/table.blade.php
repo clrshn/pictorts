@@ -7,7 +7,7 @@
     <style>
         @page {
             size: {{ $paperSize }} {{ $orientation }};
-            margin: 0.5in 1.5in;
+            margin: 0.5in 0.5in 0.8in;
         }
 
         html,
@@ -24,11 +24,19 @@
         }
 
         .report-page {
-            padding: 0.08in 0 0.95in;
+            padding: 1.55in 0 1in;
+        }
+
+        .page-header {
+            position: fixed;
+            top: 0.5in;
+            left: 0.5in;
+            right: 0.5in;
+            background: #fff;
         }
 
         .header-table {
-            width: 86%;
+            width: 100%;
             margin: 0 auto;
             border-collapse: collapse;
             table-layout: fixed;
@@ -39,7 +47,7 @@
         }
 
         .logo-cell {
-            width: 98px;
+            width: 128px;
         }
 
         .logo-cell.left {
@@ -51,13 +59,13 @@
         }
 
         .logo-left {
-            width: 74px;
+            width: 102px;
             height: auto;
             display: block;
         }
 
         .logo-right {
-            width: 76px;
+            width: 104px;
             height: auto;
             display: inline-block;
         }
@@ -102,7 +110,7 @@
         }
 
         .title-block {
-            margin: 24px 0 34px;
+            margin: 16px 0 26px;
             text-align: center;
             font-family: "Times New Roman", Times, serif;
             color: #17233c;
@@ -129,7 +137,7 @@
         }
 
         .content-block {
-            width: 86%;
+            width: 100%;
             margin: 0 auto;
         }
 
@@ -208,32 +216,34 @@
 </head>
 <body>
     <div class="report-page">
-        <table class="header-table">
-            <tr>
-                <td class="logo-cell left">
-                    @if(!empty($leftLogo))
-                        <img src="{{ $leftLogo }}" alt="PGLU Logo" class="logo-left">
-                    @endif
-                </td>
-                <td>
-                    <div class="gov-heading">
-                        <p class="line-1">Republic of the Philippines</p>
-                        <p class="line-2">Province of La Union</p>
-                        <p class="line-3">Provincial Information and</p>
-                        <p class="line-4">Communications Technology Office</p>
-                    </div>
-                </td>
-                <td class="logo-cell right">
-                    @if(!empty($rightLogo))
-                        <img src="{{ $rightLogo }}" alt="Bagong Pilipinas Logo" class="logo-right">
-                    @endif
-                </td>
-            </tr>
-        </table>
+        <div class="page-header">
+            <table class="header-table">
+                <tr>
+                    <td class="logo-cell left">
+                        @if(!empty($leftLogo))
+                            <img src="{{ $leftLogo }}" alt="PGLU Logo" class="logo-left">
+                        @endif
+                    </td>
+                    <td>
+                        <div class="gov-heading">
+                            <p class="line-1">Republic of the Philippines</p>
+                            <p class="line-2">Province of La Union</p>
+                            <p class="line-3">Provincial Information and</p>
+                            <p class="line-4">Communications Technology Office</p>
+                        </div>
+                    </td>
+                    <td class="logo-cell right">
+                        @if(!empty($rightLogo))
+                            <img src="{{ $rightLogo }}" alt="Bagong Pilipinas Logo" class="logo-right">
+                        @endif
+                    </td>
+                </tr>
+            </table>
 
-        <div class="title-block">
-            <p class="system-title">PICTO - Records Monitoring System</p>
-            <p class="report-title">{{ $reportTitle }}</p>
+            <div class="title-block">
+                <p class="system-title">PICTO - Records Monitoring System</p>
+                <p class="report-title">{{ $reportTitle }}</p>
+            </div>
         </div>
 
         <div class="content-block">

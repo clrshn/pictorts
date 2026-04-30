@@ -45,7 +45,7 @@ class FinancialRecordPolicy
      */
     public function delete(User $user, FinancialRecord $financial): bool
     {
-        return true; // All authenticated users can delete financial records
+        return $user->isAdmin();
     }
 
     /**

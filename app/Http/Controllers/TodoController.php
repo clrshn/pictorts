@@ -58,6 +58,20 @@ class TodoController extends Controller
             $query->where('assigned_to', $request->assigned_to);
         }
 
+        if ($request->filled('due_alert')) {
+            $today = Carbon::today();
+            $query->whereNotIn('status', ['done', 'cancelled'])
+                ->whereNotNull('due_date');
+
+            match ($request->due_alert) {
+                'overdue' => $query->whereDate('due_date', '<', $today),
+                'today' => $query->whereDate('due_date', $today),
+                'tomorrow' => $query->whereDate('due_date', Carbon::tomorrow()),
+                'soon' => $query->whereBetween('due_date', [$today->copy()->addDays(2)->toDateString(), $today->copy()->addDays(7)->toDateString()]),
+                default => null,
+            };
+        }
+
         if ($request->boolean('pinned_only')) {
             $query->whereHas('pins', fn ($pinQuery) => $pinQuery->where('user_id', auth()->id()));
         }
@@ -156,13 +170,16 @@ class TodoController extends Controller
 
         $query->with(['pins' => fn ($pinQuery) => $pinQuery->where('user_id', auth()->id())]);
 
+        $dueReminderData = $this->buildDueReminderData();
+        $assignedToOptions = $this->assignedToOptions();
+
         $todos = $query->paginate(15);
         $savedFilters = SavedFilter::where('user_id', auth()->id())
             ->where('module', 'todos')
             ->latest()
             ->get();
 
-        return view('todos.index', compact('todos', 'savedFilters'));
+        return view('todos.index', compact('todos', 'savedFilters', 'dueReminderData', 'assignedToOptions'));
     }
 
     /**
@@ -170,7 +187,9 @@ class TodoController extends Controller
      */
     public function create()
     {
-        return view('todos.create');
+        $assignedToOptions = $this->assignedToOptions();
+
+        return view('todos.create', compact('assignedToOptions'));
     }
 
     /**
@@ -281,7 +300,9 @@ class TodoController extends Controller
      */
     public function edit(Todo $todo)
     {
-        return view('todos.edit', compact('todo'));
+        $assignedToOptions = $this->assignedToOptions();
+
+        return view('todos.edit', compact('todo', 'assignedToOptions'));
     }
 
     /**
@@ -395,6 +416,15 @@ class TodoController extends Controller
      */
     public function destroy(Request $request, Todo $todo)
     {
+        if (!auth()->user()?->isAdmin()) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Only an admin can delete tasks.'], 403);
+            }
+
+            return redirect()->route('todos.index')
+                ->with('warning', 'Only an admin can delete tasks.');
+        }
+
         if ($blocked = $this->ensureTodoActionAllowed($todo, $request->wantsJson() || $request->ajax(), 'delete')) {
             return $blocked;
         }
@@ -469,6 +499,78 @@ class TodoController extends Controller
         }
 
         return response()->json(['success' => true, 'status' => $todo->status, 'assigned_to' => $todo->assigned_to]);
+    }
+
+    private function buildDueReminderData(): array
+    {
+        $today = Carbon::today();
+        $tomorrow = Carbon::tomorrow();
+        $nextWeek = Carbon::today()->addDays(7);
+        $user = auth()->user();
+        $normalizedName = mb_strtolower(trim((string) $user?->name));
+
+        $query = Todo::query()
+            ->whereNotIn('status', ['done', 'cancelled'])
+            ->whereNotNull('due_date')
+            ->whereDate('due_date', '<=', $nextWeek);
+
+        if (!$user?->isAdmin()) {
+            $query->where(function ($builder) use ($user, $normalizedName) {
+                $builder->where('user_id', $user?->id);
+
+                if ($normalizedName !== '') {
+                    $builder->orWhereRaw('LOWER(assigned_to) LIKE ?', ['%' . $normalizedName . '%']);
+                }
+            });
+        }
+
+        $items = $query->orderBy('due_date')->limit(8)->get()->map(function (Todo $todo) use ($today, $tomorrow) {
+            $dueDate = $todo->due_date;
+            $daysUntil = $dueDate ? $today->diffInDays($dueDate, false) : null;
+
+            if ($dueDate && $dueDate->lt($today)) {
+                $level = 'overdue';
+                $label = 'Overdue';
+            } elseif ($dueDate && $dueDate->isSameDay($today)) {
+                $level = 'today';
+                $label = 'Due Today';
+            } elseif ($dueDate && $dueDate->isSameDay($tomorrow)) {
+                $level = 'tomorrow';
+                $label = 'Due Tomorrow';
+            } else {
+                $level = 'soon';
+                $label = $daysUntil !== null ? 'Due in ' . $daysUntil . ' day' . ($daysUntil === 1 ? '' : 's') : 'Upcoming';
+            }
+
+            return [
+                'todo' => $todo,
+                'level' => $level,
+                'label' => $label,
+                'days_until' => $daysUntil,
+            ];
+        });
+
+        return [
+            'items' => $items,
+            'counts' => [
+                'overdue' => $items->where('level', 'overdue')->count(),
+                'today' => $items->where('level', 'today')->count(),
+                'tomorrow' => $items->where('level', 'tomorrow')->count(),
+                'soon' => $items->where('level', 'soon')->count(),
+            ],
+        ];
+    }
+
+    private function assignedToOptions(): array
+    {
+        return Todo::query()
+            ->whereNotNull('assigned_to')
+            ->where('assigned_to', '!=', '')
+            ->distinct()
+            ->orderBy('assigned_to')
+            ->pluck('assigned_to')
+            ->values()
+            ->all();
     }
 
     private function createNextRecurringTodoIfNeeded(Todo $todo, ?string $previousStatus, ?string $newStatus): void

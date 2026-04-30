@@ -102,6 +102,15 @@ class ApprovalController extends Controller
             ]);
         }
 
+        app(InAppNotificationService::class)->notifyAdmins([
+            'title' => 'Approval ' . ucfirst($validated['decision']),
+            'message' => auth()->user()?->name . ' ' . $validated['decision'] . ' ' . $this->subjectLabel($subject) . '.',
+            'url' => $this->subjectUrl($subject),
+            'type' => $validated['decision'] === 'approved' ? 'success' : 'danger',
+            'icon' => $validated['decision'] === 'approved' ? 'fa-solid fa-badge-check' : 'fa-solid fa-circle-xmark',
+            'category' => 'approval',
+        ]);
+
         return back()->with('success', 'Approval review saved.');
     }
 

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use App\Models\FinancialRecord;
 use App\Models\Approval;
-use App\Models\ActivityLog;
 use App\Models\Todo;
 
 class DashboardController extends Controller
@@ -36,28 +35,10 @@ class DashboardController extends Controller
         $todoOverdue = Todo::whereDate('due_date', '<', now()->toDateString())
             ->whereIn('status', ['pending', 'on-going'])
             ->count();
-        $todoReminders = Todo::whereIn('status', ['pending', 'on-going'])
-            ->orderByRaw("
-                CASE
-                    WHEN due_date IS NULL THEN 2
-                    WHEN due_date < CURDATE() THEN 0
-                    ELSE 1
-                END
-            ")
-            ->orderBy('due_date')
-            ->limit(5)
-            ->get();
-
         $docOngoing = Document::where('status', 'ONGOING')->count();
         $docDelivered = Document::where('status', 'DELIVERED')->count();
         $docCompleted = Document::where('status', 'DONE')->count();
         $approvalPendingCount = Approval::where('status', Approval::STATUS_PENDING)->count();
-        $activeFinancialAmount = (float) FinancialRecord::where('status', 'ACTIVE')->sum('pr_amount');
-        $finishedFinancialAmount = (float) FinancialRecord::where('status', 'FINISHED')->sum('pr_amount');
-        $recentActivities = ActivityLog::with('user')
-            ->latest()
-            ->limit(8)
-            ->get();
 
         // Monthly chart data is normalized to all 12 months so the frontend chart
         // always renders a full-year timeline even when some months have zero records.
@@ -86,9 +67,9 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'totalDocuments', 'incomingCount', 'outgoingCount',
             'totalFinancial', 'financialActive', 'financialCancelled', 'financialFinished',
-            'todoPending', 'todoDueToday', 'todoDueTomorrow', 'todoDueThisWeek', 'todoOverdue', 'todoReminders',
+            'todoPending', 'todoDueToday', 'todoDueTomorrow', 'todoDueThisWeek', 'todoOverdue',
             'docOngoing', 'docDelivered', 'docCompleted',
-            'approvalPendingCount', 'activeFinancialAmount', 'finishedFinancialAmount', 'recentActivities',
+            'approvalPendingCount',
             'chartDocuments', 'chartFinancial'
         ))->with('docIncoming', $incomingCount);
     }

@@ -42,8 +42,7 @@
             <form method="POST" action="{{ route('documents.store') }}" enctype="multipart/form-data">
                 @csrf
 
-                <!-- Row 1 -->
-                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+                <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px;">
                     <div class="form-group">
                         <label>Document Type <span style="color:#c0392b">*</span></label>
                         <select name="document_type" class="form-control" required>
@@ -58,13 +57,16 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Direction <span style="color:#c0392b">*</span></label>
+                        <label>Communication Type <span style="color:#c0392b">*</span></label>
                         <select name="direction" class="form-control" required>
                             <option value="">Select</option>
                             <option value="INCOMING" {{ old('direction') === 'INCOMING' ? 'selected' : '' }}>INCOMING</option>
                             <option value="OUTGOING" {{ old('direction') === 'OUTGOING' ? 'selected' : '' }}>OUTGOING</option>
                         </select>
                     </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px;">
                     <div class="form-group" id="delivery-scope-group" style="display:none;">
                         <label>Outgoing Type <span style="color:#c0392b">*</span></label>
                         <select name="delivery_scope" id="delivery_scope" class="form-control">
@@ -74,10 +76,6 @@
                         </select>
                         <small style="color:#999;">External means sent to another office. Internal means sent within your office or unit structure.</small>
                     </div>
-                </div>
-
-                <!-- Row 2 -->
-                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
                     <div class="form-group">
                         <label>Originating Office <span id="originating-office-required" style="color:#c0392b;">*</span></label>
                         <select name="originating_office" id="originating_office" class="form-control" required>
@@ -87,6 +85,9 @@
                             @endforeach
                         </select>
                     </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px;">
                     <div class="form-group">
                         <label>To (Destination Office)</label>
                         <select name="to_office" class="form-control">
@@ -95,6 +96,10 @@
                                 <option value="{{ $office->id }}" {{ old('to_office') == $office->id ? 'selected' : '' }}>{{ $office->code }} - {{ $office->name }}</option>
                             @endforeach
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Sub-Number <small style="color:#999;">(Optional)</small></label>
+                        <input type="text" name="memorandum_number" class="form-control" value="{{ old('memorandum_number') }}" placeholder="Enter sub-number or office number">
                     </div>
                 </div>
 
@@ -125,18 +130,11 @@
                     </div>
                 </div>
 
-                <!-- Subject -->
                 <div class="form-group" id="document-subject-group" style="{{ !empty($isTravelOrder) ? 'display:none;' : '' }}">
                     <label>Subject / Title <span style="color:#c0392b">*</span></label>
                     <input type="text" name="subject" id="document-subject-input" class="form-control" value="{{ old('subject') }}" {{ !empty($isTravelOrder) ? '' : 'required' }}>
                 </div>
                 <input type="hidden" name="subject" id="travel-order-subject" value="{{ old('subject', 'Travel Order') }}" {{ !empty($isTravelOrder) ? '' : 'disabled' }}>
-
-                <!-- Number (Optional) -->
-                <div class="form-group">
-                    <label>Number <small style="color:#999;">(Optional)</small></label>
-                    <input type="text" name="memorandum_number" class="form-control" value="{{ old('memorandum_number') }}" placeholder="">
-                </div>
 
                 <!-- Letter Specific Fields -->
                 <div id="letter-fields" style="display:none;">
@@ -176,19 +174,17 @@
                     </div>
                 </div>
 
-                <!-- Period (Optional) -->
-                <div class="form-group">
-                    <label>Period <small style="color:#999;">(Optional)</small></label>
-                    <input type="text" name="period" class="form-control" value="{{ old('period') }}" placeholder="e.g., 1st Quarter, 2nd Semester, FY 2026">
+                <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px;">
+                    <div class="form-group">
+                        <label id="particulars-label">Particulars <small style="color:#999;">(Optional)</small></label>
+                        <textarea name="particulars" class="form-control" rows="3" placeholder="Enter specific details or particulars about this document...">{{ old('particulars') }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Period <small style="color:#999;">(Optional)</small></label>
+                        <input type="text" name="period" class="form-control" value="{{ old('period') }}" placeholder="e.g., 1st Quarter, 2nd Semester, FY 2026">
+                    </div>
                 </div>
 
-                <!-- Particulars (Optional) -->
-                <div class="form-group">
-                    <label id="particulars-label">Particulars <small style="color:#999;">(Optional)</small></label>
-                    <textarea name="particulars" class="form-control" rows="3" placeholder="Enter specific details or particulars about this document...">{{ old('particulars') }}</textarea>
-                </div>
-
-                <!-- Action & Endorsed -->
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
                     <div class="form-group">
                         <label>Action Required</label>
@@ -200,8 +196,7 @@
                     </div>
                 </div>
 
-                <!-- Date, Online, Link -->
-                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+                <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px;">
                     <div class="form-group">
                         <label>Date Received <span style="color:#c0392b">*</span></label>
                         <input type="date" name="date_received" class="form-control" value="{{ old('date_received') }}" required>
@@ -214,23 +209,27 @@
                             <option value="1" {{ old('received_via_online') == '1' ? 'selected' : '' }}>Yes</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Shared Drive Link</label>
-                        <input type="url" name="shared_drive_link" class="form-control" value="{{ old('shared_drive_link') }}" placeholder="https://...">
-                    </div>
                 </div>
 
-                <!-- Remarks -->
                 <div class="form-group">
                     <label>Remarks</label>
                     <textarea name="remarks" class="form-control" rows="2">{{ old('remarks') }}</textarea>
                 </div>
 
-                <!-- File Upload -->
-                <div class="form-group">
-                    <label>Attach Files (PDF, Images)</label>
-                    <input type="file" name="files[]" multiple accept=".pdf,.jpg,.jpeg,.png,.gif" class="form-control" style="padding:6px;">
-                    <small style="color:#999;">Max 10MB per file. You can select multiple files.</small>
+                <div style="margin-top:8px; padding:16px; border-radius:14px; border:1px solid rgba(148,163,184,0.22); background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%);">
+                    <div style="font-size:13px; font-weight:700; color:#334155; margin-bottom:12px;">Files & Google Drive</div>
+                    <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px;">
+                        <div class="form-group" style="margin:0;">
+                            <label>Google Drive Link</label>
+                            <input type="url" name="shared_drive_link" class="form-control" value="{{ old('shared_drive_link') }}" placeholder="https://drive.google.com/...">
+                            <small style="color:#64748b;">Use this when the file is referenced through Google Drive instead of only inside the local system.</small>
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label>Attach Files (PDF, Docs, Sheets, Images)</label>
+                            <input type="file" name="files[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif" class="form-control" style="padding:6px;">
+                            <small style="color:#999;">Max 10MB per file. You can select multiple files.</small>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Buttons -->

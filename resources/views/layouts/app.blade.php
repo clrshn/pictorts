@@ -1144,9 +1144,9 @@
             .badge-ongoing { background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%); color: #fff; }
             .badge-delivered { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: #fff; }
             .badge-completed { background: linear-gradient(135deg, #16a34a 0%, #059669 100%); color: #fff; }
-            .badge-active { background: linear-gradient(135deg, #16a34a 0%, #059669 100%); color: #fff; }
-            .badge-cancelled { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; }
-            .badge-finished { background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); color: #fff; }
+            .badge-active { background: linear-gradient(135deg, #facc15 0%, #eab308 100%); color: #713f12; }
+            .badge-cancelled { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #fff; }
+            .badge-finished { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #fff; }
             .badge-primary { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: #fff; }
             .badge-danger { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; }
 

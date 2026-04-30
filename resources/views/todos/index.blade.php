@@ -8,23 +8,97 @@
 
     @include('components.notifications')
 
-    @include('components.saved-filter-bar', [
-        'module' => 'todos',
-        'savedFilters' => $savedFilters ?? collect(),
-    ])
+    @if(!empty($dueReminderData['items']) && $dueReminderData['items']->count())
+        <div style="margin-bottom:16px; padding:18px; border-radius:18px; background:linear-gradient(135deg,#fff7ed 0%,#ffffff 48%,#eff6ff 100%); border:1px solid rgba(251,146,60,0.22); box-shadow:0 12px 26px rgba(15,23,42,0.06);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:14px;">
+                <div>
+                    <div style="font-size:12px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#9a3412;">Task Alerts</div>
+                    <h3 style="margin:4px 0 0; font-size:22px; color:#1e293b;">Upcoming Due Date Reminders</h3>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <button type="button" onclick="toggleTodoReminderList()" class="btn-gray" style="height:38px; min-width:122px;">
+                        <i class="fas fa-eye"></i> <span id="todoReminderToggleLabel">Hide List</span>
+                    </button>
+                    <a href="{{ route('todos.index', array_merge(request()->except('page'), ['due_alert' => 'overdue'])) }}" style="text-decoration:none;">
+                    <div style="min-width:118px; padding:12px 14px; border-radius:14px; background:#fff1f2; border:1px solid rgba(244,63,94,0.18);">
+                        <div style="font-size:12px; color:#9f1239; font-weight:700; text-transform:uppercase;">Overdue</div>
+                        <div style="font-size:28px; font-weight:800; color:#881337; line-height:1.1;">{{ $dueReminderData['counts']['overdue'] ?? 0 }}</div>
+                    </div>
+                    </a>
+                    <a href="{{ route('todos.index', array_merge(request()->except('page'), ['due_alert' => 'today'])) }}" style="text-decoration:none;">
+                    <div style="min-width:118px; padding:12px 14px; border-radius:14px; background:#fffbeb; border:1px solid rgba(245,158,11,0.2);">
+                        <div style="font-size:12px; color:#92400e; font-weight:700; text-transform:uppercase;">Today</div>
+                        <div style="font-size:28px; font-weight:800; color:#92400e; line-height:1.1;">{{ $dueReminderData['counts']['today'] ?? 0 }}</div>
+                    </div>
+                    </a>
+                    <a href="{{ route('todos.index', array_merge(request()->except('page'), ['due_alert' => 'tomorrow'])) }}" style="text-decoration:none;">
+                    <div style="min-width:118px; padding:12px 14px; border-radius:14px; background:#eff6ff; border:1px solid rgba(59,130,246,0.18);">
+                        <div style="font-size:12px; color:#1d4ed8; font-weight:700; text-transform:uppercase;">Tomorrow</div>
+                        <div style="font-size:28px; font-weight:800; color:#1d4ed8; line-height:1.1;">{{ $dueReminderData['counts']['tomorrow'] ?? 0 }}</div>
+                    </div>
+                    </a>
+                    <a href="{{ route('todos.index', array_merge(request()->except('page'), ['due_alert' => 'soon'])) }}" style="text-decoration:none;">
+                    <div style="min-width:118px; padding:12px 14px; border-radius:14px; background:#f0fdf4; border:1px solid rgba(34,197,94,0.18);">
+                        <div style="font-size:12px; color:#166534; font-weight:700; text-transform:uppercase;">Next 7 Days</div>
+                        <div style="font-size:28px; font-weight:800; color:#166534; line-height:1.1;">{{ $dueReminderData['counts']['soon'] ?? 0 }}</div>
+                    </div>
+                    </a>
+                </div>
+            </div>
+
+            <div id="todoReminderList" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px;">
+                @foreach($dueReminderData['items'] as $reminder)
+                    @php
+                        $todoReminder = $reminder['todo'];
+                        $accent = match($reminder['level']) {
+                            'overdue' => ['bg' => '#fff1f2', 'border' => 'rgba(244,63,94,0.22)', 'text' => '#be123c'],
+                            'today' => ['bg' => '#fffbeb', 'border' => 'rgba(245,158,11,0.22)', 'text' => '#b45309'],
+                            'tomorrow' => ['bg' => '#eff6ff', 'border' => 'rgba(59,130,246,0.22)', 'text' => '#1d4ed8'],
+                            default => ['bg' => '#f8fafc', 'border' => 'rgba(148,163,184,0.24)', 'text' => '#334155'],
+                        };
+                    @endphp
+                    <a href="{{ route('todos.show', $todoReminder) }}" style="text-decoration:none; color:inherit;">
+                        <div style="height:100%; padding:14px 15px; border-radius:16px; background:{{ $accent['bg'] }}; border:1px solid {{ $accent['border'] }}; box-shadow:0 8px 18px rgba(15,23,42,0.04);">
+                            <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
+                                <div style="font-size:12px; font-weight:800; letter-spacing:0.04em; color:{{ $accent['text'] }}; text-transform:uppercase;">{{ $reminder['label'] }}</div>
+                                <div style="font-size:12px; color:#64748b; white-space:nowrap;">{{ optional($todoReminder->due_date)->format('M d, Y') }}</div>
+                            </div>
+                            <div style="margin-top:8px; font-size:15px; font-weight:700; color:#1e293b; line-height:1.35;">{{ $todoReminder->title }}</div>
+                            <div style="margin-top:8px; display:flex; justify-content:space-between; gap:12px; align-items:center;">
+                                <div style="font-size:12px; color:#64748b;">
+                                    {{ $todoReminder->assigned_to ?: 'Unassigned' }}
+                                </div>
+                                <div style="font-size:12px; font-weight:700; color:#475569;">
+                                    {{ strtoupper($todoReminder->priority) }}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    @endif
 
     <div class="filter-box">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
             <h3 style="margin:0;">Search Filter</h3>
 
-            @if(request()->hasAny(['status','priority','assigned_to','search','sort_by']))
+            @if(request()->hasAny(['status','priority','assigned_to','search','sort_by','due_alert']))
                 <div class="active-filter-list">
                     <span class="active-filter-label">Active Filters:</span>
-                    @foreach(['status','priority','assigned_to','search','sort_by'] as $filter)
+                    @foreach(['status','priority','assigned_to','search','sort_by','due_alert'] as $filter)
                         @if(request($filter))
                             <span class="active-filter-pill">
                                 @if($filter == 'sort_by')
                                     {{ request('sort_by') == 'newest' ? 'NEWEST TO OLDEST' : (request('sort_by') == 'oldest' ? 'OLDEST TO NEWEST' : (request('sort_by') == 'az' ? 'A-Z' : (request('sort_by') == 'za' ? 'Z-A' : request('sort_by')))) }}
+                                @elseif($filter == 'due_alert')
+                                    {{ match(request('due_alert')) {
+                                        'overdue' => 'OVERDUE',
+                                        'today' => 'DUE TODAY',
+                                        'tomorrow' => 'DUE TOMORROW',
+                                        'soon' => 'NEXT 7 DAYS',
+                                        default => strtoupper(str_replace('_', ' ', request('due_alert')))
+                                    } }}
                                 @elseif($filter == 'status')
                                     {{ match(request('status')) {
                                         'pending' => 'PENDING',
@@ -46,16 +120,17 @@
             @endif
         </div>
 
+        @include('components.saved-filter-bar', [
+            'module' => 'todos',
+            'savedFilters' => $savedFilters ?? collect(),
+        ])
+
         <form method="GET" action="{{ route('todos.index') }}">
-            @if(request('status'))
-                <input type="hidden" name="status" value="{{ request('status') }}">
-            @endif
-            @if(request('priority'))
-                <input type="hidden" name="priority" value="{{ request('priority') }}">
-            @endif
-            @if(request('assigned_to'))
-                <input type="hidden" name="assigned_to" value="{{ request('assigned_to') }}">
-            @endif
+            @foreach(['status', 'priority', 'assigned_to', 'due_alert'] as $field)
+                @if(request($field))
+                    <input type="hidden" name="{{ $field }}" value="{{ request($field) }}">
+                @endif
+            @endforeach
             <div style="display:grid; grid-template-columns: 1fr; gap:8px;">
                 <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Enter keywords...">
             </div>
@@ -121,7 +196,7 @@
                                 <i class="fas fa-chevron-down" id="todoAssignedDropdownIcon" style="font-size:10px; transition:transform 0.3s ease;"></i>
                             </div>
                             <div id="todoAssignedDropdown" style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 10px 24px rgba(15,23,42,0.14); z-index:1000; min-width:150px; display:none; overflow:hidden;">
-                                @foreach(['ADMIN UNIT','CLYDE','MARGIE','MELETH','JACKIE','PATRICK','MITCH'] as $person)
+                                @foreach($assignedToOptions as $person)
                                     <a href="{{ request()->fullUrlWithQuery(['assigned_to' => $person]) }}" class="table-header-filter-link" style="border-bottom:1px solid #eee;">{{ $person }}</a>
                                 @endforeach
                                 <a href="{{ request()->fullUrlWithQuery(['assigned_to' => null]) }}" class="table-header-filter-link">All Assigned</a>
@@ -175,12 +250,14 @@
                                         <i class="fas fa-thumbtack"></i>
                                     </span>
                                 @endif
-                                <form action="{{ route('todos.destroy', $todo) }}" method="POST" style="display:inline;" id="deleteForm-{{ $todo->id }}">
-                                    @csrf @method('DELETE')
-                                    <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $todo->id }}, '{{ $todo->title }}')" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                                @if(auth()->user()?->isAdmin())
+                                    <form action="{{ route('todos.destroy', $todo) }}" method="POST" style="display:inline;" id="deleteForm-{{ $todo->id }}">
+                                        @csrf @method('DELETE')
+                                        <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $todo->id }}, '{{ $todo->title }}')" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </td>
 
@@ -811,4 +888,18 @@
             }
         }
     </style>
+    <script>
+        function toggleTodoReminderList() {
+            const list = document.getElementById('todoReminderList');
+            const label = document.getElementById('todoReminderToggleLabel');
+
+            if (!list || !label) {
+                return;
+            }
+
+            const isHidden = list.style.display === 'none';
+            list.style.display = isHidden ? 'grid' : 'none';
+            label.textContent = isHidden ? 'Hide List' : 'View List';
+        }
+    </script>
 </x-app-layout>

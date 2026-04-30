@@ -33,7 +33,7 @@ class CommentController extends Controller
             );
         }
 
-        $subject->comments()->create([
+        $comment = $subject->comments()->create([
             'user_id' => auth()->id(),
             'parent_id' => $parent?->id,
             'body' => $validated['body'],
@@ -67,6 +67,7 @@ class CommentController extends Controller
                 'Comment deleted',
                 auth()->user()?->name . ' deleted a comment.'
             );
+
         }
 
         return back()->with('success', 'Comment deleted successfully.');

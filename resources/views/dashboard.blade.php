@@ -58,8 +58,8 @@
                         <strong>{{ $todoOverdue }}</strong>
                     </div>
                     <div class="hero-chip">
-                        <span class="hero-chip-title">Approvals Waiting</span>
-                        <strong>{{ $approvalPendingCount }}</strong>
+                        <span class="hero-chip-title">Next 7 Days</span>
+                        <strong>{{ $todoDueThisWeek }}</strong>
                     </div>
                     <div class="hero-chip">
                         <span class="hero-chip-title">Documents This Year</span>
@@ -150,147 +150,14 @@
             </div>
         </section>
 
-        <section class="dashboard-main-grid">
-            <div class="dashboard-main-column">
-                <div class="dashboard-analytics-card dashboard-panel dashboard-panel--wide">
-                    <div class="dashboard-section-title dashboard-section-title--tight">
-                        <span>Activity Trend</span>
-                        <small>Monthly documents and financial records</small>
-                    </div>
-                    <div class="dashboard-chart-shell">
-                        <canvas id="monthlyChart" height="120"></canvas>
-                    </div>
+        <section class="dashboard-section">
+            <div class="dashboard-panel dashboard-panel--wide">
+                <div class="dashboard-section-title dashboard-section-title--tight">
+                    <span>Activity Trend</span>
+                    <small>Monthly documents and financial records</small>
                 </div>
-
-                <div class="dashboard-panel dashboard-summary-panel">
-                    <div class="dashboard-section-title dashboard-section-title--tight">
-                        <span>Financial Snapshot</span>
-                        <small>Quick value view across active and finished records</small>
-                    </div>
-                    <div class="reminder-summary reminder-summary--double">
-                        <div class="snapshot-card snapshot-card--blue">
-                            <span>Active PR Total</span>
-                            <strong>P {{ number_format($activeFinancialAmount, 2) }}</strong>
-                        </div>
-                        <div class="snapshot-card snapshot-card--red">
-                            <span>Finished PR Total</span>
-                            <strong>P {{ number_format($finishedFinancialAmount, 2) }}</strong>
-                        </div>
-                    </div>
-                    <div class="dashboard-section-title dashboard-section-title--tight dashboard-section-title--spaced">
-                        <span>Document Status Mix</span>
-                        <small>How your records are moving today</small>
-                    </div>
-                    <div class="reminder-summary reminder-summary--triple">
-                        <a href="{{ route('documents.index', ['status' => 'ONGOING']) }}" class="reminder-mini-card reminder-mini-card-link">
-                            <strong>{{ $docOngoing }}</strong>
-                            <span>Ongoing</span>
-                        </a>
-                        <a href="{{ route('documents.index', ['status' => 'DELIVERED']) }}" class="reminder-mini-card reminder-mini-card-link">
-                            <strong>{{ $docDelivered }}</strong>
-                            <span>Delivered</span>
-                        </a>
-                        <a href="{{ route('documents.index', ['status' => 'DONE']) }}" class="reminder-mini-card reminder-mini-card-link">
-                            <strong>{{ $docCompleted }}</strong>
-                            <span>Done</span>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="dashboard-panel dashboard-activity-panel">
-                    <div class="dashboard-section-title dashboard-section-title--tight">
-                        <span>Recent Activity</span>
-                        <small>Latest actions across the system</small>
-                    </div>
-
-                    <div class="activity-list">
-                        @forelse($recentActivities as $activity)
-                            <div class="activity-item">
-                                <div class="activity-dot"></div>
-                                <div class="activity-copy">
-                                    <div class="activity-title">{{ $activity->title ?? ucwords(str_replace('_', ' ', $activity->action)) }}</div>
-                                    <div class="activity-meta">
-                                        <span>{{ $activity->user?->name ?? 'System' }}</span>
-                                        <span>{{ $activity->created_at?->diffForHumans() }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="reminder-empty">
-                                <i class="fas fa-clock"></i>
-                                <p>No recent activity yet.</p>
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
-            </div>
-
-            <div class="dashboard-side-column">
-                <div class="dashboard-reminder-card dashboard-panel">
-                    <div class="dashboard-section-title dashboard-section-title--tight">
-                        <span>To-Do Reminder</span>
-                        <small>Upcoming and overdue tasks</small>
-                    </div>
-
-                    <div class="reminder-summary">
-                        <a href="{{ route('todos.index', ['status' => 'pending']) }}" class="reminder-pill reminder-pill--blue">
-                            <strong>{{ $todoPending }}</strong>
-                            <span>Open Tasks</span>
-                        </a>
-                        <a href="{{ route('todos.index') }}" class="reminder-pill reminder-pill--red">
-                            <strong>{{ $todoOverdue }}</strong>
-                            <span>Need Attention</span>
-                        </a>
-                    </div>
-
-                    <div class="reminder-summary reminder-summary--triple">
-                        <div class="reminder-mini-card">
-                            <strong>{{ $todoDueToday }}</strong>
-                            <span>Due Today</span>
-                        </div>
-                        <div class="reminder-mini-card">
-                            <strong>{{ $todoDueTomorrow }}</strong>
-                            <span>Due Tomorrow</span>
-                        </div>
-                        <div class="reminder-mini-card">
-                            <strong>{{ $todoDueThisWeek }}</strong>
-                            <span>Next 7 Days</span>
-                        </div>
-                    </div>
-
-                    <div class="reminder-list">
-                        @forelse($todoReminders as $todo)
-                            @php
-                                $isOverdue = $todo->due_date && $todo->due_date->isPast();
-                                $isToday = $todo->due_date && $todo->due_date->isToday();
-                            @endphp
-                            <a href="{{ route('todos.show', $todo) }}" class="reminder-item {{ $isOverdue ? 'is-overdue' : ($isToday ? 'is-today' : '') }}">
-                                <div class="reminder-item-main">
-                                    <div class="reminder-title">{{ $todo->title }}</div>
-                                    <div class="reminder-meta">
-                                        <span>{{ strtoupper($todo->priority ?? 'medium') }}</span>
-                                        <span>{{ $todo->assigned_to ?? 'Unassigned' }}</span>
-                                    </div>
-                                </div>
-                                <div class="reminder-date">
-                                    @if($todo->due_date)
-                                        {{ $todo->due_date->format('M d') }}
-                                    @else
-                                        No due date
-                                    @endif
-                                </div>
-                            </a>
-                        @empty
-                            <div class="reminder-empty">
-                                <i class="fas fa-check-circle"></i>
-                                <p>No pending reminders right now.</p>
-                            </div>
-                        @endforelse
-                    </div>
-
-                    <a href="{{ route('todos.index') }}" class="reminder-footer-link">
-                        View full task board <i class="fas fa-arrow-right"></i>
-                    </a>
+                <div class="dashboard-chart-shell">
+                    <canvas id="monthlyChart" height="160"></canvas>
                 </div>
             </div>
         </section>
@@ -300,12 +167,12 @@
     <script>
         const chartCanvas = document.getElementById('monthlyChart');
         const ctx = chartCanvas.getContext('2d');
-        const blueRedFill = ctx.createLinearGradient(0, 0, chartCanvas.width || 600, 260);
-        blueRedFill.addColorStop(0, 'rgba(59, 130, 246, 0.28)');
-        blueRedFill.addColorStop(0.5, 'rgba(96, 165, 250, 0.16)');
-        blueRedFill.addColorStop(1, 'rgba(239, 68, 68, 0.20)');
+        const blueRedFill = ctx.createLinearGradient(0, 0, chartCanvas.width || 900, 320);
+        blueRedFill.addColorStop(0, 'rgba(59, 130, 246, 0.24)');
+        blueRedFill.addColorStop(0.5, 'rgba(96, 165, 250, 0.12)');
+        blueRedFill.addColorStop(1, 'rgba(239, 68, 68, 0.16)');
 
-        const redBlueStroke = ctx.createLinearGradient(0, 0, chartCanvas.width || 600, 0);
+        const redBlueStroke = ctx.createLinearGradient(0, 0, chartCanvas.width || 900, 0);
         redBlueStroke.addColorStop(0, '#2563eb');
         redBlueStroke.addColorStop(1, '#dc2626');
 
@@ -388,12 +255,31 @@
     <style>
         .dashboard-shell {
             display: grid;
-            gap: 16px;
+            gap: 18px;
+            width: 100%;
+            max-width: 1540px;
+            margin: 0 auto;
+            padding: 0 10px 14px;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        .dashboard-section,
+        .dashboard-hero,
+        .dashboard-panel,
+        .dashboard-card-grid--three,
+        .dashboard-card-grid--four,
+        .dashboard-hero-copy,
+        .dashboard-hero-panel,
+        .hero-inline-stats,
+        .hero-panel-grid,
+        .overview-card {
+            min-width: 0;
         }
 
         .dashboard-hero {
             display: grid;
-            grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
+            grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.92fr);
             gap: 16px;
             padding: 18px 20px;
             border-radius: 24px;
@@ -414,106 +300,101 @@
             margin-bottom: 12px;
         }
 
-        .hero-inline-stats {
+        .hero-inline-stats,
+        .dashboard-card-grid--three,
+        .dashboard-card-grid--four,
+        .hero-panel-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 10px;
         }
 
-        .hero-inline-stat {
-            padding: 12px 14px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.82);
-            border: 1px solid rgba(191, 219, 254, 0.45);
+        .hero-inline-stats {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            margin-bottom: 14px;
         }
 
-        .hero-inline-stat span {
-            display: block;
-            font-size: 11px;
+        .hero-inline-stat,
+        .hero-chip {
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: rgba(255,255,255,0.92);
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .hero-inline-stat span,
+        .hero-chip-title,
+        .overview-card-label,
+        .overview-card-meta,
+        .hero-panel-label {
+            color: #64748b;
+        }
+
+        .hero-inline-stat span,
+        .hero-chip-title,
+        .overview-card-label {
+            font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #64748b;
-            margin-bottom: 6px;
+            letter-spacing: 0.04em;
         }
 
-        .hero-inline-stat strong {
-            font-size: 24px;
+        .hero-inline-stat strong,
+        .hero-chip strong {
+            font-size: 30px;
             line-height: 1;
             color: #0f172a;
         }
 
         .dashboard-search {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
             flex-wrap: wrap;
-            margin-top: 12px;
         }
 
         .dashboard-search-field {
-            flex: 1;
-            min-width: 280px;
+            flex: 1 1 380px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 0 14px;
-            background: rgba(255, 255, 255, 0.92);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 14px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+            gap: 10px;
+            padding: 0 16px;
+            height: 52px;
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(255,255,255,0.95);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.65);
         }
 
         .dashboard-search-field i {
-            color: #94a3b8;
-            font-size: 14px;
+            color: #64748b;
         }
 
         .dashboard-search-field input {
             border: none !important;
             box-shadow: none !important;
             background: transparent !important;
-            padding-left: 0 !important;
+            padding: 0 !important;
+            height: auto !important;
         }
 
         .dashboard-hero-panel {
-            padding: 16px;
             border-radius: 20px;
-            background: linear-gradient(160deg, rgba(255,255,255,0.82) 0%, rgba(241,245,249,0.95) 100%);
-            border: 1px solid rgba(148, 163, 184, 0.18);
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.94), rgba(248,250,252,0.96));
+            border: 1px solid rgba(148, 163, 184, 0.16);
         }
 
         .hero-panel-label {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .hero-panel-grid {
-            display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-        }
-
-        .hero-chip {
-            padding: 12px;
-            border-radius: 14px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(248,250,252,0.92) 100%);
-            border: 1px solid rgba(191, 219, 254, 0.55);
-        }
-
-        .hero-chip-title {
-            display: block;
-            font-size: 11px;
-            color: #64748b;
-            margin-bottom: 6px;
-        }
-
-        .hero-chip strong {
-            font-size: 21px;
-            color: #0f172a;
-            font-weight: 800;
         }
 
         .dashboard-section {
@@ -523,29 +404,25 @@
 
         .dashboard-section-title {
             display: flex;
-            align-items: baseline;
             justify-content: space-between;
+            align-items: center;
             gap: 12px;
+            flex-wrap: wrap;
         }
 
         .dashboard-section-title span {
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 800;
             color: #0f172a;
         }
 
         .dashboard-section-title small {
-            color: #64748b;
             font-size: 12px;
+            color: #64748b;
         }
 
         .dashboard-section-title--tight {
-            margin-bottom: 12px;
-        }
-
-        .dashboard-card-grid {
-            display: grid;
-            gap: 12px;
+            margin-bottom: 10px;
         }
 
         .dashboard-card-grid--three {
@@ -557,376 +434,95 @@
         }
 
         .overview-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 18px;
-            min-height: 126px;
-            border-radius: 20px;
-            text-decoration: none;
-            color: #0f172a;
-            border: 1px solid rgba(255,255,255,0.45);
-            box-shadow: 0 14px 26px rgba(15, 23, 42, 0.07);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
-
-        .overview-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 24px 42px rgba(15, 23, 42, 0.12);
-        }
-
-        .overview-card-label {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: rgba(15, 23, 42, 0.72);
-            margin-bottom: 8px;
-        }
-
-        .overview-card-value {
-            font-size: 34px;
-            line-height: 1;
-            font-weight: 800;
-            margin-bottom: 8px;
-        }
-
-        .overview-card-meta {
-            font-size: 12px;
-            line-height: 1.5;
-            color: rgba(15, 23, 42, 0.68);
-        }
-
-        .overview-card-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255,255,255,0.65);
-            color: #0f172a;
-            font-size: 22px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
-        }
-
-        .overview-card--sunrise {
-            background: linear-gradient(135deg, #fff5e8 0%, #ffe7ca 52%, #ffd5d0 100%);
-        }
-
-        .overview-card--sky {
-            background: linear-gradient(135deg, #e9f2ff 0%, #d8e9ff 50%, #d6f1ff 100%);
-        }
-
-        .overview-card--mint {
-            background: linear-gradient(135deg, #ebfbf4 0%, #d5f7ea 55%, #cceee8 100%);
-        }
-
-        .overview-card--peach {
-            background: linear-gradient(135deg, #fff1eb 0%, #ffe0d9 55%, #ffd6c2 100%);
-        }
-
-        .overview-card--seafoam {
-            background: linear-gradient(135deg, #edfdf5 0%, #d5fae7 52%, #c8f2e6 100%);
-        }
-
-        .overview-card--rose {
-            background: linear-gradient(135deg, #fff0f3 0%, #ffdbe5 55%, #ffd1d9 100%);
-        }
-
-        .overview-card--ice {
-            background: linear-gradient(135deg, #eef8ff 0%, #dcefff 55%, #d7ebff 100%);
-        }
-
-        .dashboard-main-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
-            gap: 12px;
-            align-items: start;
-        }
-
-        .dashboard-main-column,
-        .dashboard-side-column {
-            display: grid;
-            gap: 12px;
-            align-content: start;
-        }
-
-        .dashboard-reminder-card {
-            min-height: 100%;
-        }
-
-        .dashboard-panel,
-        .dashboard-analytics-card,
-        .dashboard-reminder-card {
-            padding: 18px;
+            min-height: 114px;
             border-radius: 22px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.98) 100%);
-            border: 1px solid rgba(148, 163, 184, 0.16);
-            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
-        }
-
-        .dashboard-analytics-card {
-            min-height: 280px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .dashboard-chart-shell {
-            position: relative;
-            width: 100%;
-            height: 200px;
-        }
-
-        #monthlyChart {
-            width: 100% !important;
-            height: 200px !important;
-        }
-
-        .reminder-summary {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .reminder-summary--triple {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        .reminder-summary--double {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .reminder-pill {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            padding: 14px;
-            text-decoration: none;
-            border-radius: 16px;
-            color: #0f172a;
-            border: 1px solid rgba(255,255,255,0.4);
-        }
-
-        .reminder-pill strong {
-            font-size: 24px;
-            line-height: 1;
-        }
-
-        .reminder-pill span {
-            font-size: 12px;
-            color: rgba(15, 23, 42, 0.72);
-        }
-
-        .reminder-pill--blue {
-            background: linear-gradient(135deg, #e8f1ff 0%, #dbeafe 100%);
-        }
-
-        .reminder-pill--red {
-            background: linear-gradient(135deg, #ffe8ec 0%, #ffe0e7 100%);
-        }
-
-        .reminder-mini-card,
-        .snapshot-card {
-            padding: 12px 14px;
-            border-radius: 14px;
-            background: #fff;
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .reminder-mini-card strong,
-        .snapshot-card strong {
-            font-size: 20px;
-            line-height: 1;
-            color: #0f172a;
-        }
-
-        .reminder-mini-card span,
-        .snapshot-card span {
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        .reminder-mini-card-link {
-            text-decoration: none;
-        }
-
-        .snapshot-card--blue {
-            background: linear-gradient(135deg, #eef4ff 0%, #dbeafe 100%);
-        }
-
-        .snapshot-card--red {
-            background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
-        }
-
-        .reminder-list {
-            display: grid;
-            gap: 8px;
-        }
-
-        .activity-list {
-            display: grid;
-            gap: 8px;
-        }
-
-        .activity-item {
-            display: grid;
-            grid-template-columns: 12px minmax(0, 1fr);
-            gap: 12px;
-            align-items: start;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(226, 232, 240, 0.9);
-        }
-
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-
-        .activity-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 999px;
-            background: linear-gradient(135deg, #2563eb 0%, #dc2626 100%);
-            margin-top: 5px;
-        }
-
-        .activity-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 4px;
-        }
-
-        .activity-meta {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        .reminder-item {
+            padding: 20px 22px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 14px;
-            padding: 12px 14px;
-            border-radius: 14px;
             text-decoration: none;
-            background: #ffffff;
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            color: inherit;
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            box-shadow: 0 16px 28px rgba(15, 23, 42, 0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            overflow: hidden;
         }
 
-        .reminder-item:hover {
-            transform: translateX(3px);
-            border-color: rgba(96, 165, 250, 0.45);
-            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+        .overview-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 32px rgba(15, 23, 42, 0.08);
         }
 
-        .reminder-item.is-overdue {
-            background: linear-gradient(135deg, rgba(254, 242, 242, 0.96) 0%, rgba(255,255,255,1) 100%);
-            border-color: rgba(248, 113, 113, 0.36);
-        }
-
-        .reminder-item.is-today {
-            background: linear-gradient(135deg, rgba(239, 246, 255, 0.96) 0%, rgba(255,255,255,1) 100%);
-            border-color: rgba(96, 165, 250, 0.36);
-        }
-
-        .reminder-title {
-            font-size: 13px;
-            font-weight: 700;
+        .overview-card-value {
+            font-size: 40px;
+            font-weight: 800;
+            line-height: 1;
             color: #0f172a;
-            margin-bottom: 4px;
+            margin: 6px 0 8px;
         }
 
-        .reminder-meta {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            font-size: 11px;
-            color: #64748b;
+        .overview-card-meta {
+            font-size: 12px;
         }
 
-        .reminder-date {
-            font-size: 11px;
-            font-weight: 700;
-            white-space: nowrap;
-            color: #334155;
-        }
-
-        .reminder-empty {
+        .overview-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.85);
             display: grid;
             place-items: center;
-            gap: 8px;
-            padding: 28px 16px;
-            border-radius: 18px;
-            color: #64748b;
-            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-            border: 1px dashed rgba(148, 163, 184, 0.32);
-            text-align: center;
+            font-size: 18px;
+            color: #0f172a;
+            flex-shrink: 0;
         }
 
-        .reminder-empty i {
-            font-size: 22px;
-            color: #2563eb;
+        .overview-card--sunrise { background: linear-gradient(135deg, rgba(255, 245, 225, 0.98), rgba(255, 217, 217, 0.96)); }
+        .overview-card--sky { background: linear-gradient(135deg, rgba(227, 240, 255, 0.98), rgba(198, 222, 255, 0.96)); }
+        .overview-card--mint { background: linear-gradient(135deg, rgba(223, 250, 238, 0.98), rgba(203, 244, 230, 0.96)); }
+        .overview-card--peach { background: linear-gradient(135deg, rgba(255, 234, 226, 0.98), rgba(255, 214, 207, 0.96)); }
+        .overview-card--seafoam { background: linear-gradient(135deg, rgba(221, 248, 234, 0.98), rgba(196, 241, 221, 0.96)); }
+        .overview-card--rose { background: linear-gradient(135deg, rgba(255, 229, 237, 0.98), rgba(255, 208, 224, 0.96)); }
+        .overview-card--ice { background: linear-gradient(135deg, rgba(227, 239, 255, 0.98), rgba(209, 228, 250, 0.96)); }
+
+        .dashboard-panel {
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 24px;
+            box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+            padding: 20px 22px;
+            overflow: hidden;
         }
 
-        .reminder-footer-link {
-            margin-top: 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            color: #2563eb;
-            font-size: 12px;
-            font-weight: 700;
+        .dashboard-chart-shell {
+            position: relative;
+            min-height: 420px;
         }
 
-        @media (max-width: 1200px) {
+        @media (max-width: 1400px) {
+            .dashboard-hero,
             .dashboard-card-grid--four {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-card-grid--three {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
-
-            .dashboard-main-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 768px) {
             .dashboard-hero,
+            .hero-inline-stats,
+            .hero-panel-grid,
             .dashboard-card-grid--three,
-            .hero-inline-stats {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .dashboard-shell {
-                gap: 18px;
-            }
-
-            .dashboard-hero,
-            .dashboard-analytics-card,
-            .dashboard-reminder-card {
-                padding: 18px;
-                border-radius: 20px;
-            }
-
-            .dashboard-card-grid--four,
-            .reminder-summary,
-            .hero-panel-grid {
+            .dashboard-card-grid--four {
                 grid-template-columns: 1fr;
             }
 
-            .overview-card {
-                min-height: auto;
+            .dashboard-search {
+                flex-direction: column;
+                align-items: stretch;
             }
         }
     </style>

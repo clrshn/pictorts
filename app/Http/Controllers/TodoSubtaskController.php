@@ -70,6 +70,7 @@ class TodoSubtaskController extends Controller
     public function destroy(Todo $todo, TodoSubtask $subtask)
     {
         abort_unless($subtask->todo_id === $todo->id, 404);
+        abort_unless(auth()->user()?->isAdmin(), 403);
 
         $title = $subtask->title;
         $subtask->delete();

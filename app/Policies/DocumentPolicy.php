@@ -45,7 +45,7 @@ class DocumentPolicy
      */
     public function delete(User $user, Document $document): bool
     {
-        return true; // All authenticated users can delete documents
+        return $user->isAdmin();
     }
 
     /**
