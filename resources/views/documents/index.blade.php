@@ -176,7 +176,7 @@
                 'printUrl' => request()->fullUrlWithQuery(['export' => 'print']),
             ])
 
-            <a href="{{ route('documents.create', !empty($isTravelOrderPage) ? ['document_type' => 'TO'] : []) }}" class="btn-red" style="min-width:100px;height:36px;display:inline-flex;align-items:center;justify-content:center;"><i class="fas fa-plus"></i> {{ !empty($isTravelOrderPage) ? 'Add Travel Order' : 'Add New Document' }}</a>
+            <button type="button" class="btn-red" style="min-width:100px;height:36px;display:inline-flex;align-items:center;justify-content:center;" onclick="openDocumentFormModal('{{ route('documents.create', array_merge(!empty($isTravelOrderPage) ? ['document_type' => 'TO'] : [], ['return_to' => request()->fullUrl()])) }}', '{{ !empty($isTravelOrderPage) ? 'Add Travel Order' : 'Add New Document' }}')"><i class="fas fa-plus"></i> {{ !empty($isTravelOrderPage) ? 'Add Travel Order' : 'Add New Document' }}</button>
         </div>
         <div style="overflow-x:auto;max-width:100%;">
             <table id="documentsTable" style="min-width:{{ !empty($isTravelOrderPage) ? '1340px' : '1020px' }};width:100%;border-collapse:collapse;">
@@ -281,7 +281,7 @@
                             </td>
                             <td style="text-align:left;padding:20px;white-space:nowrap;width:120px;" onclick="event.stopPropagation();">
                                 <div style="display:flex;gap:4px;align-items:center;justify-content:flex-start;">
-                                    <a href="{{ route('documents.edit', $doc) }}" class="btn-blue" title="Edit" style="padding:6px 8px;min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-edit"></i></a>
+                                    <button type="button" class="btn-blue" title="Edit" style="padding:6px 8px;min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;" onclick="openDocumentFormModal('{{ route('documents.edit', ['document' => $doc, 'return_to' => request()->fullUrl()]) }}', 'Edit {{ $doc->dts_number }}')"><i class="fas fa-edit"></i></button>
                                     @if($doc->pinnedByCurrentUser())
                                         <span title="Pinned" style="display:inline-flex; align-items:center; justify-content:center; min-width:32px; height:32px; border-radius:8px; background:#fff7ed; color:#c2410c; border:1px solid #fdba74;">
                                             <i class="fas fa-thumbtack"></i>
@@ -342,7 +342,7 @@
                                     <i class="fas fa-inbox" style="font-size:48px;color:#c0392b;margin-bottom:16px;"></i>
                                     <h3 style="color:#1a1a2e;margin-bottom:8px;">{{ !empty($isTravelOrderPage) ? 'No Travel Orders Found' : 'No Documents Found' }}</h3>
                                     <p style="color:#64748b;margin-bottom:20px;">{{ !empty($isTravelOrderPage) ? 'Start by adding your first travel order to the system.' : 'Start by adding your first document to the system.' }}</p>
-                                    <a href="{{ route('documents.create', !empty($isTravelOrderPage) ? ['document_type' => 'TO'] : []) }}" class="btn-red"><i class="fas fa-plus"></i> {{ !empty($isTravelOrderPage) ? 'Add Travel Order' : 'Add New Document' }}</a>
+                                    <button type="button" class="btn-red" onclick="openDocumentFormModal('{{ route('documents.create', array_merge(!empty($isTravelOrderPage) ? ['document_type' => 'TO'] : [], ['return_to' => request()->fullUrl()])) }}', '{{ !empty($isTravelOrderPage) ? 'Add Travel Order' : 'Add New Document' }}')"><i class="fas fa-plus"></i> {{ !empty($isTravelOrderPage) ? 'Add Travel Order' : 'Add New Document' }}</button>
                                 </div>
                             </td>
                         </tr>
@@ -375,6 +375,19 @@
                     <span style="padding:8px 12px;background:#ffffff;border:1px solid #e5e7eb;border-radius:6px;color:#d1d5db;font-size:13px;font-weight:500;cursor:not-allowed;">Next <i class="fas fa-chevron-right"></i></span>
                 @endif
             </div>
+        </div>
+    </div>
+
+    <div id="documentFormModal" class="financial-form-modal" style="display:none;">
+        <div class="financial-form-modal__dialog" style="max-width:1180px; width:min(1180px, 94vw); padding:0; overflow:hidden;">
+            <div class="financial-form-modal__header" style="padding:16px 20px; border-bottom:1px solid rgba(148,163,184,0.18);">
+                <div>
+                    <div id="documentFormModalTitle" class="financial-form-modal__title">Document Form</div>
+                    <div class="financial-form-modal__subtitle">Create or edit records without leaving the current list.</div>
+                </div>
+                <button type="button" class="btn-gray" onclick="closeDocumentFormModal()"><i class="fas fa-times"></i> Close</button>
+            </div>
+            <iframe id="documentFormFrame" src="about:blank" style="width:100%; height:78vh; border:0; background:#fff;"></iframe>
         </div>
     </div>
 
@@ -451,6 +464,74 @@
 
         document.addEventListener('click', function() {
             closeDocumentHeaderDropdowns();
+        });
+
+        function openDocumentFormModal(url, title) {
+            const modal = document.getElementById('documentFormModal');
+            const frame = document.getElementById('documentFormFrame');
+            const titleNode = document.getElementById('documentFormModalTitle');
+
+            if (!modal || !frame || !titleNode) {
+                return;
+            }
+
+            titleNode.textContent = title || 'Document Form';
+            frame.src = url + (url.includes('?') ? '&' : '?') + 'modal=1';
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDocumentFormModal() {
+            const modal = document.getElementById('documentFormModal');
+            const frame = document.getElementById('documentFormFrame');
+
+            if (!modal || !frame) {
+                return;
+            }
+
+            modal.style.display = 'none';
+            frame.src = 'about:blank';
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('documentFormFrame')?.addEventListener('load', function() {
+            const frame = this;
+
+            if (!frame.contentWindow || !frame.contentDocument) {
+                return;
+            }
+
+            const iframeUrl = new URL(frame.contentWindow.location.href);
+            const isCreatePage = /\/documents\/create$/.test(iframeUrl.pathname);
+            const isEditPage = /\/documents\/\d+\/edit$/.test(iframeUrl.pathname);
+
+            if (!isCreatePage && !isEditPage && iframeUrl.pathname.includes('/documents')) {
+                closeDocumentFormModal();
+                window.location.reload();
+                return;
+            }
+
+            const style = frame.contentDocument.createElement('style');
+            style.textContent = `
+                body { background:#ffffff !important; margin:0 !important; padding:0 !important; }
+                .sidebar, header, footer, .breadcrumb { display:none !important; }
+                main, .main-content, .content-area, .content-wrapper, .py-12 { margin:0 !important; padding:0 !important; max-width:none !important; }
+                .table-card { box-shadow:none !important; border-radius:0 !important; margin:0 !important; }
+            `;
+            frame.contentDocument.head.appendChild(style);
+        });
+
+        document.addEventListener('click', function(event) {
+            const modal = event.target.closest('#documentFormModal');
+            if (modal && event.target === modal) {
+                closeDocumentFormModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && document.getElementById('documentFormModal')?.style.display === 'flex') {
+                closeDocumentFormModal();
+            }
         });
     </script>
 </x-app-layout>

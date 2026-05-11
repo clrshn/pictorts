@@ -12,6 +12,17 @@ use Illuminate\Http\Request;
 
 class TodoController extends Controller
 {
+    private function todoRedirectTarget(Request $request): string
+    {
+        $returnTo = $request->input('return_to');
+
+        if (is_string($returnTo) && $returnTo !== '') {
+            return $returnTo;
+        }
+
+        return route('todos.index');
+    }
+
     private function ensureTodoActionAllowed(Todo $todo, bool $expectsJson = false, string $action = 'update')
     {
         // Task approval locks follow the same rule set as other modules so the
@@ -238,7 +249,7 @@ class TodoController extends Controller
         );
         app(InAppNotificationService::class)->notifyTodoCreated($todo->fresh('user'), auth()->user());
 
-        return redirect()->route('todos.index')
+        return redirect($this->todoRedirectTarget($request))
             ->with('success', 'Todo created successfully!');
     }
 
@@ -354,7 +365,7 @@ class TodoController extends Controller
         );
         app(InAppNotificationService::class)->notifyTodoUpdated($todo->fresh('user'), auth()->user());
 
-        return redirect()->route('todos.index')
+        return redirect($this->todoRedirectTarget($request))
             ->with('updated', 'Todo updated successfully!');
     }
 

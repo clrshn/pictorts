@@ -27,6 +27,17 @@ class DocumentController extends Controller
         return $request->type === 'TO';
     }
 
+    private function documentRedirectTarget(Request $request, bool $isTravelOrder = false): string
+    {
+        $returnTo = $request->input('return_to');
+
+        if (is_string($returnTo) && $returnTo !== '') {
+            return $returnTo;
+        }
+
+        return route('documents.index', $isTravelOrder ? ['type' => 'TO'] : []);
+    }
+
     private function ensureDocumentActionAllowed(Document $document, bool $expectsJson = false, string $action = 'update')
     {
         // Approved or pending-approval records are intentionally guarded to preserve
@@ -495,8 +506,7 @@ class DocumentController extends Controller
             ]
         );
 
-        return redirect()
-            ->route('documents.index', $isTravelOrder ? ['type' => 'TO'] : [])
+        return redirect($this->documentRedirectTarget($request, $isTravelOrder))
             ->with('success', 'Document recorded successfully - Tracking Code: ' . $trackingCode . ', Transaction Number: ' . $transactionNumber);
     }
 
@@ -783,7 +793,7 @@ class DocumentController extends Controller
             ? 'Document updated successfully. Tracking Code and Transaction Number regenerated due to date change.'
             : 'Document updated successfully.';
             
-        return redirect()->route('documents.show', $document)->with('success', $successMessage);
+        return redirect($this->documentRedirectTarget($request, $isTravelOrder))->with('success', $successMessage);
     }
 
     public function destroy(Document $document)

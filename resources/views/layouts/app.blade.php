@@ -1124,10 +1124,33 @@
                 flex-wrap: wrap;
             }
 
+            .detail-header-actions form {
+                margin: 0;
+            }
+
+            .detail-header-actions .btn-blue,
             .detail-header-actions .btn-orange,
-            .detail-header-actions .btn-gray {
-                min-width: 98px;
-                min-height: 36px;
+            .detail-header-actions .btn-gray,
+            .detail-header-actions .btn-red,
+            .detail-header-actions .btn-green,
+            .detail-header-actions .btn-danger {
+                min-width: 90px;
+                height: 34px;
+                padding: 0 12px;
+                border-radius: 8px;
+                font-size: 12px;
+                font-weight: 700;
+                line-height: 1;
+                box-sizing: border-box;
+            }
+
+            .detail-header-actions .btn-blue i,
+            .detail-header-actions .btn-orange i,
+            .detail-header-actions .btn-gray i,
+            .detail-header-actions .btn-red i,
+            .detail-header-actions .btn-green i,
+            .detail-header-actions .btn-danger i {
+                font-size: 12px;
             }
 
             /* Badge - Modern Design */

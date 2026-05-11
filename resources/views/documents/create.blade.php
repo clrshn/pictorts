@@ -36,6 +36,7 @@
 
             <form method="POST" action="{{ route('documents.store') }}" enctype="multipart/form-data">
                 @csrf
+                <input type="hidden" name="return_to" value="{{ request('return_to', route('documents.index', !empty($isTravelOrder) ? ['type' => 'TO'] : [])) }}">
 
                 <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px;">
                     <div class="form-group">

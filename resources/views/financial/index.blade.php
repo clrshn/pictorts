@@ -194,7 +194,7 @@
                 'csvUrl' => request()->fullUrlWithQuery(['export' => 'csv']),
                 'printUrl' => request()->fullUrlWithQuery(['export' => 'print']),
             ])
-            <a href="{{ route('financial.create') }}" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-plus"></i> Add New Record</a>
+            <button type="button" class="btn-red" style="min-width: 120px; height: 36px; display: inline-flex; align-items: center; justify-content: center;" onclick="openFinancialFormModal('financialCreateModal')"><i class="fas fa-plus"></i> Add New Record</button>
         </div>
 
         <div style="overflow-x:auto; max-width:100%;">
@@ -284,9 +284,9 @@
                         </td>
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;" onclick="event.stopPropagation();">
                             <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
-                                <a href="{{ route('financial.edit', $rec) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
+                                <button type="button" class="btn-blue" title="Edit" onclick="openFinancialFormModal('financialEditModal-{{ $rec->id }}')" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
                                     <i class="fas fa-edit"></i>
-                                </a>
+                                </button>
                                 @if($rec->pinnedByCurrentUser())
                                     <span title="Pinned" style="display:inline-flex; align-items:center; justify-content:center; min-width:32px; height:32px; border-radius:8px; background:#fff7ed; color:#c2410c; border:1px solid #fdba74;">
                                         <i class="fas fa-thumbtack"></i>
@@ -348,9 +348,9 @@
                                 <i class="fas fa-file-invoice-dollar" style="font-size:48px; color:#c0392b; margin-bottom:16px;"></i>
                                 <h3 style="color:#1a1a2e; margin-bottom:8px;">No Financial Records Found</h3>
                                 <p style="color:#64748b; margin-bottom:20px;">No financial records match your current filters.</p>
-                                <a href="{{ route('financial.create') }}" class="btn-red">
+                                <button type="button" class="btn-red" onclick="openFinancialFormModal('financialCreateModal')">
                                     <i class="fas fa-plus"></i> Add Your First Record
-                                </a>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -395,6 +395,45 @@
         </div>
         </div>
     </div>
+
+    <div id="financialCreateModal" class="financial-form-modal" style="display:none;">
+        <div class="financial-form-modal__dialog">
+            <div class="financial-form-modal__header">
+                <div>
+                    <div class="financial-form-modal__title">Add New Financial Record</div>
+                    <div class="financial-form-modal__subtitle">Create a record without leaving the current list.</div>
+                </div>
+                <button type="button" class="btn-gray" onclick="closeFinancialFormModal('financialCreateModal')"><i class="fas fa-times"></i> Close</button>
+            </div>
+            @include('financial._form', [
+                'offices' => $offices,
+                'formMode' => 'create',
+                'isModal' => true,
+                'modalId' => 'financialCreateModal',
+            ])
+        </div>
+    </div>
+
+    @foreach($records as $modalRecord)
+        <div id="financialEditModal-{{ $modalRecord->id }}" class="financial-form-modal" style="display:none;">
+            <div class="financial-form-modal__dialog">
+                <div class="financial-form-modal__header">
+                    <div>
+                        <div class="financial-form-modal__title">Edit Financial Record</div>
+                        <div class="financial-form-modal__subtitle">{{ $modalRecord->reference_code ?? 'No reference code yet' }}</div>
+                    </div>
+                    <button type="button" class="btn-gray" onclick="closeFinancialFormModal('financialEditModal-{{ $modalRecord->id }}')"><i class="fas fa-times"></i> Close</button>
+                </div>
+                @include('financial._form', [
+                    'offices' => $offices,
+                    'financialRecord' => $modalRecord,
+                    'formMode' => 'edit',
+                    'isModal' => true,
+                    'modalId' => 'financialEditModal-' . $modalRecord->id,
+                ])
+            </div>
+        </div>
+    @endforeach
 
     <!-- Notification Container -->
     <div class="notification-container" id="notificationContainer"></div>
@@ -798,6 +837,46 @@
         .notification.removing {
             animation: slideOutRight 0.3s ease-out forwards;
         }
+
+        .financial-form-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(15, 23, 42, 0.66);
+            padding: 24px 18px;
+            overflow: auto;
+        }
+
+        .financial-form-modal__dialog {
+            width: min(1020px, 100%);
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 22px;
+            box-shadow: 0 28px 60px rgba(15, 23, 42, 0.2);
+            overflow: hidden;
+        }
+
+        .financial-form-modal__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 18px 24px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        }
+
+        .financial-form-modal__title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .financial-form-modal__subtitle {
+            margin-top: 4px;
+            font-size: 13px;
+            color: #64748b;
+        }
     </style>
 
     <script>
@@ -954,6 +1033,26 @@
             }
         }
 
+        function openFinancialFormModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
+                return;
+            }
+
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFinancialFormModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
+                return;
+            }
+
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
         function updateFinancialStatus(selectElement, recordId, newStatus) {
             const oldStatus = selectElement.getAttribute('data-old-status') || selectElement.value;
             
@@ -1067,6 +1166,22 @@
             document.addEventListener('click', function() {
                 closeAllHeaderDropdowns();
             });
+
+            document.querySelectorAll('.financial-form-modal').forEach((modal) => {
+                modal.addEventListener('click', function(event) {
+                    if (event.target === modal) {
+                        closeFinancialFormModal(modal.id);
+                    }
+                });
+            });
+
+            @if($errors->any() || session('duplicate_warning'))
+                @if(old('modal_mode') === 'edit' && old('modal_record_id'))
+                    openFinancialFormModal('financialEditModal-{{ old('modal_record_id') }}');
+                @else
+                    openFinancialFormModal('financialCreateModal');
+                @endif
+            @endif
         });
 
         // Clickable rows functionality
@@ -1080,6 +1195,16 @@
                     window.location.href = this.dataset.href;
                 });
             });
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                document.querySelectorAll('.financial-form-modal').forEach((modal) => {
+                    if (modal.style.display === 'block') {
+                        closeFinancialFormModal(modal.id);
+                    }
+                });
+            }
         });
 
     </script>

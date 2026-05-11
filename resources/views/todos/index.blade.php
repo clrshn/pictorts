@@ -172,7 +172,7 @@
                 'csvUrl' => request()->fullUrlWithQuery(['export' => 'csv']),
                 'printUrl' => request()->fullUrlWithQuery(['export' => 'print']),
             ])
-            <a href="{{ route('todos.create') }}" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-plus"></i> Add New Task</a>
+            <button type="button" class="btn-red" style="min-width: 100px; height: 36px; display: inline-flex; align-items: center; justify-content: center;" onclick="openTodoFormModal('todoCreateModal')"><i class="fas fa-plus"></i> Add New Task</button>
         </div>
 
         <div style="overflow-x:auto; max-width:100%;">
@@ -249,9 +249,9 @@
 
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;" onclick="event.stopPropagation();">
                             <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
-                                <a href="{{ route('todos.edit',$todo) }}" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
+                                <button type="button" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;" onclick="openTodoFormModal('todoEditModal-{{ $todo->id }}')">
                                     <i class="fas fa-edit"></i>
-                                </a>
+                                </button>
                                 @if($todo->pinnedByCurrentUser())
                                     <span title="Pinned" style="display:inline-flex; align-items:center; justify-content:center; min-width:32px; height:32px; border-radius:8px; background:#fff7ed; color:#c2410c; border:1px solid #fdba74;">
                                         <i class="fas fa-thumbtack"></i>
@@ -327,9 +327,9 @@
                                 <i class="fas fa-tasks" style="font-size:48px; color:#c0392b; margin-bottom:16px;"></i>
                                 <h3 style="margin-bottom:8px; color:#1a1a2e;">No Tasks Found</h3>
                                 <p style="margin-bottom:20px; color:#64748b;">Start by adding your first task.</p>
-                                <a href="{{ route('todos.create') }}" class="btn-red">
+                                <button type="button" class="btn-red" onclick="openTodoFormModal('todoCreateModal')">
                                     <i class="fas fa-plus"></i> Add Task
-                                </a>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -373,6 +373,47 @@
             </div>
         </div>
     </div>
+
+    <div id="todoCreateModal" class="financial-form-modal" style="display:none;">
+        <div class="financial-form-modal__dialog" style="max-width:960px;">
+            <div class="financial-form-modal__header">
+                <div>
+                    <div class="financial-form-modal__title">Create Todo</div>
+                    <div class="financial-form-modal__subtitle">Add a new task without leaving the monitoring page.</div>
+                </div>
+                <button type="button" class="btn-gray" onclick="closeTodoFormModal('todoCreateModal')"><i class="fas fa-times"></i> Close</button>
+            </div>
+            @include('todos._form', [
+                'assignedToOptions' => $assignedToOptions,
+                'formMode' => 'create',
+                'isModal' => true,
+                'modalId' => 'todoCreateModal',
+                'returnUrl' => request()->fullUrl(),
+            ])
+        </div>
+    </div>
+
+    @foreach($todos as $todoModal)
+        <div id="todoEditModal-{{ $todoModal->id }}" class="financial-form-modal" style="display:none;">
+            <div class="financial-form-modal__dialog" style="max-width:960px;">
+                <div class="financial-form-modal__header">
+                    <div>
+                        <div class="financial-form-modal__title">Edit Todo</div>
+                        <div class="financial-form-modal__subtitle">{{ $todoModal->title }}</div>
+                    </div>
+                    <button type="button" class="btn-gray" onclick="closeTodoFormModal('todoEditModal-{{ $todoModal->id }}')"><i class="fas fa-times"></i> Close</button>
+                </div>
+                @include('todos._form', [
+                    'todo' => $todoModal,
+                    'assignedToOptions' => $assignedToOptions,
+                    'formMode' => 'edit',
+                    'isModal' => true,
+                    'modalId' => 'todoEditModal-' . $todoModal->id,
+                    'returnUrl' => request()->fullUrl(),
+                ])
+            </div>
+        </div>
+    @endforeach
 
     <div class="notification-container" id="notificationContainer"></div>
 
@@ -908,5 +949,56 @@
             list.style.display = isHidden ? 'grid' : 'none';
             label.textContent = isHidden ? 'Hide List' : 'View List';
         }
+
+        function openTodoFormModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
+                return;
+            }
+
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTodoFormModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
+                return;
+            }
+
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('click', function(event) {
+            const modal = event.target.closest('.financial-form-modal');
+            if (modal && event.target === modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key !== 'Escape') {
+                return;
+            }
+
+            document.querySelectorAll('.financial-form-modal').forEach(function(modal) {
+                if (modal.style.display === 'flex') {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        @if($errors->any())
+            window.addEventListener('load', function() {
+                @if(old('modal_mode') === 'edit' && old('modal_record_id'))
+                    openTodoFormModal('todoEditModal-{{ old('modal_record_id') }}');
+                @else
+                    openTodoFormModal('todoCreateModal');
+                @endif
+            });
+        @endif
     </script>
 </x-app-layout>

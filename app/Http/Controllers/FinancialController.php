@@ -17,6 +17,21 @@ use Illuminate\Support\Facades\Storage;
 
 class FinancialController extends Controller
 {
+    private function financialRedirectTarget(Request $request, ?FinancialRecord $financial = null): string
+    {
+        $returnTo = (string) $request->input('return_to', '');
+
+        if ($returnTo !== '' && str_starts_with($returnTo, url('/'))) {
+            return $returnTo;
+        }
+
+        if ($financial) {
+            return route('financial.show', $financial);
+        }
+
+        return route('financial.index');
+    }
+
     private function mergedProgressRemarks(Request $request): ?string
     {
         $value = trim((string) $request->input('progress_remarks', ''));
@@ -360,7 +375,7 @@ class FinancialController extends Controller
             ]
         );
 
-        return redirect()->route('financial.index')->with('success', 'Financial record created.');
+        return redirect($this->financialRedirectTarget($request))->with('success', 'Financial record created.');
     }
 
     public function show(FinancialRecord $financial)
@@ -568,7 +583,7 @@ class FinancialController extends Controller
             }
         }
 
-        return redirect()->route('financial.show', $financial)->with('success', 'Financial record updated.');
+        return redirect($this->financialRedirectTarget($request, $financial))->with('success', 'Financial record updated.');
     }
 
     public function updateStatus(Request $request, FinancialRecord $financial)
