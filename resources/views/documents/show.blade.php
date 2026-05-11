@@ -29,7 +29,6 @@
             <div class="detail-header-actions">
                 @include('components.pin-toggle', ['record' => $document, 'subjectType' => 'document'])
                 <a href="{{ request()->fullUrlWithQuery(['export' => 'print']) }}" target="_blank" class="btn-blue"><i class="fas fa-print"></i> Print</a>
-                <button type="button" class="btn-orange" onclick="openDocumentWorkflowModal()"><i class="fas fa-layer-group"></i> Workflow</button>
                 <a href="{{ route('documents.edit', $document) }}" class="btn-orange"><i class="fas fa-edit"></i> Edit</a>
                 <a href="{{ route('documents.index', !empty($isTravelOrder) ? ['type' => 'TO'] : []) }}" class="btn-gray"><i class="fas fa-arrow-left"></i> Back</a>
             </div>
@@ -248,8 +247,13 @@
     </div>
     @endif
 
+    @include('components.collaboration-panel', [
+        'record' => $document,
+        'subjectType' => 'document',
+    ])
+
     <!-- Routing History -->
-    <div class="table-card">
+    <div class="table-card" style="display:none;">
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">
             <i class="fas fa-route"></i> Routing History
         </div>
@@ -313,37 +317,9 @@
         </div>
     </div>
 
-    <div id="documentWorkflowModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); z-index:9998; padding:32px; overflow:auto;">
-        <div style="background:#fff; width:min(1120px, 100%); margin:0 auto; border-radius:18px; box-shadow:0 28px 60px rgba(15,23,42,0.18); overflow:hidden;">
-            <div style="padding:18px 22px; border-bottom:1px solid rgba(148,163,184,0.18); display:flex; align-items:center; justify-content:space-between; gap:16px;">
-                <div>
-                    <div style="font-size:18px; font-weight:700; color:#1e293b;">Document Workflow</div>
-                    <div style="font-size:13px; color:#64748b; margin-top:4px;">Approvals, comments, and activity history in one place.</div>
-                </div>
-                <button type="button" class="btn-gray" onclick="closeDocumentWorkflowModal()"><i class="fas fa-times"></i> Close</button>
-            </div>
-            <div style="padding:22px;">
-                @include('components.collaboration-panel', [
-                    'record' => $document,
-                    'subjectType' => 'document',
-                ])
-            </div>
-        </div>
-    </div>
-
 </x-app-layout>
 
 <script>
-function openDocumentWorkflowModal() {
-    document.getElementById('documentWorkflowModal').style.display = 'block';
-    document.body.style.overflow = 'hidden';
-}
-
-function closeDocumentWorkflowModal() {
-    document.getElementById('documentWorkflowModal').style.display = 'none';
-    document.body.style.overflow = '';
-}
-
 function viewPdf(url, title) {
     document.getElementById('pdfTitle').textContent = title;
     document.getElementById('pdfFrame').src = url;
@@ -384,13 +360,6 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closePdfViewer();
         closeImageViewer();
-        closeDocumentWorkflowModal();
-    }
-});
-
-document.getElementById('documentWorkflowModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeDocumentWorkflowModal();
     }
 });
 

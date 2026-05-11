@@ -28,16 +28,25 @@
         </div>
     @endif
 
+    @php
+        if (is_array($financialSnapshotRecord ?? null)) {
+            $financialSnapshotRecord = (object) $financialSnapshotRecord;
+        }
+        $snapshotPrAmount = data_get($financialSnapshotRecord, 'pr_amount');
+        $snapshotDescription = data_get($financialSnapshotRecord, 'description');
+        $snapshotSupplier = data_get($financialSnapshotRecord, 'supplier');
+        $snapshotType = data_get($financialSnapshotRecord, 'type');
+    @endphp
+
     <div style="margin-bottom:16px; padding:18px 20px; border-radius:18px; background:linear-gradient(135deg,#ffffff 0%,#f8fbff 44%,#fff5f5 100%); border:1px solid rgba(148,163,184,0.18); box-shadow:0 12px 24px rgba(15,23,42,0.05);">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:14px;">
             <div>
                 <div style="font-size:12px; font-weight:700; letter-spacing:0.08em; color:#64748b; text-transform:uppercase;">Financial Snapshot</div>
                 <h3 style="margin:4px 0 0; color:#1e293b; font-size:22px;">Biggest PR Amount</h3>
-                <p style="margin:6px 0 0; color:#64748b; font-size:13px;">Shows the highest visible PR amount from the current filtered records.</p>
             </div>
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px;">
             <div style="padding:16px 18px; border-radius:16px; background:linear-gradient(135deg, rgba(250,204,21,0.18), rgba(255,255,255,0.95)); border:1px solid rgba(250,204,21,0.28);">
                 <div style="font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:#a16207;">PR Amount</div>
                 <div style="margin-top:8px; font-size:29px; font-weight:800; color:#0f172a;">{{ $financialSnapshotRecord?->pr_amount ? '₱ ' . number_format((float) $financialSnapshotRecord->pr_amount, 2) : '—' }}</div>
@@ -48,7 +57,7 @@
                 <div style="margin-top:8px; font-size:22px; font-weight:800; color:#0f172a;">{{ $financialSnapshotRecord?->supplier ?: '—' }}</div>
                 <div style="margin-top:6px; font-size:12px; color:#64748b;">{{ $financialSnapshotRecord?->type ?: 'No type' }}</div>
             </div>
-            <div style="padding:16px 18px; border-radius:16px; background:linear-gradient(135deg, rgba(59,130,246,0.10), rgba(255,255,255,0.95)); border:1px solid rgba(59,130,246,0.16);">
+            <div style="display:none; padding:16px 18px; border-radius:16px; background:linear-gradient(135deg, rgba(59,130,246,0.10), rgba(255,255,255,0.95)); border:1px solid rgba(59,130,246,0.16);">
                 <div style="font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:#1d4ed8;">Office Origin</div>
                 <div style="margin-top:8px; font-size:22px; font-weight:800; color:#0f172a;">{{ $financialSnapshotRecord?->originOffice?->code ?: '—' }}</div>
                 <div style="margin-top:6px; font-size:12px; color:#64748b;">{{ $financialSnapshotRecord?->status ?: 'No status' }}</div>
@@ -56,7 +65,7 @@
         </div>
     </div>
 
-    <div style="display:none;">
+    @if(false)
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:14px;">
             <div>
                 <div style="font-size:12px; font-weight:700; letter-spacing:0.08em; color:#64748b; text-transform:uppercase;">Financial Snapshot</div>
@@ -69,7 +78,7 @@
             <div style="padding:16px 18px; border-radius:16px; background:linear-gradient(135deg, rgba(59,130,246,0.14), rgba(255,255,255,0.95)); border:1px solid rgba(59,130,246,0.14);">
                 <div style="font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:#a16207;">PR Amount</div>
                 <div style="margin-top:8px; font-size:29px; font-weight:800; color:#0f172a;">₱ {{ number_format($financialSnapshot['active_total'] ?? 0, 2) }}</div>
-                <div style="margin-top:6px; font-size:12px; color:#64748b;">{{ $financialSnapshot?->description ?: 'No visible PR amount record yet.' }}</div>
+                <div style="margin-top:6px; font-size:12px; color:#64748b;">{{ $financialSnapshot['active_count'] ?? 'No visible PR amount record yet.' }}</div>
             </div>
 
             <div style="padding:16px 18px; border-radius:16px; background:linear-gradient(135deg, rgba(34,197,94,0.14), rgba(255,255,255,0.95)); border:1px solid rgba(34,197,94,0.14);">
@@ -84,7 +93,7 @@
                 <div style="margin-top:6px; font-size:12px; color:#64748b;">{{ $financialSnapshot['cancelled_count'] ?? 'No status' }}</div>
             </div>
         </div>
-    </div>
+    @endif
 
     <!-- Search Filter -->
     <div class="filter-box">

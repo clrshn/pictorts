@@ -22,7 +22,7 @@
         }
 
         .preview-actions {
-            width: {{ $sheetWidth }};
+            width: min({{ $sheetWidth }}, {{ $orientation === 'landscape' ? '1100px' : '760px' }});
             max-width: 100%;
             margin: 0 auto 14px;
             display: flex;
@@ -62,11 +62,11 @@
         }
 
         .preview-shell {
-            width: {{ $sheetWidth }};
+            width: min({{ $sheetWidth }}, {{ $orientation === 'landscape' ? '1100px' : '760px' }});
             max-width: 100%;
             margin: 0 auto;
             background: #ffffff;
-            border: 1px solid #cfd8e3;
+            border: 1px solid #b8c5d6;
             box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
         }
 

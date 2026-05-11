@@ -43,9 +43,9 @@
                     <div style="margin-bottom:8px;"><strong>Current Office:</strong> {{ $financial->currentOffice->code ?? '—' }}</div>
                     <div style="margin-bottom:8px;"><strong>Current Holder:</strong> {{ $financial->holder->name ?? '—' }}</div>
                     <div style="margin-bottom:8px;"><strong>Status:</strong> <span class="badge {{ $badgeClass }}">{{ $financial->status === 'FINISHED' ? 'DONE' : $financial->status }}</span></div>
-                    <div><strong>Progress:</strong> 
-                        @if($financial->progress)
-                            <span style="font-size: 12px; color: #64748b; font-weight: 500;">{{ $financial->progress }}</span>
+                    <div><strong>Progress / Remarks:</strong> 
+                        @if($financial->remarks || $financial->progress)
+                            <span style="font-size: 12px; color: #64748b; font-weight: 500; white-space: pre-line;">{{ $financial->remarks ?: $financial->progress }}</span>
                         @else
                             <span style="color: #9ca3af; font-size: 12px;">—</span>
                         @endif
@@ -71,7 +71,7 @@
                 </div>
                 
                 <!-- Remarks (Full Width) -->
-                <div style="grid-column:span 2; border-left:3px solid #7f8c8d; padding-left:12px;">
+                <div style="display:none; grid-column:span 2; border-left:3px solid #7f8c8d; padding-left:12px;">
                     <div><strong>Remarks:</strong> <span style="white-space: pre-line;">{{ $financial->remarks ?? '—' }}</span></div>
                 </div>
             </div>
@@ -133,7 +133,7 @@
     </div>
 
     @if($supplierHistory->isNotEmpty())
-    <div class="table-card" style="margin-bottom:20px;">
+    <div class="table-card" style="display:none; margin-bottom:20px;">
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">
             <i class="fas fa-building"></i> Supplier History
         </div>
@@ -192,7 +192,7 @@
     @endif
 
     <!-- Routing History -->
-    <div class="table-card">
+    <div class="table-card" style="display:none;">
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">
             <i class="fas fa-route"></i> Routing History
         </div>

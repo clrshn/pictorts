@@ -20,11 +20,11 @@
         }
 
         .report-page {
-            padding: 0.08in 0 0.95in;
+            padding: 0.46in 0 0.95in;
         }
 
         .header-table {
-            width: 86%;
+            width: 82%;
             margin: 0 auto;
             border-collapse: collapse;
             table-layout: fixed;
@@ -35,7 +35,7 @@
         }
 
         .logo-cell {
-            width: 98px;
+            width: 124px;
         }
 
         .logo-cell.left {
@@ -47,13 +47,13 @@
         }
 
         .logo-left {
-            width: 74px;
+            width: 92px;
             height: auto;
             display: block;
         }
 
         .logo-right {
-            width: 76px;
+            width: 92px;
             height: auto;
             display: inline-block;
         }
@@ -70,12 +70,12 @@
         }
 
         .gov-heading .line-1 {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 700;
         }
 
         .gov-heading .line-2 {
-            font-size: 15px;
+            font-size: 17px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.01em;
@@ -87,6 +87,7 @@
             text-transform: uppercase;
             letter-spacing: 0.01em;
             color: #294c96;
+            white-space: nowrap;
         }
 
         .gov-heading .line-4 {
@@ -95,10 +96,11 @@
             text-transform: uppercase;
             letter-spacing: 0.01em;
             color: #294c96;
+            white-space: nowrap;
         }
 
         .title-block {
-            margin: 24px 0 34px;
+            margin: 26px 0 34px;
             text-align: center;
             font-family: "Times New Roman", Times, serif;
             color: #17233c;

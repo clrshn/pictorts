@@ -17,6 +17,13 @@ use Illuminate\Support\Facades\Storage;
 
 class FinancialController extends Controller
 {
+    private function mergedProgressRemarks(Request $request): ?string
+    {
+        $value = trim((string) $request->input('progress_remarks', ''));
+
+        return $value !== '' ? $value : null;
+    }
+
     private function ensureFinancialActionAllowed(FinancialRecord $financial, bool $expectsJson = false, string $action = 'update')
     {
         // Financial records use the same approval lock principle as documents so
@@ -267,21 +274,12 @@ class FinancialController extends Controller
             ->where('module', 'financial')
             ->latest()
             ->get();
-        $financialSnapshotRecord = (clone $query)
+        $financialSnapshotRecord = FinancialRecord::query()
             ->whereNotNull('pr_amount')
             ->orderByDesc('pr_amount')
             ->first();
 
-        $financialSnapshot = [
-            'active_total' => $financialSnapshotRecord?->pr_amount ?? 0,
-            'active_count' => $financialSnapshotRecord?->description ?? 'No visible PR amount record yet.',
-            'finished_total' => 0,
-            'finished_count' => $financialSnapshotRecord?->type ?? 'No type',
-            'cancelled_total' => 0,
-            'cancelled_count' => $financialSnapshotRecord?->status ?? 'No status',
-        ];
-
-        return view('financial.index', compact('records', 'offices', 'savedFilters', 'financialSnapshot', 'financialSnapshotRecord'));
+        return view('financial.index', compact('records', 'offices', 'savedFilters', 'financialSnapshotRecord'));
     }
 
     public function create()
@@ -324,8 +322,8 @@ class FinancialController extends Controller
             'current_holder' => auth()->id(),
             'created_by' => auth()->id(),
             'status' => $request->status,
-            'progress' => $request->progress,
-            'remarks' => $request->remarks,
+            'progress' => $this->mergedProgressRemarks($request),
+            'remarks' => $this->mergedProgressRemarks($request),
         ]);
 
         if ($request->hasFile('files')) {
@@ -514,8 +512,8 @@ class FinancialController extends Controller
             'current_office' => $request->office_origin,
             'current_holder' => auth()->id(),
             'status' => $request->status ?? $financial->status,
-            'progress' => $request->progress,
-            'remarks' => $request->remarks,
+            'progress' => $this->mergedProgressRemarks($request),
+            'remarks' => $this->mergedProgressRemarks($request),
         ];
 
         // Add route entry if office origin changed

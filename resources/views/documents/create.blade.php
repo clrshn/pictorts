@@ -33,11 +33,6 @@
         </div>
 
         <div style="padding:24px;">
-            <p style="font-size:12px; color:#999; margin-bottom:16px;">Tracking Code and PICTO Number will be auto-generated upon saving</p>
-            <p style="font-size:11px; color:#999; margin-bottom:16px;">
-                <strong>Tracking Code:</strong> {YEAR}{12-CHARACTER CODE} <br>
-                <strong>PICTO Number:</strong> PICTO-{OFFICE}-{TYPE}-{YEAR}-{6-digit SEQ}
-            </p>
 
             <form method="POST" action="{{ route('documents.store') }}" enctype="multipart/form-data">
                 @csrf

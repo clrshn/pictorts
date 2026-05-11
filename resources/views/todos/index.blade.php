@@ -8,7 +8,7 @@
 
     @include('components.notifications')
 
-    @if(!empty($dueReminderData['items']) && $dueReminderData['items']->count())
+    @if(array_sum($dueReminderData['counts'] ?? []) > 0)
         <div style="margin-bottom:16px; padding:18px; border-radius:18px; background:linear-gradient(135deg,#fff7ed 0%,#ffffff 48%,#eff6ff 100%); border:1px solid rgba(251,146,60,0.22); box-shadow:0 12px 26px rgba(15,23,42,0.06);">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:14px;">
                 <div>
@@ -16,29 +16,26 @@
                     <h3 style="margin:4px 0 0; font-size:22px; color:#1e293b;">Upcoming Due Date Reminders</h3>
                 </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                    <button type="button" onclick="toggleTodoReminderList()" class="btn-gray" style="height:38px; min-width:122px;">
-                        <i class="fas fa-eye"></i> <span id="todoReminderToggleLabel">Hide List</span>
-                    </button>
                     <a href="{{ route('todos.index', array_merge(request()->except('page'), ['due_alert' => 'overdue'])) }}" style="text-decoration:none;">
-                    <div style="min-width:118px; padding:12px 14px; border-radius:14px; background:#fff1f2; border:1px solid rgba(244,63,94,0.18);">
+                    <div style="min-width:118px; padding:12px 14px; border-radius:14px; background:{{ ($activeDueAlert ?? null) === 'overdue' ? '#ffe4e6' : '#fff1f2' }}; border:1px solid {{ ($activeDueAlert ?? null) === 'overdue' ? 'rgba(190,24,93,0.36)' : 'rgba(244,63,94,0.18)' }}; box-shadow:{{ ($activeDueAlert ?? null) === 'overdue' ? '0 0 0 2px rgba(190,24,93,0.10)' : 'none' }};">
                         <div style="font-size:12px; color:#9f1239; font-weight:700; text-transform:uppercase;">Overdue</div>
                         <div style="font-size:28px; font-weight:800; color:#881337; line-height:1.1;">{{ $dueReminderData['counts']['overdue'] ?? 0 }}</div>
                     </div>
                     </a>
                     <a href="{{ route('todos.index', array_merge(request()->except('page'), ['due_alert' => 'today'])) }}" style="text-decoration:none;">
-                    <div style="min-width:118px; padding:12px 14px; border-radius:14px; background:#fffbeb; border:1px solid rgba(245,158,11,0.2);">
+                    <div style="min-width:118px; padding:12px 14px; border-radius:14px; background:{{ ($activeDueAlert ?? null) === 'today' ? '#fef3c7' : '#fffbeb' }}; border:1px solid {{ ($activeDueAlert ?? null) === 'today' ? 'rgba(180,83,9,0.34)' : 'rgba(245,158,11,0.2)' }}; box-shadow:{{ ($activeDueAlert ?? null) === 'today' ? '0 0 0 2px rgba(180,83,9,0.10)' : 'none' }};">
                         <div style="font-size:12px; color:#92400e; font-weight:700; text-transform:uppercase;">Today</div>
                         <div style="font-size:28px; font-weight:800; color:#92400e; line-height:1.1;">{{ $dueReminderData['counts']['today'] ?? 0 }}</div>
                     </div>
                     </a>
                     <a href="{{ route('todos.index', array_merge(request()->except('page'), ['due_alert' => 'tomorrow'])) }}" style="text-decoration:none;">
-                    <div style="min-width:118px; padding:12px 14px; border-radius:14px; background:#eff6ff; border:1px solid rgba(59,130,246,0.18);">
+                    <div style="min-width:118px; padding:12px 14px; border-radius:14px; background:{{ ($activeDueAlert ?? null) === 'tomorrow' ? '#dbeafe' : '#eff6ff' }}; border:1px solid {{ ($activeDueAlert ?? null) === 'tomorrow' ? 'rgba(29,78,216,0.34)' : 'rgba(59,130,246,0.18)' }}; box-shadow:{{ ($activeDueAlert ?? null) === 'tomorrow' ? '0 0 0 2px rgba(29,78,216,0.10)' : 'none' }};">
                         <div style="font-size:12px; color:#1d4ed8; font-weight:700; text-transform:uppercase;">Tomorrow</div>
                         <div style="font-size:28px; font-weight:800; color:#1d4ed8; line-height:1.1;">{{ $dueReminderData['counts']['tomorrow'] ?? 0 }}</div>
                     </div>
                     </a>
                     <a href="{{ route('todos.index', array_merge(request()->except('page'), ['due_alert' => 'soon'])) }}" style="text-decoration:none;">
-                    <div style="min-width:118px; padding:12px 14px; border-radius:14px; background:#f0fdf4; border:1px solid rgba(34,197,94,0.18);">
+                    <div style="min-width:118px; padding:12px 14px; border-radius:14px; background:{{ ($activeDueAlert ?? null) === 'soon' ? '#dcfce7' : '#f0fdf4' }}; border:1px solid {{ ($activeDueAlert ?? null) === 'soon' ? 'rgba(22,101,52,0.34)' : 'rgba(34,197,94,0.18)' }}; box-shadow:{{ ($activeDueAlert ?? null) === 'soon' ? '0 0 0 2px rgba(22,101,52,0.10)' : 'none' }};">
                         <div style="font-size:12px; color:#166534; font-weight:700; text-transform:uppercase;">Next 7 Days</div>
                         <div style="font-size:28px; font-weight:800; color:#166534; line-height:1.1;">{{ $dueReminderData['counts']['soon'] ?? 0 }}</div>
                     </div>
@@ -46,8 +43,14 @@
                 </div>
             </div>
 
-            <div id="todoReminderList" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px;">
-                @foreach($dueReminderData['items'] as $reminder)
+            <div style="display:flex; justify-content:flex-end; margin-top:10px; margin-bottom:10px;">
+                <button type="button" onclick="toggleTodoReminderList()" class="btn-gray" style="height:30px; min-width:92px; font-size:12px; padding:0 10px;">
+                    <i class="fas fa-eye" style="font-size:11px;"></i> <span id="todoReminderToggleLabel">{{ !empty($activeDueAlert) && !empty($dueReminderData['items']) && $dueReminderData['items']->count() ? 'Hide List' : 'View List' }}</span>
+                </button>
+            </div>
+
+            <div id="todoReminderList" style="display:{{ !empty($activeDueAlert) && !empty($dueReminderData['items']) && $dueReminderData['items']->count() ? 'grid' : 'none' }}; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px;">
+                @forelse($dueReminderData['items'] as $reminder)
                     @php
                         $todoReminder = $reminder['todo'];
                         $accent = match($reminder['level']) {
@@ -74,7 +77,11 @@
                             </div>
                         </div>
                     </a>
-                @endforeach
+                @empty
+                    <div style="grid-column:1 / -1; padding:14px 16px; border-radius:14px; background:#ffffff; border:1px dashed rgba(148,163,184,0.35); color:#64748b; font-size:13px;">
+                        Select an alert tab to preview matching tasks here. The full matching records are shown in the table below.
+                    </div>
+                @endforelse
             </div>
         </div>
     @endif

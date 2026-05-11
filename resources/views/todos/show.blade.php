@@ -54,54 +54,6 @@
         </div>
     </div>
 
-    <div class="table-card" style="margin-top:20px;">
-        <div class="table-header" style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="display:flex; align-items:center; gap:8px;">
-                <i class="fas fa-list-check" style="color:#8b0000;"></i>
-                <h3 style="margin:0; color:#333;">Checklist / Subtasks</h3>
-            </div>
-            <span style="font-size:12px; color:#64748b; font-weight:600;">{{ $todo->completion_percent }}% complete</span>
-        </div>
-        <div style="padding:18px 20px;">
-            <form method="POST" action="{{ route('todos.subtasks.store', $todo) }}" style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
-                @csrf
-                <input type="text" name="title" class="form-control" placeholder="Add a subtask..." style="flex:1; min-width:240px;" required>
-                <button type="submit" class="btn-blue"><i class="fas fa-plus"></i> Add Subtask</button>
-            </form>
-
-            @if($todo->subtasks->isEmpty())
-                <div style="padding:18px; border:1px dashed #cbd5e1; border-radius:12px; text-align:center; color:#64748b; font-size:13px;">
-                    No subtasks yet. Add a checklist if this task has smaller steps.
-                </div>
-            @else
-                <div style="display:flex; flex-direction:column; gap:10px;">
-                    @foreach($todo->subtasks as $subtask)
-                        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; border-radius:12px; border:1px solid rgba(226,232,240,0.92); background:{{ $subtask->is_completed ? 'linear-gradient(135deg,#ecfdf5 0%,#f0fdf4 100%)' : '#fff' }};">
-                            <form method="POST" action="{{ route('todos.subtasks.update', [$todo, $subtask]) }}" style="display:flex; align-items:center; gap:12px; flex:1;">
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="is_completed" value="{{ $subtask->is_completed ? 0 : 1 }}">
-                                <button type="submit" style="border:none; background:none; cursor:pointer; color:{{ $subtask->is_completed ? '#16a34a' : '#94a3b8' }}; font-size:18px;">
-                                    <i class="fas {{ $subtask->is_completed ? 'fa-circle-check' : 'fa-circle' }}"></i>
-                                </button>
-                                <div style="font-size:13px; color:#334155; text-decoration:{{ $subtask->is_completed ? 'line-through' : 'none' }};">
-                                    {{ $subtask->title }}
-                                </div>
-                            </form>
-                            @if(auth()->user()?->isAdmin())
-                                <form method="POST" action="{{ route('todos.subtasks.destroy', [$todo, $subtask]) }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-danger" style="padding:6px 10px;"><i class="fas fa-trash"></i></button>
-                                </form>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </div>
-    </div>
-
     @include('components.collaboration-panel', [
         'record' => $todo,
         'subjectType' => 'todo',

@@ -170,7 +170,8 @@ class TodoController extends Controller
 
         $query->with(['pins' => fn ($pinQuery) => $pinQuery->where('user_id', auth()->id())]);
 
-        $dueReminderData = $this->buildDueReminderData();
+        $activeDueAlert = $request->input('due_alert');
+        $dueReminderData = $this->buildDueReminderData($activeDueAlert);
         $assignedToOptions = $this->assignedToOptions();
 
         $todos = $query->paginate(15);
@@ -179,7 +180,7 @@ class TodoController extends Controller
             ->latest()
             ->get();
 
-        return view('todos.index', compact('todos', 'savedFilters', 'dueReminderData', 'assignedToOptions'));
+        return view('todos.index', compact('todos', 'savedFilters', 'dueReminderData', 'assignedToOptions', 'activeDueAlert'));
     }
 
     /**
@@ -501,7 +502,7 @@ class TodoController extends Controller
         return response()->json(['success' => true, 'status' => $todo->status, 'assigned_to' => $todo->assigned_to]);
     }
 
-    private function buildDueReminderData(): array
+    private function buildDueReminderData(?string $activeAlert = null): array
     {
         $today = Carbon::today();
         $tomorrow = Carbon::tomorrow();
@@ -509,13 +510,13 @@ class TodoController extends Controller
         $user = auth()->user();
         $normalizedName = mb_strtolower(trim((string) $user?->name));
 
-        $query = Todo::query()
+        $baseQuery = Todo::query()
             ->whereNotIn('status', ['done', 'cancelled'])
             ->whereNotNull('due_date')
             ->whereDate('due_date', '<=', $nextWeek);
 
         if (!$user?->isAdmin()) {
-            $query->where(function ($builder) use ($user, $normalizedName) {
+            $baseQuery->where(function ($builder) use ($user, $normalizedName) {
                 $builder->where('user_id', $user?->id);
 
                 if ($normalizedName !== '') {
@@ -524,7 +525,7 @@ class TodoController extends Controller
             });
         }
 
-        $items = $query->orderBy('due_date')->limit(8)->get()->map(function (Todo $todo) use ($today, $tomorrow) {
+        $allItems = (clone $baseQuery)->orderBy('due_date')->get()->map(function (Todo $todo) use ($today, $tomorrow) {
             $dueDate = $todo->due_date;
             $daysUntil = $dueDate ? $today->diffInDays($dueDate, false) : null;
 
@@ -550,13 +551,21 @@ class TodoController extends Controller
             ];
         });
 
+        $items = match ($activeAlert) {
+            'overdue' => $allItems->where('level', 'overdue')->values(),
+            'today' => $allItems->where('level', 'today')->values(),
+            'tomorrow' => $allItems->where('level', 'tomorrow')->values(),
+            'soon' => $allItems->where('level', 'soon')->values(),
+            default => collect(),
+        };
+
         return [
             'items' => $items,
             'counts' => [
-                'overdue' => $items->where('level', 'overdue')->count(),
-                'today' => $items->where('level', 'today')->count(),
-                'tomorrow' => $items->where('level', 'tomorrow')->count(),
-                'soon' => $items->where('level', 'soon')->count(),
+                'overdue' => $allItems->where('level', 'overdue')->count(),
+                'today' => $allItems->where('level', 'today')->count(),
+                'tomorrow' => $allItems->where('level', 'tomorrow')->count(),
+                'soon' => $allItems->where('level', 'soon')->count(),
             ],
         ];
     }

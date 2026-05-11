@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $previewTitle }}</title>
+
     <style>
         @page {
             size: {{ $paperSize }} {{ $orientation }};
-            margin: 0.5in 0.5in 0.8in;
+            margin: 0.5in 0.75in 0.95in;
         }
 
         html,
@@ -19,24 +20,12 @@
             font-size: 11px;
         }
 
-        body {
-            position: relative;
-        }
-
         .report-page {
-            padding: 1.55in 0 1in;
-        }
-
-        .page-header {
-            position: fixed;
-            top: 0.5in;
-            left: 0.5in;
-            right: 0.5in;
-            background: #fff;
+            padding: 0.46in 0 0.95in;
         }
 
         .header-table {
-            width: 100%;
+            width: 82%;
             margin: 0 auto;
             border-collapse: collapse;
             table-layout: fixed;
@@ -47,7 +36,7 @@
         }
 
         .logo-cell {
-            width: 128px;
+            width: 124px;
         }
 
         .logo-cell.left {
@@ -59,13 +48,13 @@
         }
 
         .logo-left {
-            width: 102px;
+            width: 92px;
             height: auto;
             display: block;
         }
 
         .logo-right {
-            width: 104px;
+            width: 92px;
             height: auto;
             display: inline-block;
         }
@@ -82,41 +71,34 @@
         }
 
         .gov-heading .line-1 {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 700;
         }
 
         .gov-heading .line-2 {
-            font-size: 15px;
+            font-size: 17px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.01em;
         }
 
-        .gov-heading .line-3 {
-            font-size: 15px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.01em;
-            color: #294c96;
-        }
-
+        .gov-heading .line-3,
         .gov-heading .line-4 {
             font-size: 15px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.01em;
             color: #294c96;
+            white-space: nowrap;
         }
 
         .title-block {
-            margin: 16px 0 26px;
+            margin: 26px 0 34px;
             text-align: center;
             font-family: "Times New Roman", Times, serif;
             color: #17233c;
         }
 
-        .system-title {
+        .system-title,
+        .report-title {
             margin: 0;
             font-size: 12px;
             font-weight: 700;
@@ -125,26 +107,38 @@
         }
 
         .report-title {
-            margin: 6px 0 0;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
-
-        .table-frame {
-            border: 1px solid #97a1ae;
+            margin-top: 6px;
         }
 
         .content-block {
-            width: 100%;
+            width: 92%;
             margin: 0 auto;
+        }
+
+        .section-box {
+            border: 1px solid #97a1ae;
+            overflow: hidden;
+        }
+
+        .section-title {
+            padding: 8px 12px;
+            background: #df7275;
+            color: #ffffff;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
 
         .data-table {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
+        }
+
+        thead {
+            display: table-header-group;
         }
 
         .data-table th {
@@ -164,10 +158,14 @@
             padding: 8px 6px;
             border: 1px solid #adb7c4;
             vertical-align: top;
-            color: #2f3b4d;
+            color: #334155;
             font-size: 10.5px;
             line-height: 1.24;
             word-break: break-word;
+        }
+
+        .data-table tr {
+            page-break-inside: avoid;
         }
 
         .data-table tbody tr:nth-child(odd) td {
@@ -214,40 +212,43 @@
         }
     </style>
 </head>
+
 <body>
     <div class="report-page">
-        <div class="page-header">
-            <table class="header-table">
-                <tr>
-                    <td class="logo-cell left">
-                        @if(!empty($leftLogo))
-                            <img src="{{ $leftLogo }}" alt="PGLU Logo" class="logo-left">
-                        @endif
-                    </td>
-                    <td>
-                        <div class="gov-heading">
-                            <p class="line-1">Republic of the Philippines</p>
-                            <p class="line-2">Province of La Union</p>
-                            <p class="line-3">Provincial Information and</p>
-                            <p class="line-4">Communications Technology Office</p>
-                        </div>
-                    </td>
-                    <td class="logo-cell right">
-                        @if(!empty($rightLogo))
-                            <img src="{{ $rightLogo }}" alt="Bagong Pilipinas Logo" class="logo-right">
-                        @endif
-                    </td>
-                </tr>
-            </table>
+        <table class="header-table">
+            <tr>
+                <td class="logo-cell left">
+                    @if(!empty($leftLogo))
+                        <img src="{{ $leftLogo }}" alt="PGLU Logo" class="logo-left">
+                    @endif
+                </td>
 
-            <div class="title-block">
-                <p class="system-title">PICTO - Records Monitoring System</p>
-                <p class="report-title">{{ $reportTitle }}</p>
-            </div>
+                <td>
+                    <div class="gov-heading">
+                        <p class="line-1">Republic of the Philippines</p>
+                        <p class="line-2">Province of La Union</p>
+                        <p class="line-3">Provincial Information and</p>
+                        <p class="line-4">Communications Technology Office</p>
+                    </div>
+                </td>
+
+                <td class="logo-cell right">
+                    @if(!empty($rightLogo))
+                        <img src="{{ $rightLogo }}" alt="Bagong Pilipinas Logo" class="logo-right">
+                    @endif
+                </td>
+            </tr>
+        </table>
+
+        <div class="title-block">
+            <p class="system-title">PICTO - Records Monitoring System</p>
+            <p class="report-title">{{ $reportTitle }}</p>
         </div>
 
         <div class="content-block">
-            <div class="table-frame">
+            <div class="section-box">
+
+
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -256,6 +257,7 @@
                             @endforeach
                         </tr>
                     </thead>
+
                     <tbody>
                         @forelse($rows as $row)
                             <tr>
@@ -265,7 +267,9 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="{{ count($headers) }}" class="no-data">No records found.</td>
+                                <td colspan="{{ count($headers) }}" class="no-data">
+                                    No records found.
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -277,7 +281,10 @@
     <div class="footer-block">
         <div class="footer-line"></div>
         <div class="footer-tagline">LA UNION: Agkaysa!</div>
-        <div class="footer-contact">(072) 888-4453, (072) 888-3608, (072) 242-5959 local 1060 to 1065 | webmaster@launion.gov.ph | www.launion.gov.ph</div>
+        <div class="footer-contact">
+            (072) 888-4453, (072) 888-3608, (072) 242-5959 local 1060 to 1065 |
+            webmaster@launion.gov.ph | www.launion.gov.ph
+        </div>
         <div class="footer-line" style="margin-top: 6px;"></div>
     </div>
 </body>

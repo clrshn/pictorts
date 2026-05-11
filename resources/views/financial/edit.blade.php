@@ -116,15 +116,9 @@
                     </select>
                 </div>
 
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
-                    <div class="form-group">
-                        <label>Progress <small style="color:#999;">(Optional)</small></label>
-                        <input type="text" name="progress" class="form-control" value="{{ old('progress', $financial->progress) }}" placeholder="e.g., For Processing, Under Review, Awaiting Approval">
-                    </div>
-                    <div class="form-group">
-                        <label>Remarks / Notes</label>
-                        <textarea name="remarks" class="form-control" rows="3" style="white-space: pre-wrap; wrap: soft;" placeholder="Enter remarks with proper formatting...">{{ old('remarks', $financial->remarks) }}</textarea>
-                    </div>
+                <div class="form-group">
+                    <label>Progress / Remarks <small style="color:#999;">(Optional)</small></label>
+                    <textarea name="progress_remarks" class="form-control" rows="3" style="white-space: pre-wrap; wrap: soft;" placeholder="Enter progress updates or remarks...">{{ old('progress_remarks', $financial->remarks ?: $financial->progress) }}</textarea>
                 </div>
 
                 <div class="form-group">
