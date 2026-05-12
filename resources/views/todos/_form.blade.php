@@ -137,15 +137,11 @@
             </div>
         @endif
 
-        <div style="display:flex; gap:12px; margin-top:24px; flex-wrap:wrap;">
+        <div style="display:flex; gap:12px; margin-top:24px; flex-wrap:wrap; justify-content:{{ $isModal ? 'flex-end' : 'flex-start' }};">
             <button type="submit" class="btn-red">
                 <i class="fas fa-save"></i> {{ $isEdit ? 'Update Todo' : 'Create Todo' }}
             </button>
-            @if($isModal && $modalId)
-                <button type="button" class="btn-gray" onclick="closeTodoFormModal('{{ $modalId }}')">
-                    <i class="fas fa-times"></i> Close
-                </button>
-            @else
+            @if(!$isModal || !$modalId)
                 @if($isEdit)
                     <a href="{{ route('todos.show', $todo) }}" class="btn-blue">
                         <i class="fas fa-eye"></i> View

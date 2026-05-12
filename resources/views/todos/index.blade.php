@@ -127,11 +127,6 @@
             @endif
         </div>
 
-        @include('components.saved-filter-bar', [
-            'module' => 'todos',
-            'savedFilters' => $savedFilters ?? collect(),
-        ])
-
         <form method="GET" action="{{ route('todos.index') }}">
             @foreach(['status', 'priority', 'assigned_to', 'due_alert'] as $field)
                 @if(request($field))
@@ -249,7 +244,25 @@
 
                         <td style="text-align:left; padding:20px 20px 20px 20px; white-space:nowrap; width:120px;" onclick="event.stopPropagation();">
                             <div style="display:flex; gap:4px; align-items:center; justify-content:flex-start;">
-                                <button type="button" class="btn-blue" title="Edit" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;" onclick="openTodoFormModal('todoEditModal-{{ $todo->id }}')">
+                                <button
+                                    type="button"
+                                    class="btn-blue"
+                                    title="Edit"
+                                    style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"
+                                    data-todo-id="{{ $todo->id }}"
+                                    data-todo-title="{{ e($todo->title) }}"
+                                    data-todo-description="{{ e($todo->description ?? '') }}"
+                                    data-todo-priority="{{ $todo->priority }}"
+                                    data-todo-status="{{ $todo->status }}"
+                                    data-todo-assigned="{{ e($todo->assigned_to ?? '') }}"
+                                    data-todo-date-added="{{ $todo->date_added ? $todo->date_added->format('Y-m-d') : '' }}"
+                                    data-todo-due-date="{{ $todo->due_date ? $todo->due_date->format('Y-m-d') : '' }}"
+                                    data-todo-remarks="{{ e($todo->remarks ?? '') }}"
+                                    data-todo-is-recurring="{{ $todo->is_recurring ? '1' : '0' }}"
+                                    data-todo-recurrence-frequency="{{ $todo->recurrence_frequency ?? 'weekly' }}"
+                                    data-todo-recurrence-interval="{{ $todo->recurrence_interval ?? 1 }}"
+                                    data-todo-recurrence-end-date="{{ $todo->recurrence_end_date ? $todo->recurrence_end_date->format('Y-m-d') : '' }}"
+                                    onclick="event.stopPropagation(); openTodoEditModal(this)">
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 @if($todo->pinnedByCurrentUser())
@@ -260,7 +273,7 @@
                                 @if(auth()->user()?->isAdmin())
                                     <form action="{{ route('todos.destroy', $todo) }}" method="POST" style="display:inline;" id="deleteForm-{{ $todo->id }}">
                                         @csrf @method('DELETE')
-                                        <button type="button" class="btn-danger" title="Delete" onclick="confirmDelete({{ $todo->id }}, '{{ $todo->title }}')" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
+                                        <button type="button" class="btn-danger" title="Delete" onclick="event.stopPropagation(); confirmDelete({{ $todo->id }}, '{{ $todo->title }}')" style="padding:6px 8px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -381,7 +394,7 @@
                     <div class="financial-form-modal__title">Create Todo</div>
                     <div class="financial-form-modal__subtitle">Add a new task without leaving the monitoring page.</div>
                 </div>
-                <button type="button" class="btn-gray" onclick="closeTodoFormModal('todoCreateModal')"><i class="fas fa-times"></i> Close</button>
+                <button type="button" onclick="closeTodoFormModal('todoCreateModal')" title="Close" aria-label="Close" style="border:none; background:transparent; color:#64748b; font-size:18px; font-weight:700; line-height:1; padding:0; width:24px; height:24px; display:flex; align-items:center; justify-content:center; cursor:pointer;">&times;</button>
             </div>
             @include('todos._form', [
                 'assignedToOptions' => $assignedToOptions,
@@ -393,27 +406,26 @@
         </div>
     </div>
 
-    @foreach($todos as $todoModal)
-        <div id="todoEditModal-{{ $todoModal->id }}" class="financial-form-modal" style="display:none;">
-            <div class="financial-form-modal__dialog" style="max-width:960px;">
-                <div class="financial-form-modal__header">
-                    <div>
-                        <div class="financial-form-modal__title">Edit Todo</div>
-                        <div class="financial-form-modal__subtitle">{{ $todoModal->title }}</div>
-                    </div>
-                    <button type="button" class="btn-gray" onclick="closeTodoFormModal('todoEditModal-{{ $todoModal->id }}')"><i class="fas fa-times"></i> Close</button>
+    <div id="todoEditModal" class="financial-form-modal" style="display:none;">
+        <div class="financial-form-modal__dialog" style="max-width:960px;">
+            <div class="financial-form-modal__header">
+                <div>
+                    <div class="financial-form-modal__title">Edit Todo</div>
+                    <div class="financial-form-modal__subtitle" id="todoEditModalSubtitle">Update the selected task without leaving the monitoring page.</div>
                 </div>
-                @include('todos._form', [
-                    'todo' => $todoModal,
-                    'assignedToOptions' => $assignedToOptions,
-                    'formMode' => 'edit',
-                    'isModal' => true,
-                    'modalId' => 'todoEditModal-' . $todoModal->id,
-                    'returnUrl' => request()->fullUrl(),
-                ])
+                <button type="button" onclick="closeTodoFormModal('todoEditModal')" title="Close" aria-label="Close" style="border:none; background:transparent; color:#64748b; font-size:18px; font-weight:700; line-height:1; padding:0; width:24px; height:24px; display:flex; align-items:center; justify-content:center; cursor:pointer;">&times;</button>
             </div>
+            @include('todos._form', [
+                'todo' => new \App\Models\Todo(),
+                'assignedToOptions' => $assignedToOptions,
+                'formMode' => 'edit',
+                'isModal' => true,
+                'modalId' => 'todoEditModal',
+                'formAction' => '#',
+                'returnUrl' => request()->fullUrl(),
+            ])
         </div>
-    @endforeach
+    </div>
 
     <div class="notification-container" id="notificationContainer"></div>
 
@@ -956,8 +968,56 @@
                 return;
             }
 
-            modal.style.display = 'flex';
+            modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
+        }
+
+        function openTodoEditModal(button) {
+            const modal = document.getElementById('todoEditModal');
+            if (!modal || !button) {
+                return;
+            }
+
+            const todoId = button.dataset.todoId;
+            const form = modal.querySelector('form');
+            if (!todoId || !form) {
+                return;
+            }
+
+            form.action = `/todos/${todoId}`;
+
+            const subtitle = document.getElementById('todoEditModalSubtitle');
+            if (subtitle) {
+                subtitle.textContent = button.dataset.todoTitle || 'Update the selected task without leaving the monitoring page.';
+            }
+
+            const setValue = (name, value) => {
+                const field = form.querySelector(`[name="${name}"]`);
+                if (!field) return;
+                field.value = value ?? '';
+            };
+
+            const setChecked = (name, checked) => {
+                const field = form.querySelector(`[name="${name}"]`);
+                if (!field) return;
+                field.checked = checked;
+            };
+
+            setValue('title', button.dataset.todoTitle);
+            setValue('description', button.dataset.todoDescription);
+            setValue('priority', button.dataset.todoPriority);
+            setValue('status', button.dataset.todoStatus);
+            setValue('assigned_to', button.dataset.todoAssigned);
+            setValue('date_added', button.dataset.todoDateAdded);
+            setValue('due_date', button.dataset.todoDueDate);
+            setValue('remarks', button.dataset.todoRemarks);
+            setValue('recurrence_frequency', button.dataset.todoRecurrenceFrequency || 'weekly');
+            setValue('recurrence_interval', button.dataset.todoRecurrenceInterval || 1);
+            setValue('recurrence_end_date', button.dataset.todoRecurrenceEndDate);
+            setValue('modal_record_id', todoId);
+            setChecked('is_recurring', button.dataset.todoIsRecurring === '1');
+
+            openTodoFormModal('todoEditModal');
         }
 
         function closeTodoFormModal(modalId) {
@@ -973,8 +1033,7 @@
         document.addEventListener('click', function(event) {
             const modal = event.target.closest('.financial-form-modal');
             if (modal && event.target === modal) {
-                modal.style.display = 'none';
-                document.body.style.overflow = '';
+                closeTodoFormModal(modal.id);
             }
         });
 
@@ -984,9 +1043,8 @@
             }
 
             document.querySelectorAll('.financial-form-modal').forEach(function(modal) {
-                if (modal.style.display === 'flex') {
-                    modal.style.display = 'none';
-                    document.body.style.overflow = '';
+                if (modal.style.display === 'block') {
+                    closeTodoFormModal(modal.id);
                 }
             });
         });
@@ -994,7 +1052,10 @@
         @if($errors->any())
             window.addEventListener('load', function() {
                 @if(old('modal_mode') === 'edit' && old('modal_record_id'))
-                    openTodoFormModal('todoEditModal-{{ old('modal_record_id') }}');
+                    const editButton = document.querySelector('[data-todo-id="{{ old('modal_record_id') }}"]');
+                    if (editButton) {
+                        openTodoEditModal(editButton);
+                    }
                 @else
                     openTodoFormModal('todoCreateModal');
                 @endif

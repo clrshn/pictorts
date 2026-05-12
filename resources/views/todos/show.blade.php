@@ -10,7 +10,6 @@
             <div class="detail-header-actions">
                 @include('components.pin-toggle', ['record' => $todo, 'subjectType' => 'todo'])
                 <a href="{{ request()->fullUrlWithQuery(['export' => 'print']) }}" target="_blank" class="btn-blue"><i class="fas fa-print"></i> Print</a>
-                <a href="{{ route('todos.edit', $todo) }}" class="btn-orange"><i class="fas fa-edit"></i> Edit</a>
                 <a href="{{ route('todos.index') }}" class="btn-gray"><i class="fas fa-arrow-left"></i> Back</a>
             </div>
         </div>

@@ -11,7 +11,6 @@
             <div class="detail-header-actions">
                 @include('components.pin-toggle', ['record' => $financial, 'subjectType' => 'financial'])
                 <a href="{{ request()->fullUrlWithQuery(['export' => 'print']) }}" target="_blank" class="btn-blue"><i class="fas fa-print"></i> Print</a>
-                <a href="{{ route('financial.edit', $financial) }}" class="btn-orange"><i class="fas fa-edit"></i> Edit</a>
                 <a href="{{ route('financial.index') }}" class="btn-gray"><i class="fas fa-arrow-left"></i> Back</a>
             </div>
         </div>

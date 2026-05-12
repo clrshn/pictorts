@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\FinancialRecord;
 use App\Models\FinancialAttachment;
 use App\Models\Office;
-use App\Models\SavedFilter;
 use App\Models\User;
 use App\Services\ActivityLogService;
 use App\Services\InAppNotificationService;
@@ -285,16 +284,12 @@ class FinancialController extends Controller
 
         $records = $query->paginate(15)->withQueryString();
         $offices = Office::ordered()->get();
-        $savedFilters = SavedFilter::where('user_id', auth()->id())
-            ->where('module', 'financial')
-            ->latest()
-            ->get();
         $financialSnapshotRecord = FinancialRecord::query()
             ->whereNotNull('pr_amount')
             ->orderByDesc('pr_amount')
             ->first();
 
-        return view('financial.index', compact('records', 'offices', 'savedFilters', 'financialSnapshotRecord'));
+        return view('financial.index', compact('records', 'offices', 'financialSnapshotRecord'));
     }
 
     public function create()

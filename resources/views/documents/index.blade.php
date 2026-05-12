@@ -73,11 +73,6 @@
             @endif
         </div>
 
-        @include('components.saved-filter-bar', [
-            'module' => !empty($isTravelOrderPage) ? 'travel_orders' : 'documents',
-            'savedFilters' => $savedFilters ?? collect(),
-        ])
-
         <form method="GET" action="{{ route('documents.index') }}">
             @foreach(['direction', 'status', 'delivery_scope', 'travel_order_type', 'sort_by'] as $field)
                 @if(request($field))
@@ -176,7 +171,7 @@
                 'printUrl' => request()->fullUrlWithQuery(['export' => 'print']),
             ])
 
-            <button type="button" class="btn-red" style="min-width:100px;height:36px;display:inline-flex;align-items:center;justify-content:center;" onclick="openDocumentFormModal('{{ route('documents.create', array_merge(!empty($isTravelOrderPage) ? ['document_type' => 'TO'] : [], ['return_to' => request()->fullUrl()])) }}', '{{ !empty($isTravelOrderPage) ? 'Add Travel Order' : 'Add New Document' }}')"><i class="fas fa-plus"></i> {{ !empty($isTravelOrderPage) ? 'Add Travel Order' : 'Add New Document' }}</button>
+            <button type="button" class="btn-red" style="min-width:100px;height:36px;display:inline-flex;align-items:center;justify-content:center;" onclick="openDocumentFormModal('documentCreateModal')"><i class="fas fa-plus"></i> {{ !empty($isTravelOrderPage) ? 'Add Travel Order' : 'Add New Document' }}</button>
         </div>
         <div style="overflow-x:auto;max-width:100%;">
             <table id="documentsTable" style="min-width:{{ !empty($isTravelOrderPage) ? '1340px' : '1020px' }};width:100%;border-collapse:collapse;">
@@ -281,7 +276,43 @@
                             </td>
                             <td style="text-align:left;padding:20px;white-space:nowrap;width:120px;" onclick="event.stopPropagation();">
                                 <div style="display:flex;gap:4px;align-items:center;justify-content:flex-start;">
-                                    <button type="button" class="btn-blue" title="Edit" style="padding:6px 8px;min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;" onclick="openDocumentFormModal('{{ route('documents.edit', ['document' => $doc, 'return_to' => request()->fullUrl()]) }}', 'Edit {{ $doc->dts_number }}')"><i class="fas fa-edit"></i></button>
+                                    <button
+                                        type="button"
+                                        class="btn-blue"
+                                        title="Edit"
+                                        style="padding:6px 8px;min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;"
+                                        data-document-id="{{ $doc->id }}"
+                                        data-document-dts-number="{{ e($doc->dts_number) }}"
+                                        data-document-type="{{ $doc->document_type }}"
+                                        data-direction="{{ $doc->direction }}"
+                                        data-delivery-scope="{{ $doc->delivery_scope }}"
+                                        data-originating-office="{{ $doc->originating_office }}"
+                                        data-to-office="{{ $doc->to_office }}"
+                                        data-memorandum-number="{{ e($doc->memorandum_number ?? '') }}"
+                                        data-travel-order-type="{{ $doc->travel_order_type }}"
+                                        data-travel-dates="{{ e($doc->travel_dates ?? '') }}"
+                                        data-destinations="{{ e($doc->destinations ?? '') }}"
+                                        data-travelers="{{ e($doc->travelers ?? '') }}"
+                                        data-subject="{{ e($doc->subject ?? '') }}"
+                                        data-opg-reference-no="{{ e($doc->opg_reference_no ?? '') }}"
+                                        data-opa-reference-no="{{ e($doc->opa_reference_no ?? '') }}"
+                                        data-governors-instruction="{{ e($doc->governors_instruction ?? '') }}"
+                                        data-administrators-instruction="{{ e($doc->administrators_instruction ?? '') }}"
+                                        data-returned="{{ e($doc->returned ?? '') }}"
+                                        data-opg-action-slip="{{ e($doc->opg_action_slip ?? '') }}"
+                                        data-dts-no="{{ e($doc->dts_no ?? '') }}"
+                                        data-particulars="{{ e($doc->particulars ?? '') }}"
+                                        data-period="{{ e($doc->period ?? '') }}"
+                                        data-action-required="{{ e($doc->action_required ?? '') }}"
+                                        data-endorsed-to="{{ e($doc->endorsed_to ?? '') }}"
+                                        data-date-received="{{ $doc->date_received ? $doc->date_received->format('Y-m-d') : '' }}"
+                                        data-received-via-online="{{ $doc->received_via_online ? '1' : '0' }}"
+                                        data-status="{{ $doc->status }}"
+                                        data-remarks="{{ e($doc->remarks ?? '') }}"
+                                        data-shared-drive-link="{{ e($doc->shared_drive_link ?? '') }}"
+                                        onclick="event.stopPropagation(); openDocumentEditModal(this)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
                                     @if($doc->pinnedByCurrentUser())
                                         <span title="Pinned" style="display:inline-flex; align-items:center; justify-content:center; min-width:32px; height:32px; border-radius:8px; background:#fff7ed; color:#c2410c; border:1px solid #fdba74;">
                                             <i class="fas fa-thumbtack"></i>
@@ -291,7 +322,7 @@
                                         <form action="{{ route('documents.destroy', $doc) }}" method="POST" style="display:inline;" id="deleteForm-{{ $doc->id }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="button" class="btn-danger" title="Delete" onclick='confirmDelete({{ $doc->id }}, @json($doc->subject ?? "Untitled Document"), @json($doc->dts_number ?? "No Tracking Code"))' style="padding:6px 8px;min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-trash"></i></button>
+                                            <button type="button" class="btn-danger" title="Delete" onclick='event.stopPropagation(); openDocumentDeleteModal({{ $doc->id }}, @json($doc->subject ?? "Untitled Document"), @json($doc->dts_number ?? "No Tracking Code"))' style="padding:6px 8px;min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-trash"></i></button>
                                         </form>
                                     @endif
                                 </div>
@@ -342,7 +373,7 @@
                                     <i class="fas fa-inbox" style="font-size:48px;color:#c0392b;margin-bottom:16px;"></i>
                                     <h3 style="color:#1a1a2e;margin-bottom:8px;">{{ !empty($isTravelOrderPage) ? 'No Travel Orders Found' : 'No Documents Found' }}</h3>
                                     <p style="color:#64748b;margin-bottom:20px;">{{ !empty($isTravelOrderPage) ? 'Start by adding your first travel order to the system.' : 'Start by adding your first document to the system.' }}</p>
-                                    <button type="button" class="btn-red" onclick="openDocumentFormModal('{{ route('documents.create', array_merge(!empty($isTravelOrderPage) ? ['document_type' => 'TO'] : [], ['return_to' => request()->fullUrl()])) }}', '{{ !empty($isTravelOrderPage) ? 'Add Travel Order' : 'Add New Document' }}')"><i class="fas fa-plus"></i> {{ !empty($isTravelOrderPage) ? 'Add Travel Order' : 'Add New Document' }}</button>
+                                    <button type="button" class="btn-red" onclick="openDocumentFormModal('documentCreateModal')"><i class="fas fa-plus"></i> {{ !empty($isTravelOrderPage) ? 'Add Travel Order' : 'Add New Document' }}</button>
                                 </div>
                             </td>
                         </tr>
@@ -378,16 +409,45 @@
         </div>
     </div>
 
-    <div id="documentFormModal" class="financial-form-modal" style="display:none;">
-        <div class="financial-form-modal__dialog" style="max-width:1180px; width:min(1180px, 94vw); padding:0; overflow:hidden;">
-            <div class="financial-form-modal__header" style="padding:16px 20px; border-bottom:1px solid rgba(148,163,184,0.18);">
+    <div id="documentCreateModal" class="financial-form-modal" style="display:none;">
+        <div class="financial-form-modal__dialog" style="max-width:1180px;">
+            <div class="financial-form-modal__header">
                 <div>
-                    <div id="documentFormModalTitle" class="financial-form-modal__title">Document Form</div>
+                    <div class="financial-form-modal__title">{{ !empty($isTravelOrderPage) ? 'Add Travel Order' : 'Add New Document' }}</div>
                     <div class="financial-form-modal__subtitle">Create or edit records without leaving the current list.</div>
                 </div>
-                <button type="button" class="btn-gray" onclick="closeDocumentFormModal()"><i class="fas fa-times"></i> Close</button>
+                <button type="button" onclick="closeDocumentFormModal('documentCreateModal')" title="Close" aria-label="Close" style="border:none; background:transparent; color:#64748b; font-size:18px; font-weight:700; line-height:1; padding:0; width:24px; height:24px; display:flex; align-items:center; justify-content:center; cursor:pointer;">&times;</button>
             </div>
-            <iframe id="documentFormFrame" src="about:blank" style="width:100%; height:78vh; border:0; background:#fff;"></iframe>
+            @include('documents._form', [
+                'offices' => $offices,
+                'formMode' => 'create',
+                'isModal' => true,
+                'isTravelOrder' => !empty($isTravelOrderPage),
+                'returnUrl' => request()->fullUrl(),
+                'formKey' => !empty($isTravelOrderPage) ? 'document-create-travel-modal' : 'document-create-modal',
+            ])
+        </div>
+    </div>
+
+    <div id="documentEditModal" class="financial-form-modal" style="display:none;">
+        <div class="financial-form-modal__dialog" style="max-width:1180px;">
+            <div class="financial-form-modal__header">
+                <div>
+                    <div class="financial-form-modal__title">Edit Document</div>
+                    <div class="financial-form-modal__subtitle" id="documentEditModalSubtitle">Create or edit records without leaving the current list.</div>
+                </div>
+                <button type="button" onclick="closeDocumentFormModal('documentEditModal')" title="Close" aria-label="Close" style="border:none; background:transparent; color:#64748b; font-size:18px; font-weight:700; line-height:1; padding:0; width:24px; height:24px; display:flex; align-items:center; justify-content:center; cursor:pointer;">&times;</button>
+            </div>
+            @include('documents._form', [
+                'document' => new \App\Models\Document(),
+                'offices' => $offices,
+                'formMode' => 'edit',
+                'isModal' => true,
+                'isTravelOrder' => false,
+                'formAction' => '#',
+                'returnUrl' => request()->fullUrl(),
+                'formKey' => 'document-edit-modal-shared',
+            ])
         </div>
     </div>
 
@@ -425,18 +485,29 @@
             }
         }
 
-        function confirmDelete(docId, subject, trackingCode) {
-            if (window.confirm(`Delete this document?\n\nTitle: ${subject}\nTracking Code: ${trackingCode}`)) {
-                const form = document.getElementById(`deleteForm-${docId}`);
-                if (form) {
-                    form.submit();
+        function openDocumentDeleteModal(docId, subject, trackingCode) {
+            showConfirmDialog({
+                title: 'Delete Document',
+                message: `Are you sure you want to delete this document?<br><br><strong>Title:</strong> ${subject || 'Untitled Document'}<br><strong>Tracking Code:</strong> ${trackingCode || 'No Tracking Code'}<br><strong>This action cannot be undone!</strong>`,
+                confirmText: 'Delete',
+                cancelText: 'Cancel',
+                confirmClass: 'notification-btn-confirm',
+                onConfirm: function() {
+                    const form = document.getElementById(`deleteForm-${docId}`);
+                    if (form) {
+                        form.submit();
+                    }
                 }
-            }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.clickable-row').forEach((row) => {
-                row.addEventListener('click', function() {
+                row.addEventListener('click', function(event) {
+                    if (event.target.closest('button') || event.target.closest('a') || event.target.closest('form') || event.target.closest('input') || event.target.closest('select') || event.target.closest('textarea') || event.target.closest('label')) {
+                        return;
+                    }
+
                     const href = this.getAttribute('data-href');
                     if (href) {
                         window.location.href = href;
@@ -466,72 +537,113 @@
             closeDocumentHeaderDropdowns();
         });
 
-        function openDocumentFormModal(url, title) {
-            const modal = document.getElementById('documentFormModal');
-            const frame = document.getElementById('documentFormFrame');
-            const titleNode = document.getElementById('documentFormModalTitle');
-
-            if (!modal || !frame || !titleNode) {
+        function openDocumentFormModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
                 return;
             }
 
-            titleNode.textContent = title || 'Document Form';
-            frame.src = url + (url.includes('?') ? '&' : '?') + 'modal=1';
-            modal.style.display = 'flex';
+            modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
         }
 
-        function closeDocumentFormModal() {
-            const modal = document.getElementById('documentFormModal');
-            const frame = document.getElementById('documentFormFrame');
+        function openDocumentEditModal(button) {
+            const modal = document.getElementById('documentEditModal');
+            if (!modal || !button) {
+                return;
+            }
 
-            if (!modal || !frame) {
+            const docId = button.dataset.documentId;
+            const form = modal.querySelector('form');
+            if (!docId || !form) {
+                return;
+            }
+
+            form.action = `/documents/${docId}`;
+
+            const subtitle = document.getElementById('documentEditModalSubtitle');
+            if (subtitle) {
+                subtitle.textContent = button.dataset.documentDtsNumber || 'Create or edit records without leaving the current list.';
+            }
+
+            const setValue = (name, value) => {
+                const field = form.querySelector(`[name="${name}"]`);
+                if (!field) return;
+                field.value = value ?? '';
+                field.dispatchEvent(new Event('change', { bubbles: true }));
+            };
+
+            setValue('document_type', button.dataset.documentType);
+            setValue('direction', button.dataset.direction);
+            setValue('delivery_scope', button.dataset.deliveryScope);
+            setValue('originating_office', button.dataset.originatingOffice);
+            setValue('to_office', button.dataset.toOffice);
+            setValue('memorandum_number', button.dataset.memorandumNumber);
+            setValue('travel_order_type', button.dataset.travelOrderType);
+            setValue('travel_dates', button.dataset.travelDates);
+            setValue('destinations', button.dataset.destinations);
+            setValue('travelers', button.dataset.travelers);
+            setValue('subject', button.dataset.subject);
+            setValue('opg_reference_no', button.dataset.opgReferenceNo);
+            setValue('opa_reference_no', button.dataset.opaReferenceNo);
+            setValue('governors_instruction', button.dataset.governorsInstruction);
+            setValue('administrators_instruction', button.dataset.administratorsInstruction);
+            setValue('returned', button.dataset.returned);
+            setValue('opg_action_slip', button.dataset.opgActionSlip);
+            setValue('dts_no', button.dataset.dtsNo);
+            setValue('particulars', button.dataset.particulars);
+            setValue('period', button.dataset.period);
+            setValue('action_required', button.dataset.actionRequired);
+            setValue('endorsed_to', button.dataset.endorsedTo);
+            setValue('date_received', button.dataset.dateReceived);
+            setValue('received_via_online', button.dataset.receivedViaOnline || '0');
+            setValue('status', button.dataset.status || 'ONGOING');
+            setValue('remarks', button.dataset.remarks);
+            setValue('shared_drive_link', button.dataset.sharedDriveLink);
+            setValue('modal_record_id', docId);
+
+            openDocumentFormModal('documentEditModal');
+        }
+
+        function closeDocumentFormModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
                 return;
             }
 
             modal.style.display = 'none';
-            frame.src = 'about:blank';
             document.body.style.overflow = '';
         }
 
-        document.getElementById('documentFormFrame')?.addEventListener('load', function() {
-            const frame = this;
-
-            if (!frame.contentWindow || !frame.contentDocument) {
-                return;
-            }
-
-            const iframeUrl = new URL(frame.contentWindow.location.href);
-            const isCreatePage = /\/documents\/create$/.test(iframeUrl.pathname);
-            const isEditPage = /\/documents\/\d+\/edit$/.test(iframeUrl.pathname);
-
-            if (!isCreatePage && !isEditPage && iframeUrl.pathname.includes('/documents')) {
-                closeDocumentFormModal();
-                window.location.reload();
-                return;
-            }
-
-            const style = frame.contentDocument.createElement('style');
-            style.textContent = `
-                body { background:#ffffff !important; margin:0 !important; padding:0 !important; }
-                .sidebar, header, footer, .breadcrumb { display:none !important; }
-                main, .main-content, .content-area, .content-wrapper, .py-12 { margin:0 !important; padding:0 !important; max-width:none !important; }
-                .table-card { box-shadow:none !important; border-radius:0 !important; margin:0 !important; }
-            `;
-            frame.contentDocument.head.appendChild(style);
-        });
-
         document.addEventListener('click', function(event) {
-            const modal = event.target.closest('#documentFormModal');
-            if (modal && event.target === modal) {
-                closeDocumentFormModal();
-            }
+            document.querySelectorAll('.financial-form-modal').forEach((modal) => {
+                if (event.target === modal) {
+                    closeDocumentFormModal(modal.id);
+                }
+            });
         });
 
         document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape' && document.getElementById('documentFormModal')?.style.display === 'flex') {
-                closeDocumentFormModal();
+            if (event.key === 'Escape') {
+                document.querySelectorAll('.financial-form-modal').forEach((modal) => {
+                    if (modal.style.display === 'block') {
+                        closeDocumentFormModal(modal.id);
+                    }
+                });
             }
         });
+
+        @if($errors->any() || session('duplicate_warning'))
+            window.addEventListener('load', function() {
+                @if(old('modal_mode') === 'edit' && old('modal_record_id'))
+                    const editButton = document.querySelector('[data-document-id="{{ old('modal_record_id') }}"]');
+                    if (editButton) {
+                        openDocumentEditModal(editButton);
+                    }
+                @else
+                    openDocumentFormModal('documentCreateModal');
+                @endif
+            });
+        @endif
     </script>
 </x-app-layout>

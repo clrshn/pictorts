@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use App\Models\DocumentFile;
 use App\Models\Office;
-use App\Models\SavedFilter;
 use App\Models\User;
 use App\Services\ActivityLogService;
 use App\Services\InAppNotificationService;
@@ -340,12 +339,7 @@ class DocumentController extends Controller
 
         $documents = $query->paginate(15)->withQueryString();
         $offices = Office::ordered()->get();
-        $savedFilters = SavedFilter::where('user_id', auth()->id())
-            ->where('module', $isTravelOrderPage ? 'travel_orders' : 'documents')
-            ->latest()
-            ->get();
-
-        return view('documents.index', compact('documents', 'offices', 'isTravelOrderPage', 'savedFilters'));
+        return view('documents.index', compact('documents', 'offices', 'isTravelOrderPage'));
     }
 
     public function create(Request $request)

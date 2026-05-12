@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Todo;
-use App\Models\SavedFilter;
 use App\Services\ActivityLogService;
 use App\Services\InAppNotificationService;
 use App\Support\TableExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class TodoController extends Controller
 {
@@ -53,6 +53,7 @@ class TodoController extends Controller
         // centralized prevents filter mismatches between UI tables and generated reports.
         $query = Todo::query();
         $exportMode = $request->get('export');
+        $dateAddedColumn = Schema::hasColumn('todos', 'date_added') ? 'date_added' : 'created_at';
 
         // Filter by status
         if ($request->filled('status') && $request->status !== 'ALL') {
@@ -101,30 +102,32 @@ class TodoController extends Controller
         // Sort by due date and priority
         if ($request->filled('sort_by')) {
             if ($request->sort_by === 'newest') {
-                $query->orderBy('date_added', 'desc')
+                $query->orderBy($dateAddedColumn, 'desc')
                     ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
                     ->orderBy('due_date', 'asc');
             } elseif ($request->sort_by === 'oldest') {
-                $query->orderBy('date_added', 'asc')
+                $query->orderBy($dateAddedColumn, 'asc')
                     ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
                     ->orderBy('due_date', 'asc');
             } elseif ($request->sort_by === 'az') {
                 $query->orderBy('title', 'asc')
                     ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
-                    ->orderBy('due_date', 'asc');
+                    ->orderBy('due_date', 'asc')
+                    ->orderBy($dateAddedColumn, 'desc');
             } elseif ($request->sort_by === 'za') {
                 $query->orderBy('title', 'desc')
                     ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
-                    ->orderBy('due_date', 'asc');
+                    ->orderBy('due_date', 'asc')
+                    ->orderBy($dateAddedColumn, 'desc');
             } else {
                 $query->orderBy('due_date', 'asc')
                     ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
-                    ->orderBy('date_added', 'desc');
+                    ->orderBy($dateAddedColumn, 'desc');
             }
         } else {
             $query->orderBy('due_date', 'asc')
                 ->orderByRaw("FIELD(priority, 'top', 'high', 'medium', 'low') ASC")
-                ->orderBy('date_added', 'desc');
+                ->orderBy($dateAddedColumn, 'desc');
         }
 
         if ($exportMode === 'csv') {
@@ -186,12 +189,7 @@ class TodoController extends Controller
         $assignedToOptions = $this->assignedToOptions();
 
         $todos = $query->paginate(15);
-        $savedFilters = SavedFilter::where('user_id', auth()->id())
-            ->where('module', 'todos')
-            ->latest()
-            ->get();
-
-        return view('todos.index', compact('todos', 'savedFilters', 'dueReminderData', 'assignedToOptions', 'activeDueAlert'));
+        return view('todos.index', compact('todos', 'dueReminderData', 'assignedToOptions', 'activeDueAlert'));
     }
 
     /**

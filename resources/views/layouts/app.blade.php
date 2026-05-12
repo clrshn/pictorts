@@ -1332,7 +1332,75 @@
             .notification-close { background: transparent !important; border: none !important; color: #6b7280 !important; font-size: 18px !important; cursor: pointer !important; width: 24px !important; height: 24px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 6px !important; transition: all 0.2s ease !important; }
             .notification-close:hover { background: rgba(156, 163, 175, 0.2) !important; color: #111827 !important; }
             .notification-message { font-size: 14px !important; line-height: 1.4 !important; color: #4b5563 !important; }
+            .notification-actions {
+                display: flex !important;
+                justify-content: flex-end !important;
+                gap: 10px !important;
+                margin-top: 18px !important;
+            }
+            .notification-actions .notification-btn {
+                border: none !important;
+                border-radius: 8px !important;
+                min-width: 74px !important;
+                height: 38px !important;
+                padding: 0 16px !important;
+                font-size: 13px !important;
+                font-weight: 700 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                cursor: pointer !important;
+                transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease !important;
+            }
+            .notification-actions .notification-btn:hover {
+                transform: translateY(-1px) !important;
+            }
+            .notification-actions .notification-btn-cancel {
+                background: #e5e7eb !important;
+                color: #4b5563 !important;
+            }
+            .notification-actions .notification-btn-confirm {
+                background: #ef5b46 !important;
+                color: #ffffff !important;
+                box-shadow: 0 10px 20px rgba(239, 91, 70, 0.2) !important;
+            }
             .notification.removing { animation: toastDismiss 0.2s ease-out forwards !important; }
+
+            .financial-form-modal {
+                position: fixed;
+                inset: 0;
+                z-index: 9999;
+                background: rgba(15, 23, 42, 0.66);
+                padding: 24px 18px;
+                overflow: auto;
+            }
+            .financial-form-modal__dialog {
+                width: min(1020px, 100%);
+                margin: 0 auto;
+                background: #ffffff;
+                border-radius: 22px;
+                box-shadow: 0 28px 60px rgba(15, 23, 42, 0.2);
+                overflow: hidden;
+            }
+            .financial-form-modal__header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                padding: 18px 24px;
+                border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+                background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%);
+            }
+            .financial-form-modal__title {
+                font-size: 18px;
+                font-weight: 800;
+                color: #0f172a;
+            }
+            .financial-form-modal__subtitle {
+                margin-top: 4px;
+                font-size: 13px;
+                color: #64748b;
+            }
 
             @keyframes toastAppear { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
             @keyframes toastDismiss { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }

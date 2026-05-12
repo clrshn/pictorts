@@ -13,7 +13,6 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\PinController;
-use App\Http\Controllers\SavedFilterController;
 use App\Http\Controllers\TestEmailController;
 use App\Http\Controllers\TodoSubtaskController;
 use Illuminate\Support\Facades\Route;
@@ -88,8 +87,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/approvals/review', [ApprovalController::class, 'review'])->name('approvals.review');
     Route::post('/pins', [PinController::class, 'store'])->name('pins.store');
     Route::delete('/pins', [PinController::class, 'destroy'])->name('pins.destroy');
-    Route::post('/saved-filters', [SavedFilterController::class, 'store'])->name('saved-filters.store');
-    Route::delete('/saved-filters/{savedFilter}', [SavedFilterController::class, 'destroy'])->name('saved-filters.destroy');
     Route::post('/todos/{todo}/subtasks', [TodoSubtaskController::class, 'store'])->name('todos.subtasks.store');
     Route::match(['patch', 'put'], '/todos/{todo}/subtasks/{subtask}', [TodoSubtaskController::class, 'update'])->name('todos.subtasks.update');
     Route::delete('/todos/{todo}/subtasks/{subtask}', [TodoSubtaskController::class, 'destroy'])->name('todos.subtasks.destroy');

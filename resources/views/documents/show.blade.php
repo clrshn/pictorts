@@ -29,7 +29,6 @@
             <div class="detail-header-actions">
                 @include('components.pin-toggle', ['record' => $document, 'subjectType' => 'document'])
                 <a href="{{ request()->fullUrlWithQuery(['export' => 'print']) }}" target="_blank" class="btn-blue"><i class="fas fa-print"></i> Print</a>
-                <a href="{{ route('documents.edit', $document) }}" class="btn-orange"><i class="fas fa-edit"></i> Edit</a>
                 <a href="{{ route('documents.index', !empty($isTravelOrder) ? ['type' => 'TO'] : []) }}" class="btn-gray"><i class="fas fa-arrow-left"></i> Back</a>
             </div>
         </div>

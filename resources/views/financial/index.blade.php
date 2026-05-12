@@ -140,11 +140,6 @@
             @endif
         </div>
 
-        @include('components.saved-filter-bar', [
-            'module' => 'financial',
-            'savedFilters' => $savedFilters ?? collect(),
-        ])
-        
         <form method="GET" action="{{ route('financial.index') }}">
             @if(request('type'))
                 <input type="hidden" name="type" value="{{ request('type') }}">
@@ -403,7 +398,7 @@
                     <div class="financial-form-modal__title">Add New Financial Record</div>
                     <div class="financial-form-modal__subtitle">Create a record without leaving the current list.</div>
                 </div>
-                <button type="button" class="btn-gray" onclick="closeFinancialFormModal('financialCreateModal')"><i class="fas fa-times"></i> Close</button>
+                <button type="button" onclick="closeFinancialFormModal('financialCreateModal')" title="Close" aria-label="Close" style="border:none; background:transparent; color:#64748b; font-size:18px; font-weight:700; line-height:1; padding:0; width:24px; height:24px; display:flex; align-items:center; justify-content:center; cursor:pointer;">&times;</button>
             </div>
             @include('financial._form', [
                 'offices' => $offices,
@@ -422,7 +417,7 @@
                         <div class="financial-form-modal__title">Edit Financial Record</div>
                         <div class="financial-form-modal__subtitle">{{ $modalRecord->reference_code ?? 'No reference code yet' }}</div>
                     </div>
-                    <button type="button" class="btn-gray" onclick="closeFinancialFormModal('financialEditModal-{{ $modalRecord->id }}')"><i class="fas fa-times"></i> Close</button>
+                    <button type="button" onclick="closeFinancialFormModal('financialEditModal-{{ $modalRecord->id }}')" title="Close" aria-label="Close" style="border:none; background:transparent; color:#64748b; font-size:18px; font-weight:700; line-height:1; padding:0; width:24px; height:24px; display:flex; align-items:center; justify-content:center; cursor:pointer;">&times;</button>
                 </div>
                 @include('financial._form', [
                     'offices' => $offices,

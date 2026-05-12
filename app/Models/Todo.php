@@ -136,4 +136,13 @@ class Todo extends Model
 
         return (int) round(($this->subtasks->where('is_completed', true)->count() / $total) * 100);
     }
+
+    public function getDateAddedAttribute($value)
+    {
+        if ($value) {
+            return \Illuminate\Support\Carbon::parse($value);
+        }
+
+        return $this->created_at?->copy()?->startOfDay();
+    }
 }

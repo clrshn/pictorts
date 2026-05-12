@@ -146,9 +146,7 @@
                 Save anyway if this matches an existing financial record
             </label>
             <button type="submit" class="btn-red"><i class="fas fa-save"></i> {{ $isEdit ? 'Update Record' : 'Save Record' }}</button>
-            @if($isModal && $modalId)
-                <button type="button" class="btn-gray" onclick="closeFinancialFormModal('{{ $modalId }}')"><i class="fas fa-times"></i> Close</button>
-            @else
+            @if(!$isModal || !$modalId)
                 @if($isEdit)
                     <a href="{{ route('financial.show', $financialRecord) }}" class="btn-blue"><i class="fas fa-eye"></i> View</a>
                 @endif
