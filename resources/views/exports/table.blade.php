@@ -6,26 +6,33 @@
     <title>{{ $previewTitle }}</title>
 
     <style>
-        @page {
-            size: {{ $paperSize }} {{ $orientation }};
-            margin: 0.5in 0.75in 0.95in;
+       @page {
+        size: {{ $paperSize }} {{ $orientation }};
+       margin: 2.65in 0.75in 1.15in 0.75in;
         }
 
         html,
         body {
             margin: 0;
-            padding: 0;
+            padding-top: 2.3in;
+            padding-left: 0.75in;
+            padding-right: 0.75in;  
+            padding-bottom: 0.60in;
             color: #1f2937;
             font-family: Arial, Helvetica, sans-serif;
             font-size: 11px;
         }
 
-        .report-page {
-            padding: 0.46in 0 0.95in;
+        /* ---- Fixed header (repeats every page) ---- */
+        .header-block {
+            position: fixed;
+            top: 0.50in;
+            left: 1.0in;
+            right: 0.75in;
         }
 
         .header-table {
-            width: 82%;
+            width: 90%;
             margin: 0 auto;
             border-collapse: collapse;
             table-layout: fixed;
@@ -36,15 +43,17 @@
         }
 
         .logo-cell {
-            width: 124px;
+            width: 90px;
         }
 
         .logo-cell.left {
             text-align: left;
+            padding-right: 10px;
         }
 
         .logo-cell.right {
             text-align: right;
+            padding-left: 10px;
         }
 
         .logo-left {
@@ -53,7 +62,7 @@
         }
 
         .logo-right {
-            width: 92px;
+            width: 100px;
             height: auto;
         }
 
@@ -61,7 +70,7 @@
             text-align: center;
             font-family: "Times New Roman", Times, serif;
             color: #1f2d4a;
-            line-height: 1.02;
+            line-height: 1.0;
         }
 
         .gov-heading p {
@@ -69,12 +78,12 @@
         }
 
         .gov-heading .line-1 {
-            font-size: 12px;
+            font-size: 15px;
             font-weight: 700;
         }
 
         .gov-heading .line-2 {
-            font-size: 17px;
+            font-size: 15px;
             font-weight: 700;
             text-transform: uppercase;
         }
@@ -89,7 +98,7 @@
         }
 
         .title-block {
-            margin: 26px 0 34px;
+            margin: 16px 10 10;
             text-align: center;
             font-family: "Times New Roman", Times, serif;
             color: #17233c;
@@ -108,6 +117,36 @@
             margin-top: 6px;
         }
 
+        /* ---- Fixed footer (repeats every page) ---- */
+        .footer-block {
+            position: fixed;
+            left: 0.35in;
+            right: 0.35in;
+            bottom: 0.15in;
+            text-align: center;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        .footer-line {
+            height: 4px;
+            background: #df5c70;
+        }
+
+        .footer-tagline {
+            margin: 6px 0 4px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #294c96;
+        }
+
+        .footer-contact {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9px;
+            color: #475569;
+            line-height: 1.25;
+        }
+
+        /* ---- Flowing content ---- */
         .content-block {
             width: 92%;
             margin: 0 auto;
@@ -116,17 +155,6 @@
         .section-box {
             border: 1px solid #97a1ae;
             overflow: hidden;
-        }
-
-        .section-title {
-            padding: 8px 12px;
-            background: #df7275;
-            color: #ffffff;
-            font-family: "Times New Roman", Times, serif;
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
         }
 
         .data-table {
@@ -180,123 +208,46 @@
             color: #64748b;
             font-size: 11px;
         }
-
-        .footer-block {
-            position: fixed;
-            left: 0.35in;
-            right: 0.35in;
-            bottom: 0.32in;
-            text-align: center;
-            font-family: "Times New Roman", Times, serif;
-        }
-
-        .footer-line {
-            height: 4px;
-            background: #df5c70;
-        }
-
-        .footer-tagline {
-            margin: 6px 0 4px;
-            font-size: 15px;
-            font-weight: 700;
-            color: #294c96;
-        }
-
-        .footer-contact {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 9px;
-            color: #475569;
-            line-height: 1.25;
-        }
     </style>
 </head>
 
 <body>
     @php($canRenderImages = extension_loaded('gd'))
-    <div class="report-page">
-        <table style="width: 100%; border: none; border-collapse: collapse;">
-            <thead>
-                <tr>
-                    <td style="padding: 0; border: none;">
-                        <table class="header-table">
-                            <tr>
-                                <td class="logo-cell left">
-                                    @if(!empty($leftLogo))
-                                        <img src="{{ $leftLogo }}" alt="PGLU Logo" class="logo-left">
-                                    @endif
-                                </td>
 
-                                <td>
-                                    <div class="gov-heading">
-                                        <p class="line-1">Republic of the Philippines</p>
-                                        <p class="line-2">Province of La Union</p>
-                                        <p class="line-3">Provincial Information and</p>
-                                        <p class="line-4">Communications Technology Office</p>
-                                    </div>
-                                </td>
+    {{-- Fixed header — rendered once, shown on every page by DomPDF --}}
+    <div class="header-block">
+        <table class="header-table">
+            <tr>
+                <td class="logo-cell left">
+                    @if(!empty($leftLogo))
+                        <img src="{{ $leftLogo }}" alt="PGLU Logo" class="logo-left">
+                    @endif
+                </td>
 
-                                <td class="logo-cell right">
-                                    @if(!empty($rightLogo))
-                                        <img src="{{ $rightLogo }}" alt="Bagong Pilipinas Logo" class="logo-right">
-                                    @endif
-                                </td>
-                            </tr>
-                        </table>
+                <td>
+                    <div class="gov-heading">
+                        <p class="line-1">Republic of the Philippines</p>
+                        <p class="line-2">Province of La Union</p>
+                        <p class="line-3">Provincial Information and</p>
+                        <p class="line-4">Communications Technology Office</p>
+                    </div>
+                </td>
 
-                        <div class="title-block">
-                            <p class="system-title">PICTO - Records Monitoring System</p>
-                            <p class="report-title">{{ $reportTitle }}</p>
-                        </div>
-                    </td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="padding: 0; border: none;">
-                        <div class="content-block">
-                            <div class="section-box">
-
-
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            @foreach($headers as $header)
-                                                <th>{{ $header }}</th>
-                                            @endforeach
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-                                        @forelse($rows as $row)
-                                            <tr>
-                                                @foreach($row as $cell)
-                                                    <td>{!! nl2br(e((string) $cell)) !!}</td>
-                                                @endforeach
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="{{ count($headers) }}" class="no-data">
-                                                    No records found.
-                                                </td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td style="padding: 0; border: none;">
-                        <div style="height: 0.5in;"></div>
-                    </td>
-                </tr>
-            </tfoot>
+                <td class="logo-cell right">
+                    @if(!empty($rightLogo))
+                        <img src="{{ $rightLogo }}" alt="Bagong Pilipinas Logo" class="logo-right">
+                    @endif
+                </td>
+            </tr>
         </table>
+
+        <div class="title-block">
+            <p class="system-title">PICTO - Records Monitoring System</p>
+            <p class="report-title">{{ $reportTitle }}</p>
+        </div>
     </div>
 
+    {{-- Fixed footer — rendered once, shown on every page by DomPDF --}}
     <div class="footer-block">
         <div class="footer-line"></div>
         <div class="footer-tagline">LA UNION: Agkaysa!</div>
@@ -305,6 +256,37 @@
             webmaster@launion.gov.ph | www.launion.gov.ph
         </div>
         <div class="footer-line" style="margin-top: 6px;"></div>
+    </div>
+
+    {{-- Flowing content — fills the area between @page margins --}}
+    <div class="content-block">
+        <div class="section-box">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        @foreach($headers as $header)
+                            <th>{{ $header }}</th>
+                        @endforeach
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @forelse($rows as $row)
+                        <tr>
+                            @foreach($row as $cell)
+                                <td>{!! nl2br(e((string) $cell)) !!}</td>
+                            @endforeach
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="{{ count($headers) }}" class="no-data">
+                                No records found.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 </html>
