@@ -50,13 +50,11 @@
         .logo-left {
             width: 92px;
             height: auto;
-            display: block;
         }
 
         .logo-right {
             width: 92px;
             height: auto;
-            display: inline-block;
         }
 
         .gov-heading {
@@ -214,68 +212,89 @@
 </head>
 
 <body>
+    @php($canRenderImages = extension_loaded('gd'))
     <div class="report-page">
-        <table class="header-table">
-            <tr>
-                <td class="logo-cell left">
-                    @if(!empty($leftLogo))
-                        <img src="{{ $leftLogo }}" alt="PGLU Logo" class="logo-left">
-                    @endif
-                </td>
-
-                <td>
-                    <div class="gov-heading">
-                        <p class="line-1">Republic of the Philippines</p>
-                        <p class="line-2">Province of La Union</p>
-                        <p class="line-3">Provincial Information and</p>
-                        <p class="line-4">Communications Technology Office</p>
-                    </div>
-                </td>
-
-                <td class="logo-cell right">
-                    @if(!empty($rightLogo))
-                        <img src="{{ $rightLogo }}" alt="Bagong Pilipinas Logo" class="logo-right">
-                    @endif
-                </td>
-            </tr>
-        </table>
-
-        <div class="title-block">
-            <p class="system-title">PICTO - Records Monitoring System</p>
-            <p class="report-title">{{ $reportTitle }}</p>
-        </div>
-
-        <div class="content-block">
-            <div class="section-box">
-
-
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            @foreach($headers as $header)
-                                <th>{{ $header }}</th>
-                            @endforeach
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @forelse($rows as $row)
+        <table style="width: 100%; border: none; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <td style="padding: 0; border: none;">
+                        <table class="header-table">
                             <tr>
-                                @foreach($row as $cell)
-                                    <td>{!! nl2br(e((string) $cell)) !!}</td>
-                                @endforeach
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="{{ count($headers) }}" class="no-data">
-                                    No records found.
+                                <td class="logo-cell left">
+                                    @if(!empty($leftLogo))
+                                        <img src="{{ $leftLogo }}" alt="PGLU Logo" class="logo-left">
+                                    @endif
+                                </td>
+
+                                <td>
+                                    <div class="gov-heading">
+                                        <p class="line-1">Republic of the Philippines</p>
+                                        <p class="line-2">Province of La Union</p>
+                                        <p class="line-3">Provincial Information and</p>
+                                        <p class="line-4">Communications Technology Office</p>
+                                    </div>
+                                </td>
+
+                                <td class="logo-cell right">
+                                    @if(!empty($rightLogo))
+                                        <img src="{{ $rightLogo }}" alt="Bagong Pilipinas Logo" class="logo-right">
+                                    @endif
                                 </td>
                             </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                        </table>
+
+                        <div class="title-block">
+                            <p class="system-title">PICTO - Records Monitoring System</p>
+                            <p class="report-title">{{ $reportTitle }}</p>
+                        </div>
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 0; border: none;">
+                        <div class="content-block">
+                            <div class="section-box">
+
+
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            @foreach($headers as $header)
+                                                <th>{{ $header }}</th>
+                                            @endforeach
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @forelse($rows as $row)
+                                            <tr>
+                                                @foreach($row as $cell)
+                                                    <td>{!! nl2br(e((string) $cell)) !!}</td>
+                                                @endforeach
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="{{ count($headers) }}" class="no-data">
+                                                    No records found.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td style="padding: 0; border: none;">
+                        <div style="height: 0.5in;"></div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
 
     <div class="footer-block">

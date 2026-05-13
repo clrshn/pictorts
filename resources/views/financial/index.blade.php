@@ -4,29 +4,7 @@
         <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / Financial Monitoring</div>
     </x-slot>
 
-    @if(session('success'))
-        <div class="alert alert-success" style="margin-bottom: 16px;">
-            {{ session('success') }}
-        </div>
-    @endif
 
-    @if(session('error'))
-        <div class="alert alert-danger" style="margin-bottom: 16px;">
-            {{ session('error') }}
-        </div>
-    @endif
-
-    @if(session('warning'))
-        <div class="alert alert-warning" style="margin-bottom: 16px;">
-            {{ session('warning') }}
-        </div>
-    @endif
-
-    @if(session('info'))
-        <div class="alert alert-info" style="margin-bottom: 16px;">
-            {{ session('info') }}
-        </div>
-    @endif
 
     @php
         if (is_array($financialSnapshotRecord ?? null)) {
@@ -430,8 +408,7 @@
         </div>
     @endforeach
 
-    <!-- Notification Container -->
-    <div class="notification-container" id="notificationContainer"></div>
+
 
     <style>
         /* Consistent Font System */

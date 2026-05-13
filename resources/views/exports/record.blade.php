@@ -49,13 +49,11 @@
         .logo-left {
             width: 92px;
             height: auto;
-            display: block;
         }
 
         .logo-right {
             width: 92px;
             height: auto;
-            display: inline-block;
         }
 
         .gov-heading {
@@ -209,52 +207,73 @@
     </style>
 </head>
 <body>
+    @php($canRenderImages = extension_loaded('gd'))
     <div class="report-page">
-        <table class="header-table">
-            <tr>
-                <td class="logo-cell left">
-                    @if(!empty($leftLogo))
-                        <img src="{{ $leftLogo }}" alt="PGLU Logo" class="logo-left">
-                    @endif
-                </td>
-                <td>
-                    <div class="gov-heading">
-                        <p class="line-1">Republic of the Philippines</p>
-                        <p class="line-2">Province of La Union</p>
-                        <p class="line-3">Provincial Information and</p>
-                        <p class="line-4">Communications Technology Office</p>
-                    </div>
-                </td>
-                <td class="logo-cell right">
-                    @if(!empty($rightLogo))
-                        <img src="{{ $rightLogo }}" alt="Bagong Pilipinas Logo" class="logo-right">
-                    @endif
-                </td>
-            </tr>
-        </table>
+        <table style="width: 100%; border: none; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <td style="padding: 0; border: none;">
+                        <table class="header-table">
+                            <tr>
+                                <td class="logo-cell left">
+                                    @if(!empty($leftLogo))
+                                        <img src="{{ $leftLogo }}" alt="PGLU Logo" class="logo-left">
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="gov-heading">
+                                        <p class="line-1">Republic of the Philippines</p>
+                                        <p class="line-2">Province of La Union</p>
+                                        <p class="line-3">Provincial Information and</p>
+                                        <p class="line-4">Communications Technology Office</p>
+                                    </div>
+                                </td>
+                                <td class="logo-cell right">
+                                    @if(!empty($rightLogo))
+                                        <img src="{{ $rightLogo }}" alt="Bagong Pilipinas Logo" class="logo-right">
+                                    @endif
+                                </td>
+                            </tr>
+                        </table>
 
-        <div class="title-block">
-            <p class="system-title">PICTO - Records Monitoring System</p>
-            <p class="report-title">{{ $reportTitle }}</p>
-        </div>
-
-        <div class="content-block">
-            @foreach($sections as $section)
-                <div class="section-box">
-                    <div class="section-title">{{ $section['title'] }}</div>
-                    <table class="field-table">
-                        <tbody>
-                            @foreach($section['fields'] as $label => $value)
-                                <tr>
-                                    <td class="field-label">{{ $label }}</td>
-                                    <td class="field-value">{!! nl2br(e((string) $value)) !!}</td>
-                                </tr>
+                        <div class="title-block">
+                            <p class="system-title">PICTO - Records Monitoring System</p>
+                            <p class="report-title">{{ $reportTitle }}</p>
+                        </div>
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 0; border: none;">
+                        <div class="content-block">
+                            @foreach($sections as $section)
+                                <div class="section-box">
+                                    <div class="section-title">{{ $section['title'] }}</div>
+                                    <table class="field-table">
+                                        <tbody>
+                                            @foreach($section['fields'] as $label => $value)
+                                                <tr>
+                                                    <td class="field-label">{{ $label }}</td>
+                                                    <td class="field-value">{!! nl2br(e((string) $value)) !!}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                             @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endforeach
-        </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td style="padding: 0; border: none;">
+                        <div style="height: 0.5in;"></div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
 
     <div class="footer-block">

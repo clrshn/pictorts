@@ -4,7 +4,7 @@
         <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / <a href="{{ route('todos.index') }}">Todo List</a> / Edit Todo</div>
     </x-slot>
 
-    @include('components.notifications')
+
 
     <div class="table-card">
         <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">

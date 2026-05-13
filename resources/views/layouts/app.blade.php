@@ -2395,6 +2395,19 @@
             document.addEventListener('DOMContentLoaded', function() {
                 loadNotificationFeed();
                 setInterval(loadNotificationFeed, 60000);
+
+                @if(session('success'))
+                    window.showNotification({ type: 'success', title: 'Success', message: {!! json_encode(session('success')) !!}, duration: 5000 });
+                @endif
+                @if(session('error'))
+                    window.showNotification({ type: 'danger', title: 'Error', message: {!! json_encode(session('error')) !!}, duration: 5000 });
+                @endif
+                @if(session('warning'))
+                    window.showNotification({ type: 'warning', title: 'Warning', message: {!! json_encode(session('warning')) !!}, duration: 5000 });
+                @endif
+                @if(session('info'))
+                    window.showNotification({ type: 'info', title: 'Info', message: {!! json_encode(session('info')) !!}, duration: 5000 });
+                @endif
             });
         </script>
     </body>

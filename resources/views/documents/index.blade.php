@@ -4,9 +4,7 @@
         <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / {{ !empty($isTravelOrderPage) ? 'Travel Orders' : 'Documents' }}</div>
     </x-slot>
 
-    @if(session('success'))
-        <div class="alert alert-success" style="margin-bottom:16px;">{{ session('success') }}</div>
-    @endif
+
 
     @php
         $isOutgoingView = request('direction') === 'OUTGOING' || request('type') === 'TO';

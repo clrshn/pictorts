@@ -8,31 +8,43 @@
     </x-slot>
 
     @if(session('status') === 'profile-updated')
-        <div style="
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            font-weight: 500;
-        ">
-            Profile updated successfully!
-        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification({ type: 'success', title: 'Success', message: 'Profile updated successfully!' });
+                }
+            });
+        </script>
     @endif
     
     @if(session('status') === 'password-updated')
-        <div style="
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            font-weight: 500;
-        ">
-            Password updated successfully!
-        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification({ type: 'success', title: 'Success', message: 'Password updated successfully!' });
+                }
+            });
+        </script>
+    @endif
+    
+    @if(session('status') === 'photo-updated')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification({ type: 'success', title: 'Success', message: 'Profile photo updated successfully!' });
+                }
+            });
+        </script>
+    @endif
+    
+    @if(session('status') === 'photo-removed')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification({ type: 'success', title: 'Success', message: 'Profile photo removed successfully!' });
+                }
+            });
+        </script>
     @endif
 
     

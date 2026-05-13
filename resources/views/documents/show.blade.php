@@ -4,23 +4,7 @@
         <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / <a href="{{ route('documents.index', !empty($isTravelOrder) ? ['type' => 'TO'] : []) }}">{{ !empty($isTravelOrder) ? 'Travel Orders' : 'Documents' }}</a> / {{ $document->dts_number }}</div>
     </x-slot>
 
-    @if(session('success'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Use the global notification system from app layout
-                if (typeof window.showNotification === 'function') {
-                    window.showNotification({
-                        type: 'success',
-                        title: 'Success!',
-                        message: '{{ session('success') }}',
-                        duration: 3000
-                    });
-                } else {
-                    console.error('Global showNotification function not found');
-                }
-            });
-        </script>
-    @endif
+
 
     <!-- Document Details Card -->
     <div class="table-card" style="margin-bottom:20px;">
@@ -364,68 +348,18 @@ document.addEventListener('keydown', function(e) {
 
 // Modern confirmation for Mark as Done
 function confirmMarkCompleted() {
-    // Create a simple modern confirmation dialog
-    const confirmDialog = document.createElement('div');
-    confirmDialog.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        border-left: 4px solid #f39c12;
-        min-width: 300px;
-        max-width: 400px;
-        z-index: 9999;
-    `;
-    
-    confirmDialog.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-            <div style="font-weight: 600; font-size: 14px; color: #2c3e50; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-exclamation-triangle" style="color: #f39c12;"></i>
-                Mark as Done
-            </div>
-            <button onclick="this.closest('.confirm-dialog').remove()" style="background: none; border: none; color: #7f8c8d; font-size: 18px; cursor: pointer; padding: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">&times;</button>
-        </div>
-        <div style="color: #555; font-size: 13px; line-height: 1.4; margin-bottom: 12px;">
-            Are you sure you want to mark this document as DONE?<br><br><strong>This action will update the document status and cannot be undone!</strong>
-        </div>
-        <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end;">
-            <button onclick="this.closest('.confirm-dialog').remove()" style="padding: 6px 12px; border: none; border-radius: 4px; font-size: 12px; font-weight: 500; cursor: pointer; background: #ecf0f1; color: #555;">Cancel</button>
-            <button onclick="confirmComplete()" style="padding: 6px 12px; border: none; border-radius: 4px; font-size: 12px; font-weight: 500; cursor: pointer; background: #e74c3c; color: white;">Mark as Done</button>
-        </div>
-    `;
-    
-    confirmDialog.className = 'confirm-dialog';
-    document.body.appendChild(confirmDialog);
-    
-    // Add backdrop
-    const backdrop = document.createElement('div');
-    backdrop.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.4);
-        z-index: 9998;
-    `;
-    backdrop.onclick = function() {
-        confirmDialog.remove();
-        backdrop.remove();
-    };
-    document.body.appendChild(backdrop);
-    
-    // Global function for confirm action
-    window.confirmComplete = function() {
-        confirmDialog.remove();
-        backdrop.remove();
-        const markDoneForm = document.getElementById('markDoneForm');
-        if (markDoneForm) {
-            markDoneForm.submit();
+    window.showConfirmDialog({
+        title: 'Mark as Done',
+        message: 'Are you sure you want to mark this document as DONE?<br><br><strong>This action will update the document status and cannot be undone!</strong>',
+        confirmText: 'Mark as Done',
+        cancelText: 'Cancel',
+        confirmClass: 'notification-btn-confirm',
+        onConfirm: function() {
+            const markDoneForm = document.getElementById('markDoneForm');
+            if (markDoneForm) {
+                markDoneForm.submit();
+            }
         }
-    };
+    });
 }
 </script>

@@ -4,42 +4,13 @@
         <div class="breadcrumb"><a href="{{ route('dashboard') }}">Home</a> / <a href="{{ route('users.index') }}">User Management</a> / Edit User</div>
     </x-slot>
 
-    @if(session('success'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                if (typeof window.showNotification === 'function') {
-                    window.showNotification({
-                        type: 'success',
-                        title: 'Success!',
-                        message: '{{ session('success') }}',
-                        duration: 3000
-                    });
-                }
-            });
-        </script>
-    @endif
 
-    @if(session('error'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                if (typeof window.showNotification === 'function') {
-                    window.showNotification({
-                        type: 'danger',
-                        title: 'Error!',
-                        message: '{{ session('error') }}',
-                        duration: 3000
-                    });
-                }
-            });
-        </script>
-    @endif
 
     <div class="table-card">
                 <div style="background:#8b0000; color:#fff; padding:12px 20px; font-weight:600; font-size:14px;">
                     <i class="fas fa-user-edit"></i> 
                 </div>
                 <div style="padding:20px;">
-                    @include('components.notifications')
 
                     <form action="{{ route('users.update', $user) }}" method="POST">
                         @csrf

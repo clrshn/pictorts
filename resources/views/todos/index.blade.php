@@ -6,7 +6,6 @@
         </div>
     </x-slot>
 
-    @include('components.notifications')
 
     @if(array_sum($dueReminderData['counts'] ?? []) > 0)
         <div style="margin-bottom:16px; padding:18px; border-radius:18px; background:linear-gradient(135deg,#fff7ed 0%,#ffffff 48%,#eff6ff 100%); border:1px solid rgba(251,146,60,0.22); box-shadow:0 12px 26px rgba(15,23,42,0.06);">
@@ -427,7 +426,6 @@
         </div>
     </div>
 
-    <div class="notification-container" id="notificationContainer"></div>
 
     <script>
         function closeTodoHeaderDropdowns() {
@@ -480,11 +478,12 @@
 
         // Delete confirmation function
         function confirmDelete(id, title){
-            showConfirmDialog({
+            window.showConfirmDialog({
                 title: 'Delete Task',
                 message: `Are you sure you want to delete <strong>${title}</strong>? This cannot be undone.`,
                 confirmText: 'Delete',
                 cancelText: 'Cancel',
+                confirmClass: 'notification-btn-confirm',
                 onConfirm: () => {
                     fetch(`/todos/${id}`, {
                         method: 'DELETE',
@@ -500,15 +499,15 @@
                             if (row) {
                                 row.remove();
                             }
-                            showCompletedNotification('Task deleted', 'Task has been successfully deleted.');
+                            window.showNotification({type: 'success', title: 'Task deleted', message: 'Task has been successfully deleted.'});
                             return;
                         }
 
                         const errorMessage = result.data.message || result.data.error || 'Failed to delete the task.';
-                        showErrorNotification('Delete Failed', errorMessage);
+                        window.showNotification({type: 'danger', title: 'Delete Failed', message: errorMessage});
                     })
                     .catch(() => {
-                        showErrorNotification('Delete Failed', 'An error occurred while deleting the task. Please try again.');
+                        window.showNotification({type: 'danger', title: 'Delete Failed', message: 'An error occurred while deleting the task. Please try again.'});
                     });
                 }
             });
@@ -541,7 +540,7 @@
             .then(data=>{
                 console.log('Status update response:', data);
                 if(data.success){
-                    showCompletedNotification('Status Updated', `Status updated to ${value}`);
+                    window.showNotification({type: 'success', title: 'Status Updated', message: `Status updated to ${value}`});
                     // Refresh the specific row to show updated status
                     const row = document.getElementById(`todoRow-${id}`);
                     if(row) {
@@ -578,376 +577,14 @@
             .then(res=>res.json())
             .then(data=>{
                 if(data.success){
-                    showCompletedNotification('Priority Updated', `Priority updated to ${value}`);
+                    window.showNotification({type: 'success', title: 'Priority Updated', message: `Priority updated to ${value}`});
                 }
             });
         }
 
-        // Notification functions
-        function showCompletedNotification(title, message) {
-            const notification = document.createElement('div');
-            notification.className = 'notification success';
-            notification.innerHTML = `
-                <div class="notification-header">
-                    <div class="notification-title">✓ ${title}</div>
-                    <button class="notification-close" onclick="removeNotification(this)">&times;</button>
-                </div>
-                <div class="notification-message">${message}</div>
-            `;
-            
-            document.getElementById('notificationContainer').appendChild(notification);
-            
-            setTimeout(() => {
-                removeNotification(notification.querySelector('.notification-close'));
-            }, 3000);
-        }
-
-        function showErrorNotification(title, message) {
-            const notification = document.createElement('div');
-            notification.className = 'notification warning';
-            notification.innerHTML = `
-                <div class="notification-header">
-                    <div class="notification-title">✖ ${title}</div>
-                    <button class="notification-close" onclick="removeNotification(this)">&times;</button>
-                </div>
-                <div class="notification-message">${message}</div>
-            `;
-            
-            document.getElementById('notificationContainer').appendChild(notification);
-            
-            setTimeout(() => {
-                removeNotification(notification.querySelector('.notification-close'));
-            }, 4000);
-        }
-
-        function removeNotification(element) {
-            const notification = element.closest('.notification');
-            if (notification) {
-                notification.classList.add('removing');
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.parentNode.removeChild(notification);
-                    }
-                }, 300);
-            }
-        }
-
-        function showConfirmDialog(options) {
-            const {
-                title = 'Confirm Action',
-                message = 'Are you sure you want to proceed?',
-                confirmText = 'Confirm',
-                cancelText = 'Cancel',
-                onConfirm = null,
-                onCancel = null
-            } = options;
-
-            return new Promise((resolve) => {
-                const notification = document.createElement('div');
-                notification.className = 'notification warning';
-                notification.innerHTML = `
-                    <div class="notification-header">
-                        <div class="notification-title">⚠ ${title}</div>
-                        <button class="notification-close" onclick="removeNotification(this)">&times;</button>
-                    </div>
-                    <div class="notification-message">${message}</div>
-                    <div class="notification-actions">
-                        <button class="notification-btn notification-btn-cancel" onclick="cancelDialog()">${cancelText}</button>
-                        <button class="notification-btn notification-btn-confirm" onclick="confirmDialog()">${confirmText}</button>
-                    </div>
-                `;
-                
-                document.getElementById('notificationContainer').appendChild(notification);
-
-                window.confirmDialog = () => {
-                    if (onConfirm) onConfirm();
-                    removeNotification(notification.querySelector('.notification-close'));
-                    resolve(true);
-                    delete window.confirmDialog;
-                    delete window.cancelDialog;
-                };
-
-                window.cancelDialog = () => {
-                    if (onCancel) onCancel();
-                    removeNotification(notification.querySelector('.notification-close'));
-                    resolve(false);
-                    delete window.confirmDialog;
-                    delete window.cancelDialog;
-                };
-            });
-        }
     </script>
 
     <style>
-        .filter-box,
-        .table-card {
-            background: #ffffff !important;
-            background-image: none !important;
-        }
-
-        .table-card .table-header {
-            background: #ffffff !important;
-            border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
-        }
-
-        .table-card table tbody tr.overdue-row {
-            background: linear-gradient(90deg, rgba(254, 242, 242, 0.82) 0%, rgba(255,255,255,0.98) 100%);
-        }
-
-        .table-card table tbody tr.overdue-row:hover {
-            background: linear-gradient(90deg, rgba(37,99,235,0.09) 0%, rgba(255,255,255,0.98) 48%, rgba(220,38,38,0.12) 100%);
-        }
-
-        .inline-select {
-            width: 148px;
-            max-width: 100%;
-            min-width: 148px;
-            height: 36px;
-            padding: 0 34px 0 12px !important;
-            border-radius: 8px !important;
-            border: 1px solid rgba(148, 163, 184, 0.3) !important;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 12px !important;
-            line-height: 1.2;
-            letter-spacing: 0.01em;
-            background: white;
-            color: #333;
-            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.05);
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-image: linear-gradient(45deg, transparent 50%, #64748b 50%), linear-gradient(135deg, #64748b 50%, transparent 50%);
-            background-position: calc(100% - 16px) calc(50% - 3px), calc(100% - 11px) calc(50% - 3px);
-            background-size: 5px 5px, 5px 5px;
-            background-repeat: no-repeat;
-            margin: 0 auto;
-        }
-
-        /* When dropdown is OPEN → force neutral */
-        .inline-select:focus {
-            background: white !important;
-            color: #333 !important;
-            border-color: rgba(192, 57, 43, 0.42) !important;
-            box-shadow: 0 0 0 3px rgba(192,57,43,0.1), 0 8px 18px rgba(15,23,42,0.08) !important;
-        }
-
-        /* ===== PRIORITY COLORS (ONLY WHEN CLOSED) ===== */
-        .inline-select.badge-top {
-            background: #fca5a5 !important;
-            color: #7f1d1d !important;
-            border-color: #f87171 !important;
-        }
-
-        .inline-select.badge-high {
-            background: #fecaca !important;
-            color: #991b1b !important;
-            border-color: #fca5a5 !important;
-        }
-
-        .inline-select.badge-medium {
-            background: #fde68a !important;
-            color: #854d0e !important;
-            border-color: #fcd34d !important;
-        }
-
-        .inline-select.badge-low {
-            background: #bbf7d0 !important;
-            color: #166534 !important;
-            border-color: #86efac !important;
-        }
-
-        /* ===== STATUS COLORS (ONLY WHEN CLOSED) ===== */
-        .inline-select.status-pending {
-            background: #fecaca !important;
-            color: #991b1b !important;
-            border-color: #fca5a5 !important;
-        }
-
-        .inline-select.status-ongoing {
-            background: #fde68a !important;
-            color: #854d0e !important;
-            border-color: #fcd34d !important;
-        }
-
-        .inline-select.status-done {
-            background: #bbf7d0 !important;
-            color: #166534 !important;
-            border-color: #86efac !important;
-        }
-
-        .inline-select.status-cancelled {
-            background: #e2e8f0 !important;
-            color: #475569 !important;
-            border-color: #cbd5e1 !important;
-        }
-        /* FORCE DROPDOWN OPTIONS TO STAY CLEAN */
-        .inline-select option {
-            background: #ffffff !important;
-            color: #000000 !important;
-        }
-
-        /* Optional: better hover contrast (browser-dependent) */
-        .inline-select option:hover {
-            background: #e5e7eb !important;
-            color: #000 !important;
-        }
-        
-        /* Notification System Styles */
-        .notification-container {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 9999;
-            pointer-events: none;
-            width: 100%;
-            max-width: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 16px;
-        }
-
-        .notification {
-            background: #fff;
-            border-radius: 10px;
-            padding: 16px 18px;
-            margin-bottom: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.18);
-            border: 1px solid rgba(219, 152, 74, 0.5);
-            min-width: 320px;
-            max-width: 440px;
-            pointer-events: all;
-            animation: slideInFromTop 0.25s ease-out;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .notification.success {
-            border-color: #27ae60;
-        }
-
-        .notification.warning {
-            border-color: #f39c12;
-        }
-
-        .notification.info {
-            border-color: #3498db;
-        }
-
-        .notification.danger {
-            border-color: #dc2626;
-        }
-
-        /* Notification entrance for centered overlay */
-        @keyframes slideInFromTop {
-            from {
-                transform: translateY(-10px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .notification-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        .notification-title {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-weight: 600;
-            font-size: 14px;
-            color: #2c3e50;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .notification-close {
-            background: none;
-            border: none;
-            color: #7f8c8d;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 0;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
-
-        .notification-close:hover {
-            background: #f8f9fa;
-            color: #2c3e50;
-        }
-
-        .notification-message {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #555;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .notification-actions {
-            margin-top: 12px;
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-        }
-
-        .notification-btn {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .notification-btn-confirm {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .notification-btn-confirm:hover {
-            background: #c0392b;
-        }
-
-        .notification-btn-cancel {
-            background: #ecf0f1;
-            color: #555;
-        }
-
-        .notification-btn-cancel:hover {
-            background: #bdc3c7;
-        }
-
-        .notification.removing {
-            animation: slideOutOpacity 0.2s ease-out forwards;
-        }
-
-        @keyframes slideOutOpacity {
-            from {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateY(-8px);
-            }
-        }
-    </style>
     <script>
         function toggleTodoReminderList() {
             const list = document.getElementById('todoReminderList');
