@@ -106,7 +106,7 @@
         }
 
         .title-block {
-            margin: 16px 10 10;
+            margin: 16px 10px 10px;
             text-align: center;
             font-family: "Times New Roman", Times, serif;
             color: #17233c;
