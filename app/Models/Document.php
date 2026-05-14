@@ -20,6 +20,7 @@ class Document extends Model
         'memorandum_number',
         'period',
         'particulars',
+        'particulars_link',
         'document_type',
         'direction',
         'delivery_scope',

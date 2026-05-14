@@ -553,6 +553,14 @@ class FinancialController extends Controller
             ]
         );
 
+        // Fire the correct notification depending on whether the status changed.
+        $freshFinancial = $financial->fresh(['createdBy', 'holder']);
+        if (($updateData['status'] ?? $previousStatus) !== $previousStatus) {
+            app(InAppNotificationService::class)->notifyFinancialStatusChanged($freshFinancial, auth()->user());
+        } else {
+            app(InAppNotificationService::class)->notifyFinancialUpdated($freshFinancial, auth()->user());
+        }
+
         // Add completion entry if status changed to FINISHED
         if (($updateData['status'] ?? $previousStatus) === 'FINISHED' && $previousStatus !== 'FINISHED') {
             $financial->routes()->create([

@@ -98,8 +98,8 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>Sub-Number <small style="color:#999;">(Optional)</small></label>
-                <input type="text" name="memorandum_number" class="form-control" value="{{ old('memorandum_number', $document?->memorandum_number) }}" placeholder="Enter sub-number or office number">
+                <label>Document Number <small style="color:#999;">(Optional)</small></label>
+                <input type="text" name="memorandum_number" class="form-control" value="{{ old('memorandum_number', $document?->memorandum_number) }}" placeholder="Enter document number or office number">
             </div>
         </div>
 
@@ -143,8 +143,8 @@
                     <input type="text" name="opg_reference_no" class="form-control" value="{{ old('opg_reference_no', $document?->opg_reference_no) }}" placeholder="Enter OPG Reference Number">
                 </div>
                 <div class="form-group">
-                    <label>OPA Reference No.</label>
-                    <input type="text" name="opa_reference_no" class="form-control" value="{{ old('opa_reference_no', $document?->opa_reference_no) }}" placeholder="Enter OPA Reference Number">
+                    <label>OPG Action Slip</label>
+                    <input type="text" name="opg_action_slip" class="form-control" value="{{ old('opg_action_slip', $document?->opg_action_slip) }}" placeholder="Enter OPG Action Slip">
                 </div>
                 <div class="form-group">
                     <label>Governor's Instruction</label>
@@ -153,16 +153,16 @@
             </div>
             <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
                 <div class="form-group">
-                    <label>Administrator's Instruction</label>
-                    <input type="text" name="administrators_instruction" class="form-control" value="{{ old('administrators_instruction', $document?->administrators_instruction) }}" placeholder="Enter Administrator's Instruction">
+                    <label>OPA Reference No.</label>
+                    <input type="text" name="opa_reference_no" class="form-control" value="{{ old('opa_reference_no', $document?->opa_reference_no) }}" placeholder="Enter OPA Reference Number">
                 </div>
                 <div class="form-group">
                     <label>Returned</label>
                     <input type="text" name="returned" class="form-control" value="{{ old('returned', $document?->returned) }}" placeholder="Enter Returned Status">
                 </div>
                 <div class="form-group">
-                    <label>OPG Action Slip</label>
-                    <input type="text" name="opg_action_slip" class="form-control" value="{{ old('opg_action_slip', $document?->opg_action_slip) }}" placeholder="Enter OPG Action Slip">
+                    <label>Administrator's Instruction</label>
+                    <input type="text" name="administrators_instruction" class="form-control" value="{{ old('administrators_instruction', $document?->administrators_instruction) }}" placeholder="Enter Administrator's Instruction">
                 </div>
             </div>
             <div style="display:grid; grid-template-columns: 1fr; gap:16px;">
@@ -175,9 +175,16 @@
 
         <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px;">
             <div class="form-group">
-                <label data-role="particulars-label">Particulars <small style="color:#999;">(Optional)</small></label>
-                <textarea name="particulars" class="form-control" rows="3" placeholder="Enter specific details or particulars about this document...">{{ old('particulars', $document?->particulars) }}</textarea>
+                <label data-role="particulars-label">Particulars <span style="color:#c0392b">*</span></label>
+                <textarea name="particulars" class="form-control" rows="3" placeholder="Enter specific details or particulars about this document..." required>{{ old('particulars', $document?->particulars) }}</textarea>
             </div>
+            <div class="form-group">
+                <label>Particulars Link <small style="color:#999;">(Optional)</small></label>
+                <input type="url" name="particulars_link" class="form-control" value="{{ old('particulars_link', $document?->particulars_link) }}" placeholder="https://...">
+                <small style="color:#64748b;">Add a clickable link for more details about this document</small>
+            </div>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px;">
             <div class="form-group">
                 <label>Period <small style="color:#999;">(Optional)</small></label>
                 <input type="text" name="period" class="form-control" value="{{ old('period', $document?->period) }}" placeholder="e.g., 1st Quarter, 2nd Semester, FY 2026">

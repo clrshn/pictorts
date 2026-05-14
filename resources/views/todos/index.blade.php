@@ -584,7 +584,6 @@
 
     </script>
 
-    <style>
     <script>
         function toggleTodoReminderList() {
             const list = document.getElementById('todoReminderList');

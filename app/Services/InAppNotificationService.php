@@ -313,6 +313,39 @@ class InAppNotificationService
         $this->notifyAdmins($payload);
     }
 
+    public function notifyFinancialUpdated(FinancialRecord $financial, ?User $actor = null): void
+    {
+        $watchers = collect([$financial->createdBy, $financial->holder])
+            ->merge($this->officeUsers($financial->current_office))
+            ->merge($this->officeUsers($financial->office_origin))
+            ->filter();
+
+        $payload = [
+            'title' => 'Financial Record Updated',
+            'message' => sprintf(
+                '%s updated the financial record "%s".',
+                $actor?->name ?? 'A user',
+                $financial->description ?: ($financial->type ?? 'Untitled record')
+            ),
+            'url' => route('financial.show', $financial),
+            'type' => 'info',
+            'icon' => 'fa-solid fa-file-invoice-dollar',
+            'category' => 'financial',
+            'actor_name' => $actor?->name,
+            'meta' => [
+                'financial_id' => $financial->id,
+                'status' => $financial->status,
+            ],
+        ];
+
+        if ($actor) {
+            $watchers = $watchers->push($actor);
+        }
+
+        $this->notifyUsers($watchers, $payload);
+        $this->notifyAdmins($payload);
+    }
+
     public function notifyCommentAdded($subject, Comment $comment, ?User $actor = null, bool $isReply = false): void
     {
         $label = $this->subjectLabel($subject);

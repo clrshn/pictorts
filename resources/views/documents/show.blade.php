@@ -27,6 +27,9 @@
                 <!-- Particulars (Full Width) -->
                 <div style="grid-column:span 2; border-left:3px solid #e67e22; padding-left:12px; margin-bottom:12px;">
                     <div><strong>Particulars:</strong> {{ $document->particulars ?? '—' }}</div>
+                    @if(!empty($document->particulars_link))
+                        <div style="margin-top:8px;"><strong>Particulars Link:</strong> <a href="{{ $document->particulars_link }}" target="_blank" rel="noopener noreferrer" style="color:#c0392b; word-break:break-all;">{{ $document->particulars_link }}</a></div>
+                    @endif
                 </div>
                 
                 @if(!empty($isTravelOrder))
